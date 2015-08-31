@@ -4,6 +4,8 @@ using System.Linq;
 
 namespace mysharp
 {
+	class NoSuchSignatureException : Exception { }
+
 	class Program
 	{
 		static void Main(string[] args)
@@ -28,10 +30,7 @@ namespace mysharp
 			// test stuff below
 
 			mysSymbol addition = nameSpaces[ "global" ].Create( "+" );
-			nameSpaces[ "global" ].Define(
-				addition,
-				mysBuiltins.Addition
-			);
+			nameSpaces[ "global" ].Define( addition, mysBuiltins.Addition );
 
 			List<mysToken> testExpression = new List<mysToken>();
 
@@ -45,88 +44,16 @@ namespace mysharp
 
 			fg.Variants.Add( f );
 
-			//testExpression.Add ( fg );
 			testExpression.Add( EvaluateSymbol( addition ) );
 			testExpression.Add( EvaluateSymbol( addition ) );
 			testExpression.Add( new mysIntegral( 1 ) );
 			testExpression.Add( new mysIntegral( 2 ) );
 			testExpression.Add( new mysIntegral( 3 ) );
 
-			Evaluate( testExpression );
+			mysList expression = new mysList( testExpression );
+			expression.Evaluate( new Stack<mysSymbolSpace>( spaceStack ) );
 		}
 
-		List<mysToken> Evaluate( List<mysToken> expression ) {
-			Queue<mysToken> queue = new Queue<mysToken>();
-			List<mysToken> currentExpression = new List<mysToken>( expression );
-
-			while ( true ) {
-				mysToken last;
-				int currentLast = currentExpression.Count - 1;
-
-				while ( currentLast >= 0 ) {
-					last = currentExpression.ElementAt( currentLast );
-					
-					if ( last.Type == mysTypes.FunctionGroup ) {
-						mysFunctionGroup fg = last as mysFunctionGroup;
-
-						List<mysToken> passedArgs = queue.Reverse().ToList();
-
-						while ( passedArgs.Count > 0 ) {
-							mysFunction matching = fg.Judge( passedArgs );
-
-							//if ( fg.Judge( passedArgs ) != null ) {
-							if ( matching != null ) {
-								// remove the now evaluated bit from the expr
-								currentExpression.RemoveRange(
-									currentLast, passedArgs.Count + 1
-								);
-
-								// call function and add our result back into
-								// the expression
-								if ( matching is mysBuiltin ) {
-									currentExpression.Insert(
-										currentLast,
-										(matching as mysBuiltin).Call(
-											new Stack<mysSymbolSpace>( spaceStack ),
-											passedArgs
-										)
-									);
-								} else {
-									currentExpression.Insert(
-										currentLast,
-										matching.Call(
-											new Stack<mysSymbolSpace>( spaceStack ),
-											passedArgs
-										)
-									);
-								}
-
-								// automatically gets decremented outside of
-								// this while loop.
-								currentLast = currentExpression.Count;
-								queue.Clear();
-								break;
-							} else {
-								// remove last, try again.
-								passedArgs.RemoveAt( passedArgs.Count - 1 );
-							}
-						}
-					} else {
-						queue.Enqueue( last );
-					}
-
-					//queue.Enqueue( last );
-					//currentExpression.RemoveAt( currentExpression.Count - 1 );
-					currentLast--;
-				}
-
-				break;
-			}
-
-			return queue.Reverse().ToList();
-		}
-
-		//mysToken EvaluateSymbol( string symbolString ) {
 		mysToken EvaluateSymbol( mysSymbol symbol ) {
 			Stack<mysSymbolSpace> evaluationStack =
 				new Stack<mysSymbolSpace>( spaceStack );
@@ -213,10 +140,96 @@ namespace mysharp
 
 	class mysList : mysToken
 	{
-		List<mysToken> InternalValues;
+		public List<mysToken> InternalValues;
 
 		public mysList() {
 			InternalValues = new List<mysToken>();
+		}
+
+		public mysList( List<mysToken> list ) {
+			InternalValues = new List<mysToken>( list );
+		}
+
+		public List<mysToken> Evaluate(
+			//List<mysToken> expression
+			Stack<mysSymbolSpace> spaceStack
+		) {
+			Queue<mysToken> queue = new Queue<mysToken>();
+			List<mysToken> currentExpression =
+				new List<mysToken>( InternalValues );
+
+			while ( true ) {
+				mysToken last;
+				int currentLast = currentExpression.Count - 1;
+
+				while (
+					currentLast >= 0 &&
+					currentExpression.Count > currentLast
+				) {
+					last = currentExpression.ElementAt( currentLast );
+					
+					if ( last.Type == mysTypes.FunctionGroup ) {
+						mysFunctionGroup fg = last as mysFunctionGroup;
+
+						List<mysToken> passedArgs = queue.Reverse().ToList();
+
+						while ( passedArgs.Count > 0 ) {
+							mysFunction matching = fg.Judge( passedArgs );
+
+							//if ( fg.Judge( passedArgs ) != null ) {
+							if ( matching != null ) {
+								// remove the now evaluated bit from the expr
+								currentExpression.RemoveRange(
+									currentLast, passedArgs.Count + 1
+								);
+
+								// call function and add our result back into
+								// the expression
+								if ( matching is mysBuiltin ) {
+									currentExpression.Insert(
+										currentLast,
+										(matching as mysBuiltin).Call(
+											new Stack<mysSymbolSpace>( spaceStack ),
+											passedArgs
+										)
+									);
+								} else {
+									currentExpression.Insert(
+										currentLast,
+										matching.Call(
+											new Stack<mysSymbolSpace>( spaceStack ),
+											passedArgs
+										)
+									);
+								}
+
+								// automatically gets decremented outside of
+								// this while loop.
+								currentLast = currentExpression.Count;
+								queue.Clear();
+								break;
+							} else {
+								if ( passedArgs.Count > 0 ) {
+									// remove last, try again.
+									passedArgs.RemoveAt( passedArgs.Count - 1 );
+								} else {
+									throw new NoSuchSignatureException();
+								}
+							}
+						}
+					} else {
+						queue.Enqueue( last );
+					}
+
+					//queue.Enqueue( last );
+					//currentExpression.RemoveAt( currentExpression.Count - 1 );
+					currentLast--;
+				}
+
+				break;
+			}
+
+			return queue.Reverse().ToList();
 		}
 	}
 
@@ -293,6 +306,7 @@ namespace mysharp
 
 		public mysFunction() {
 			Signature = new List<mysTypes>();
+			Symbols = new List<mysSymbol>();
 			Function = new List<mysToken>();
 		}
 
