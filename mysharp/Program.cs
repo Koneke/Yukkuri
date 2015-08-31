@@ -86,6 +86,15 @@ namespace mysharp
 			}
 		}
 
+		// todo: given two lists, should return two separate lists
+		//       (change return type to List<mysList>), instead of one list of
+		//       both given lists. This so we can make sure to parse things the
+		//       right order when we give it a toplevel expression.
+		// todo: actually no, or well yes, but that still wont cut it.
+		//       we really need to make evaluate bunch things before evaluating,
+		//       i.e. first decide, using right-to-left, what args are to which
+		//       functions, then evaluate things, from left-to-right.
+		//       should solve the top-level issue too.
 		public mysList Parse( string expression ) {
 			List<string> split = expression
 				.Replace( "(", " ( " )
@@ -97,11 +106,6 @@ namespace mysharp
 			;
 
 			List<mysToken> tokens = new List<mysToken>();
-
-			/*if ( split.First() == "(" && split.Last() == ")" ) {
-				split.RemoveAt( split.Count - 1 );
-				split.RemoveAt( 0 );
-			}*/
 
 			bool quote = false;
 
@@ -194,8 +198,6 @@ namespace mysharp
 
 			mysToken result;
 			mysList parsed;
-			//result = Parse( "100.3" );
-			//result = Parse( "7,8" );
 			//result = parser.Parse( "foo (some list)" );
 			//result = parser.Parse( "(+ 1 2)" );
 			//result = parser.Parse( "=> some-func '(:int) '(x) '(+ 3 x)" );

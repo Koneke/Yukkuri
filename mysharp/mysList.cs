@@ -89,7 +89,7 @@ namespace mysharp
 
 						List<mysToken> passedArgs = queue.Reverse().ToList();
 
-						while ( passedArgs.Count > 0 ) {
+						while ( passedArgs.Count >= 0 ) {
 							mysFunction matching = fg.Judge( passedArgs );
 
 							//if ( fg.Judge( passedArgs ) != null ) {
@@ -102,24 +102,30 @@ namespace mysharp
 								// call function and add our result back into
 								// the expression
 								if ( matching is mysBuiltin ) {
-									currentExpression.Insert(
-										currentLast,
+									mysToken returned =
 										(matching as mysBuiltin).Call(
-											//evaluationStack.Clone(),
-											evaluationStack,
-											passedArgs
-										)
+										evaluationStack,
+										passedArgs
 									);
+
+									if ( returned != null ) {
+										currentExpression.Insert(
+											currentLast,
+											returned
+										);
+									}
 								} else {
-									currentExpression.Insert(
-										currentLast,
-										matching.Call(
-											//new Stack<mysSymbolSpace>( spaceStack ),
-											//evaluationStack.Clone(),
-											evaluationStack,
-											passedArgs
-										)
+									mysToken returned = matching.Call(
+										evaluationStack,
+										passedArgs
 									);
+
+									if ( returned != null ) {
+										currentExpression.Insert(
+											currentLast,
+											returned
+										);
+									}
 								}
 
 								// automatically gets decremented outside of
@@ -138,9 +144,13 @@ namespace mysharp
 						}
 					} else {
 						if ( last is mysList ) {
-							queue.Enqueue(
-								( last as mysList ).Evaluate( spaceStack )
-							);
+							mysToken returned = 
+								( last as mysList )
+								.Evaluate( spaceStack );
+
+							if ( returned != null ) {
+								queue.Enqueue( returned );
+							}
 						} else {
 							queue.Enqueue( last );
 						}
@@ -156,6 +166,8 @@ namespace mysharp
 			if ( queue.Count > 1 ) {
 				return new mysList( queue.Reverse().ToList() );
 			} else {
+				if ( queue.Count == 0 ) return null;
+
 				return queue.Dequeue();
 			}
 		}

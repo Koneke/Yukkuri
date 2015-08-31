@@ -93,7 +93,9 @@ namespace mysharp.Builtins
 			// since we return our function group, unless quoted
 			// we'll automatically evaluate it.
 			// this is probably a good reason for allowing null returns.
-			return fg.Quote();
+			//return fg.Quote();
+
+			return null;
 		}
 
 		public static void Setup( mysSymbolSpace global )
