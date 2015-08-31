@@ -38,15 +38,23 @@ namespace mysharp
 	{
 		// parses SIMPLE VALUES, NOT LISTS
 		public mysToken ParseLex( string s ) {
-			bool quote = false;
+			//bool quote = false;
 			mysToken token = null;
 
-			if ( s[ 0 ] == '\'' ) {
+			/*if ( s[ 0 ] == '\'' ) {
 				quote = true;
 				s = s.Substring( 1, s.Length - 1 );
-			}
+			}*/
 
-			if ( s.All( c => c >= '0' && c <= '9' ) ) {
+			if ( s[ 0 ] == ':' ) {
+				switch ( s.Substring( 1, s.Length - 1 ) ) {
+					case "int":
+						token = new mysTypeToken( mysTypes.Integral );
+						break;
+					default:
+						throw new ArgumentException();
+				}
+			} else if ( s.All( c => c >= '0' && c <= '9' ) ) {
 				token = new mysIntegral( long.Parse( s ) );
 			} else if ( s.All( c =>
 				c == '.' || c == ',' ||
@@ -61,9 +69,9 @@ namespace mysharp
 			//if ( token == null )
 				//throw new ArgumentException();
 
-			if ( quote ) {
+			/*if ( quote ) {
 				token.Quote();
-			}
+			}*/
 
 			return token;
 		}
@@ -82,6 +90,7 @@ namespace mysharp
 			List<string> split = expression
 				.Replace( "(", " ( " )
 				.Replace( ")", " ) " )
+				.Replace( "'", " ' " )
 				.Split(' ')
 				.Where( sub => sub != " " && sub != "" )
 				.ToList()
@@ -94,13 +103,15 @@ namespace mysharp
 				split.RemoveAt( 0 );
 			}
 
+			bool quote = false;
+
 			for (
 				int startToken = 0;
 				startToken < split.Count;
 				startToken++
 			) {
 				if ( split[ startToken ] == "(" ) {
-					for (
+					/*for (
 						int endToken = split.Count - 1;
 						endToken >= 0;
 						endToken--
@@ -129,10 +140,58 @@ namespace mysharp
 						}
 
 						var c = 0;
+					}*/
+
+					int depth = 0;
+					for (
+						int endToken = startToken + 1;
+						endToken < split.Count;
+						endToken++
+					) {
+						if ( split[ endToken ] == "(" ) {
+							depth++;
+						} else if ( split[ endToken ] == ")" ) {
+							depth--;
+							if ( depth == -1 ) {
+								int count = endToken - startToken + 1;
+
+								string body = 
+									string.Join(
+										" ",
+										split
+											.Skip( startToken + 1 )
+											.Take( count - 2 )
+									);
+
+								tokens.Add(
+									Parse( body )
+										.Quote( quote )
+								);
+
+								quote = false;
+
+								split.RemoveRange(
+									startToken,
+									endToken - startToken + 1
+								);
+								startToken--;
+							}
+						}
 					}
+				} else if ( split[ startToken ] == "'" ) {
+					quote = true;
+
+					split.RemoveAt( startToken );
+					startToken--;
 				} else {
 					// simple value
-					tokens.Add( ParseLex( split[ startToken ] ) );
+					tokens.Add(
+						ParseLex( split[ startToken ] )
+							.Quote( quote )
+					);
+
+					quote = false;
+
 					split.RemoveAt( startToken );
 					startToken--;
 					var a = 0; // just for breaking
@@ -162,7 +221,8 @@ namespace mysharp
 
 			mysParser parser = new mysParser();
 
-			mysList result;
+			mysToken result;
+			mysList parsed;
 			//result = Parse( "100.3" );
 			//result = Parse( "7,8" );
 			//result = parser.Parse( "foo (some list)" );
@@ -170,9 +230,17 @@ namespace mysharp
 			//result = parser.Parse( "=> some-func '(:int) '(x) '(+ 3 x)" );
 			//result = parser.Parse( "(+ (- 3 1) 2)" );
 
-			result = parser.Parse( "(* (+ (- 3 1) 2) 4)" );
+			//parsed = parser.Parse( "(* (+ (- 3 1) 2) 4)" );
+			//result = parsed.Evaluate( spaceStack );
 
-			var b = result.Evaluate( spaceStack );
+			//parsed = parser.Parse( "(+ (+ 1 2) (+ 3 4))" );
+			//result = parsed.Evaluate( spaceStack );
+
+			parsed = parser.Parse( "=> 'some-func '(:int) '(x) '(+ 3 x)" );
+			result = parsed.Evaluate( spaceStack );
+
+			parsed = parser.Parse( "some-func 2" );
+			result = parsed.Evaluate( spaceStack );
 			
 			var a = 0;
 		}

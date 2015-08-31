@@ -18,6 +18,12 @@
 			Quoted = true;
 			return this;
 		}
+
+		// more like set-quote
+		public mysToken Quote( bool quote ) {
+			Quoted = quote;
+			return this;
+		}
 	}
 
 	public class mysSymbol : mysToken
