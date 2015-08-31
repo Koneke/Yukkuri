@@ -137,7 +137,13 @@ namespace mysharp
 							}
 						}
 					} else {
-						queue.Enqueue( last );
+						if ( last is mysList ) {
+							queue.Enqueue(
+								( last as mysList ).Evaluate( spaceStack )
+							);
+						} else {
+							queue.Enqueue( last );
+						}
 					}
 					#endregion fg
 

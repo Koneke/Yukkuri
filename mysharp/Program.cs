@@ -34,31 +34,9 @@ namespace mysharp
 		}
 	}
 
-	public class mysREPL
+	public class mysParser
 	{
-		public mysSymbolSpace Global;
-		public Dictionary<string, mysSymbolSpace> nameSpaces;
-		public Stack<mysSymbolSpace> spaceStack;
-
-		public mysREPL() {
-			nameSpaces = new Dictionary<string, mysSymbolSpace>();
-
-			Global = new mysSymbolSpace();
-			nameSpaces.Add( "global" , Global );
-
-			spaceStack = new Stack<mysSymbolSpace>();
-			spaceStack.Push( Global );
-
-			mysBuiltins.Setup( Global );
-
-			mysList result;
-			result = Parse( "100.3" );
-			result = Parse( "7,8" );
-			result = Parse( "=> some-func '(:int) '(x) '(+ 3 x)" );
-			
-			var a = 0;
-		}
-
+		// parses SIMPLE VALUES, NOT LISTS
 		public mysToken ParseLex( string s ) {
 			bool quote = false;
 			mysToken token = null;
@@ -76,8 +54,6 @@ namespace mysharp
 			) {
 				s = s.Replace( '.', ',' );
 				token = new mysFloating( double.Parse( s ) );
-			} else if ( s[ 0 ] == '(' ) {
-				token = Parse( s.Substring( 1, s.Length - 2 ) );
 			} else {
 				token = new mysSymbol( s );
 			}
@@ -92,55 +68,113 @@ namespace mysharp
 			return token;
 		}
 
-		public mysList Parse( string s ) {
-			int listDepth = 0;
+		public class Lex {
+			public bool Simple;
+			public string Body;
 
-			s = s.Trim();
+			public Lex( string body, bool simple = false ) {
+				Body = body;
+				Simple = simple;
+			}
+		}
 
-			mysList list = new mysList();
+		public mysList Parse( string expression ) {
+			List<string> split = expression
+				.Replace( "(", " ( " )
+				.Replace( ")", " ) " )
+				.Split(' ')
+				.Where( sub => sub != " " && sub != "" )
+				.ToList()
+			;
 
-			List<string> pieces = new List<string>();
+			List<mysToken> tokens = new List<mysToken>();
 
-			int lastSplit = 0;
-			string piece = "";
+			if ( split.First() == "(" && split.Last() == ")" ) {
+				split.RemoveAt( split.Count - 1 );
+				split.RemoveAt( 0 );
+			}
 
-			for ( int i = 0; i < s.Length; i++ ) {
-				if ( s[ i ] == '(' ) {
-					listDepth++;
-					lastSplit = i;
+			for (
+				int startToken = 0;
+				startToken < split.Count;
+				startToken++
+			) {
+				if ( split[ startToken ] == "(" ) {
+					for (
+						int endToken = split.Count - 1;
+						endToken >= 0;
+						endToken--
+					) {
+						if ( split[ endToken ] == ")" ) {
+							int count = endToken - startToken + 1;
 
-					if ( s[ i - 1] == '\'' ) {
-						lastSplit--;
+							string body = 
+								string.Join(
+									" ",
+									split
+										.Skip( startToken + 1 )
+										.Take( count - 2 )
+								);
+
+							tokens.Add( Parse( body ) );
+
+							split.RemoveRange(
+								startToken,
+								endToken - startToken + 1
+							);
+							startToken--;
+							var b = 0;
+
+							break;
+						}
+
+						var c = 0;
 					}
-				}
-
-				if ( s[ i ] == ')' ) {
-					listDepth--;
-					pieces.Add( s.Substring( lastSplit, 1 + i - lastSplit ) );
-					lastSplit = i + 1;
-				}
-
-				if ( listDepth == 0 && s[ i ] == ' ' ) {
-					piece = s.Substring( lastSplit, i - lastSplit );
-
-					if ( piece != "" ) {
-						pieces.Add( piece );
-						list.InternalValues.Add( ParseLex( piece ) );
-					}
-
-					lastSplit = i + 1;
+				} else {
+					// simple value
+					tokens.Add( ParseLex( split[ startToken ] ) );
+					split.RemoveAt( startToken );
+					startToken--;
+					var a = 0; // just for breaking
 				}
 			}
 
-			piece = s.Substring( lastSplit, s.Length - lastSplit );
+			return new mysList( tokens );
+		}
+	}
 
-			if ( piece != "" ) {
-				pieces.Add( piece );
-				list.InternalValues.Add( ParseLex( piece ) );
-			}
+	public class mysREPL
+	{
+		public mysSymbolSpace Global;
+		public Dictionary<string, mysSymbolSpace> nameSpaces;
+		public Stack<mysSymbolSpace> spaceStack;
 
-			//return null;
-			return list;
+		public mysREPL() {
+			nameSpaces = new Dictionary<string, mysSymbolSpace>();
+
+			Global = new mysSymbolSpace();
+			nameSpaces.Add( "global" , Global );
+
+			spaceStack = new Stack<mysSymbolSpace>();
+			spaceStack.Push( Global );
+
+			mysBuiltins.Setup( Global );
+
+			mysParser parser = new mysParser();
+
+			mysList result;
+			//result = Parse( "100.3" );
+			//result = Parse( "7,8" );
+			//result = parser.Parse( "foo (some list)" );
+			//result = parser.Parse( "(+ 1 2)" );
+			//result = parser.Parse( "=> some-func '(:int) '(x) '(+ 3 x)" );
+			//result = parser.Parse( "(+ (- 3 1) 2)" );
+
+			result = parser.Parse( "(* (+ (- 3 1) 2) 4)" );
+
+			var b = result.Evaluate( spaceStack );
+			
+			var a = 0;
 		}
 
 		public void TestFunction() {
