@@ -12,23 +12,29 @@ namespace mysharp
 		static void Main(string[] args)
 		{
 			mysREPL repl = new mysREPL();
+			repl.TestFunction();
 		}
 	}
 
-	class mysREPL
+	public class mysREPL
 	{
-		Dictionary<string, mysSymbolSpace> nameSpaces;
-		Stack<mysSymbolSpace> spaceStack;
+		public mysSymbolSpace Global;
+		public Dictionary<string, mysSymbolSpace> nameSpaces;
+		public Stack<mysSymbolSpace> spaceStack;
 
 		public mysREPL() {
 			nameSpaces = new Dictionary<string, mysSymbolSpace>();
-			nameSpaces.Add( "global" , new mysSymbolSpace() );
+
+			Global = new mysSymbolSpace();
+			nameSpaces.Add( "global" , Global );
 
 			spaceStack = new Stack<mysSymbolSpace>();
-			spaceStack.Push( nameSpaces[ "global" ] );
+			spaceStack.Push( Global );
 
-			mysBuiltins.Setup( nameSpaces[ "global" ] );
+			mysBuiltins.Setup( Global );
+		}
 
+		public void TestFunction() {
 			// test stuff below
 
 			List<mysToken> testExpression = new List<mysToken>();
@@ -41,34 +47,91 @@ namespace mysharp
 			f.Symbols.Add( new mysSymbol( "y" ) );
 			f.Signature.Add( mysTypes.Integral );
 
-			f.Function.InternalValues.Add( EvaluateSymbol( GetSymbol( "+" ) ) );
+			f.Function.InternalValues.Add(
+				mysSymbolSpace.GetAndEvaluateSymbol( "+", spaceStack )
+			);
+
 			f.Function.InternalValues.Add( new mysSymbol( "x" ) );
 			f.Function.InternalValues.Add( new mysSymbol( "y" ) );
 
 			fg.Variants.Add( f );
 
-			//testExpression.Add( EvaluateSymbol( GetSymbol( "+" ) ) );
 			testExpression.Add( fg );
 			testExpression.Add( new mysIntegral( 2 ) );
 			testExpression.Add( new mysIntegral( 3 ) );
 
 			mysList expression = new mysList( testExpression );
-			mysToken result = expression.Evaluate(
-				spaceStack
-				//new Stack<mysSymbolSpace>( spaceStack )
-			);
+			mysToken result = expression.Evaluate( spaceStack );
 
 			var a = 0;
+
+			// lambda test
+
+			testExpression = new List<mysToken>();
+
+			testExpression.Add(
+				mysSymbolSpace.GetAndEvaluateSymbol( "=>", spaceStack )
+			);
+
+			testExpression.Add(
+				new mysSymbol( "some-func" ).Quote()
+			);
+
+			testExpression.Add( new mysList( new List<mysToken> {
+				new mysTypeToken( mysTypes.Integral )
+			} ).Quote() );
+
+			testExpression.Add( new mysList( new List<mysToken> {
+				new mysSymbol( "x" )
+			} ).Quote() );
+
+			fg = mysSymbolSpace.GetAndEvaluateSymbol( "+", spaceStack )
+				as mysFunctionGroup;
+
+			testExpression.Add( new mysList( new List<mysToken> {
+				fg,
+				new mysSymbol( "x" ),
+				new mysIntegral( 3 )
+			} ).Quote() );
+
+			expression = new mysList( testExpression );
+			result = expression.Evaluate( spaceStack );
+
+			a = 0;
+
+			// lambda result test
+
+			testExpression = new List<mysToken>();
+
+			testExpression.Add(
+				mysSymbolSpace.GetAndEvaluateSymbol( "some-func", spaceStack )
+			);
+			testExpression.Add( new mysIntegral( 2 ) );
+
+			expression = new mysList( testExpression );
+			result = expression.Evaluate( spaceStack );
+
+			a = 0;
+		}
+	}
+
+	public class mysSymbolSpace
+	{
+		public static mysToken GetAndEvaluateSymbol( 
+			string symbolString,
+			Stack<mysSymbolSpace> spaceStack
+		) {
+			return EvaluateSymbol(
+				GetSymbol( symbolString, spaceStack ),
+				spaceStack
+			);
 		}
 
-		// not sure where exactly to put this fucking thing really
-		// marking obsolete for now so we know that we're using the one in
-		// REPL and not in list
-		[Obsolete]
-		mysToken EvaluateSymbol( mysSymbol symbol ) {
-			Stack<mysSymbolSpace> evaluationStack =
-				//new Stack<mysSymbolSpace>( spaceStack );
-				spaceStack.Clone();
+		public static mysToken EvaluateSymbol(
+			mysSymbol symbol,
+			Stack<mysSymbolSpace> spaceStack
+		) {
+			Stack<mysSymbolSpace> evaluationStack = spaceStack.Clone();
 
 			while ( evaluationStack.Count > 0 ) {
 				mysSymbolSpace space = evaluationStack.Pop();
@@ -80,23 +143,30 @@ namespace mysharp
 			throw new ArgumentException( "Symbol isn't defined." );
 		}
 
-		mysSymbol GetSymbol( string symbolString ) {
+		public static mysSymbol GetSymbol(
+			string symbolString,
+			Stack<mysSymbolSpace> spaceStack
+		) {
 			Stack<mysSymbolSpace> evaluationStack = spaceStack.Clone();
 
 			while ( evaluationStack.Count > 0 ) {
 				mysSymbolSpace space = evaluationStack.Pop();
 
-				if ( space.Exists( symbolString ) ) {
-					return space.Get( symbolString );
+				mysSymbol symbol = space.Values.Keys
+					.FirstOrDefault( s => s.ToString() == symbolString );
+
+				if ( symbol != null ) {
+					return symbol;
 				}
+
+				//if ( space.Exists( symbolString ) ) {
+					//return space.Get( symbolString );
+				//}
 			}
 
 			throw new ArgumentException( "Symbol doesn't exist." );
 		}
-	}
 
-	public class mysSymbolSpace
-	{
 		private Dictionary<string, mysSymbol> symbols =
 			new Dictionary<string, mysSymbol>();
 
@@ -123,6 +193,10 @@ namespace mysharp
 			Values.Add( symbol, value );
 		}
 
+		public void Undefine( mysSymbol symbol ) {
+			Values.Remove( symbol );
+		}
+
 		public bool Defined( mysSymbol symbol ) {
 			return Values.ContainsKey( symbol );
 		}
@@ -138,22 +212,17 @@ namespace mysharp
 		}
 	}
 
-	public class mysNameSpace
-	{
-		public mysSymbolSpace SymbolSpace;
-
-		public mysNameSpace() {
-			SymbolSpace = new mysSymbolSpace();
-		}
-	}
-
 	public class mysToken
 	{
 		public mysTypes Type;
+		public bool Quoted;
+
+		public mysToken Quote() {
+			Quoted = true;
+			return this;
+		}
 	}
 
-	// lh: should (/must) be a token later again
-	//     it just got a bit confusing for a while
 	public class mysSymbol : mysToken
 	{
 		private string stringRepresentation;
@@ -177,26 +246,32 @@ namespace mysharp
 		{
 			return stringRepresentation.GetHashCode();
 		}
+
+		public override string ToString()
+		{
+			return stringRepresentation;
+		}
 	}
 
 	public class mysList : mysToken
 	{
 		public List<mysToken> InternalValues;
 
-		public mysList() {
-			InternalValues = new List<mysToken>();
+		public mysList( bool quoted = false )
+			: this( new List<mysToken>(), quoted ) {
 		}
 
-		public mysList( List<mysToken> list ) {
+		public mysList( List<mysToken> list, bool quoted = false ) {
+			Type = mysTypes.List;
+			Quoted = quoted;
 			InternalValues = new List<mysToken>( list );
 		}
 
-		mysToken EvaluateSymbol(
+		public static mysToken EvaluateSymbol(
 			mysSymbol symbol,
 			Stack<mysSymbolSpace> spaceStack
 		) {
 			Stack<mysSymbolSpace> evaluationStack = spaceStack.Clone();
-				//new Stack<mysSymbolSpace>( spaceStack );
 
 			while ( evaluationStack.Count > 0 ) {
 				mysSymbolSpace space = evaluationStack.Pop();
@@ -208,14 +283,20 @@ namespace mysharp
 			throw new ArgumentException( "Symbol isn't defined." );
 		}
 
-		//public List<mysToken> Evaluate(
 		public mysToken Evaluate(
-			//List<mysToken> expression
 			Stack<mysSymbolSpace> spaceStack
 		) {
+			// do we need the special list case here..? I guess we do?
+			if ( Quoted ) {
+				Quoted = false;
+				return this;
+			}
+
 			Queue<mysToken> queue = new Queue<mysToken>();
 			List<mysToken> currentExpression =
 				new List<mysToken>( InternalValues );
+
+			Stack<mysSymbolSpace> evaluationStack = spaceStack.Clone();
 
 			while ( true ) {
 				mysToken last;
@@ -227,11 +308,31 @@ namespace mysharp
 				) {
 					last = currentExpression.ElementAt( currentLast );
 
-					// evaluate symbols down
-					while ( last.Type == mysTypes.Symbol ) {
-						last = EvaluateSymbol( last as mysSymbol, spaceStack );
+					mysTypes deepType = last.Type;
+					mysToken deepToken = last;
+
+					if ( !last.Quoted ) {
+						//while ( deepToken.Type == mysTypes.Symbol ) {
+						while ( last.Type == mysTypes.Symbol ) {
+							//deepToken = EvaluateSymbol(
+							last = EvaluateSymbol(
+								//deepToken as mysSymbol,
+								last as mysSymbol,
+								evaluationStack
+							);
+							deepType = deepToken.Type;
+						}
+					} else {
+						// unquote, remain a symbol or what the fuck ever we
+						// were.
+						last.Quoted = false;
+						queue.Enqueue( last );
+						currentLast--;
+						continue;
 					}
-					
+
+					#region fg
+					//if ( deepType == mysTypes.FunctionGroup ) {
 					if ( last.Type == mysTypes.FunctionGroup ) {
 						mysFunctionGroup fg = last as mysFunctionGroup;
 
@@ -253,8 +354,8 @@ namespace mysharp
 									currentExpression.Insert(
 										currentLast,
 										(matching as mysBuiltin).Call(
-											//new Stack<mysSymbolSpace>( spaceStack ),
-											spaceStack.Clone(),
+											//evaluationStack.Clone(),
+											evaluationStack,
 											passedArgs
 										)
 									);
@@ -263,7 +364,8 @@ namespace mysharp
 										currentLast,
 										matching.Call(
 											//new Stack<mysSymbolSpace>( spaceStack ),
-											spaceStack.Clone(),
+											//evaluationStack.Clone(),
+											evaluationStack,
 											passedArgs
 										)
 									);
@@ -286,6 +388,7 @@ namespace mysharp
 					} else {
 						queue.Enqueue( last );
 					}
+					#endregion fg
 
 					currentLast--;
 				}
@@ -306,7 +409,8 @@ namespace mysharp
 		Integral,
 		Floating,
 		List,
-		FunctionGroup
+		FunctionGroup,
+		mysType
 	}
 
 	public class mysFunctionGroup : mysToken
@@ -387,7 +491,6 @@ namespace mysharp
 			Signature = new List<mysTypes>();
 			Symbols = new List<mysSymbol>();
 
-			//Function = new List<mysToken>();
 			Function = new mysList();
 		}
 
@@ -397,6 +500,8 @@ namespace mysharp
 			Stack<mysSymbolSpace> spaceStack,
 			List<mysToken> arguments
 		) {
+			///Stack<mysSymbolSpace> evaluationStack = spaceStack.Clone();
+
 			// future, cache somehow
 			mysSymbolSpace internalSpace = new mysSymbolSpace();
 
@@ -405,61 +510,183 @@ namespace mysharp
 				(s, a) => internalSpace.Define( s, a )
 			);
 
+			//evaluationStack.Push( internalSpace );
 			spaceStack.Push( internalSpace );
 
+			mysToken result = Function.Evaluate( spaceStack );
+
+			spaceStack.Pop();
+
+			return result;
+
 			// evaluate
-			return Function.Evaluate( spaceStack );
+			//return Function.Evaluate( evaluationStack );
 		}
 	}
 
 	public static class mysBuiltins {
-		public static mysFunctionGroup Addition;
+		static void SetupLambda( mysSymbolSpace global ) {
+			mysFunctionGroup lambda = new mysFunctionGroup();
+			mysBuiltin lambdaVariant = new mysBuiltin();
+
+			lambdaVariant = new mysBuiltin();
+			lambdaVariant.Signature.Add( mysTypes.Symbol );
+			lambdaVariant.Signature.Add( mysTypes.List );
+			lambdaVariant.Signature.Add( mysTypes.List );
+			lambdaVariant.Signature.Add( mysTypes.List );
+
+			lambdaVariant.Function = (args, sss) => {
+				mysSymbolSpace ss = sss.Peek();
+
+				mysSymbol symbol = args[ 0 ] as mysSymbol;
+				mysList types = args[ 1 ] as mysList;
+				mysList symbols = args[ 2 ] as mysList;
+				mysList body = args[ 3 ] as mysList;
+
+				// argument checking
+				if (
+					symbol == null || types == null ||
+					symbols == null || body == null
+				) {
+					throw new ArgumentException();
+				}
+
+				if (
+					types.InternalValues.Count() !=
+					symbols.InternalValues.Count()
+				) {
+					throw new ArgumentException();
+				}
+
+				if (
+					types.InternalValues.Count <= 0 ||
+					types.InternalValues
+						.Any(t => (t as mysToken).Type != mysTypes.mysType)
+				) {
+					throw new ArgumentException();
+				}
+
+				if (
+					symbols.InternalValues.Count <= 0 ||
+					symbols.InternalValues
+						.Any(t => (t as mysToken).Type != mysTypes.Symbol)
+				) {
+					throw new ArgumentException();
+				}
+
+				// end argument checking
+
+				// define function variant
+				mysFunction f = new mysFunction();
+				// these two should probably be joined at some point
+				foreach ( mysToken t in types.InternalValues ) {
+					f.Signature.Add( ( t as mysTypeToken ).TypeValue );
+				}
+				foreach ( mysToken t in symbols.InternalValues ) {
+					f.Symbols.Add( t as mysSymbol  );
+				}
+
+				f.Function = body;
+				// end define function variant
+
+				mysFunctionGroup fg = null;
+
+				// if symbol defined and of wrong type, undef it
+				if (
+					ss.Defined( symbol ) &&
+					ss.GetValue( symbol ).Type != mysTypes.FunctionGroup
+				) {
+					// we could just overwrite it with define,
+					// but I'd rather be entirely sure that we delete
+					// the old value beforehand.
+					ss.Undefine( symbol );
+				}
+
+				// if we're defined at this point, we know it's a function group
+				if  ( ss.Defined( symbol ) ) {
+					fg = ss.GetValue( symbol ) as mysFunctionGroup;
+				} else {
+					// create 
+					fg = new mysFunctionGroup();
+					ss.Define( symbol, fg );
+				}
+
+				fg.Variants.Add( f );
+
+				// since we return our function group, unless quoted
+				// we'll automatically evaluate it.
+				// this is probably a good reason for allowing null returns.
+				return fg.Quote();
+			};
+
+			lambda.Variants.Add( lambdaVariant );
+
+			global.Define(
+				global.Create( "=>" ),
+				lambda
+			);
+		}
 
 		static void SetupAddition( mysSymbolSpace global ) {
-			Addition = new mysFunctionGroup();
-
-			mysBuiltin addition;
+			mysFunctionGroup addition = new mysFunctionGroup();
+			mysBuiltin additionVariant;
 
 			// int int variant
-			addition = new mysBuiltin();
-			addition.Signature.Add( mysTypes.Integral );
-			addition.Signature.Add( mysTypes.Integral );
+			additionVariant = new mysBuiltin();
+			additionVariant.Signature.Add( mysTypes.Integral );
+			additionVariant.Signature.Add( mysTypes.Integral );
 
-			addition.Function = new Func<List<mysToken>, mysToken>(
-				args =>
+			additionVariant.Function =
+				new Func<List<mysToken>, Stack<mysSymbolSpace>, mysToken>(
+				(args, sss) =>
 					new mysIntegral(
 						(args[ 0 ] as mysIntegral).Value +
 						(args[ 1 ] as mysIntegral).Value
 					)
 			);
 
-			Addition.Variants.Add( addition );
+			addition.Variants.Add( additionVariant );
 			//
 
 			global.Define(
 				global.Create( "+" ),
-				Addition
+				addition
 			);
 		}
 
 		public static void Setup( mysSymbolSpace global ) {
 			SetupAddition( global );
+			SetupLambda( global );
 		}
 	}
 
 	public class mysBuiltin : mysFunction {
-		public new Func<List<mysToken>, mysToken> Function;
+		public new Func<
+			List<mysToken>,
+			Stack<mysSymbolSpace>,
+			mysToken
+		> Function;
 
 		// not sure we need to override? but I'm not chancing
 		public override mysToken Call(
 			Stack<mysSymbolSpace> spaceStack,
 			List<mysToken> arguments
 		) {
-			return Function( arguments );
+			return Function( arguments, spaceStack );
 		}
 	}
 
-	class mysIntegral : mysToken
+	public class mysTypeToken : mysToken
+	{
+		public mysTypes TypeValue;
+
+		public mysTypeToken( mysTypes typeValue ) {
+			Type = mysTypes.mysType;
+			TypeValue = typeValue;
+		}
+	}
+
+	public class mysIntegral : mysToken
 	{
 		public long Value;
 
@@ -469,7 +696,7 @@ namespace mysharp
 		}
 	}
 
-	class mysFloating : mysToken
+	public class mysFloating : mysToken
 	{
 		double Value;
 
