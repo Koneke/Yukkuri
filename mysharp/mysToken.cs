@@ -1,5 +1,14 @@
 ﻿namespace mysharp
 {
+	public enum mysTypes {
+		Symbol,
+		Integral,
+		Floating,
+		List,
+		FunctionGroup,
+		mysType
+	}
+
 	public class mysToken
 	{
 		public mysTypes Type;

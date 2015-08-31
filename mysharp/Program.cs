@@ -34,15 +34,6 @@ namespace mysharp
 		}
 	}
 
-	public enum mysTypes {
-		Symbol,
-		Integral,
-		Floating,
-		List,
-		FunctionGroup,
-		mysType
-	}
-
 	public class mysREPL
 	{
 		public mysSymbolSpace Global;
@@ -59,10 +50,102 @@ namespace mysharp
 			spaceStack.Push( Global );
 
 			mysBuiltins.Setup( Global );
+
+			mysList result;
+			result = Parse( "100.3" );
+			result = Parse( "7,8" );
+			result = Parse( "=> some-func '(:int) '(x) '(+ 3 x)" );
+			
+			var a = 0;
+		}
+
+		public mysToken ParseLex( string s ) {
+			bool quote = false;
+			mysToken token = null;
+
+			if ( s[ 0 ] == '\'' ) {
+				quote = true;
+				s = s.Substring( 1, s.Length - 1 );
+			}
+
+			if ( s.All( c => c >= '0' && c <= '9' ) ) {
+				token = new mysIntegral( long.Parse( s ) );
+			} else if ( s.All( c =>
+				c == '.' || c == ',' ||
+				(c >= '0' && c <= '9' ) )
+			) {
+				s = s.Replace( '.', ',' );
+				token = new mysFloating( double.Parse( s ) );
+			} else if ( s[ 0 ] == '(' ) {
+				token = Parse( s.Substring( 1, s.Length - 2 ) );
+			} else {
+				token = new mysSymbol( s );
+			}
+
+			//if ( token == null )
+				//throw new ArgumentException();
+
+			if ( quote ) {
+				token.Quote();
+			}
+
+			return token;
+		}
+
+		public mysList Parse( string s ) {
+			int listDepth = 0;
+
+			s = s.Trim();
+
+			mysList list = new mysList();
+
+			List<string> pieces = new List<string>();
+
+			int lastSplit = 0;
+			string piece = "";
+
+			for ( int i = 0; i < s.Length; i++ ) {
+				if ( s[ i ] == '(' ) {
+					listDepth++;
+					lastSplit = i;
+
+					if ( s[ i - 1] == '\'' ) {
+						lastSplit--;
+					}
+				}
+
+				if ( s[ i ] == ')' ) {
+					listDepth--;
+					pieces.Add( s.Substring( lastSplit, 1 + i - lastSplit ) );
+					lastSplit = i + 1;
+				}
+
+				if ( listDepth == 0 && s[ i ] == ' ' ) {
+					piece = s.Substring( lastSplit, i - lastSplit );
+
+					if ( piece != "" ) {
+						pieces.Add( piece );
+						list.InternalValues.Add( ParseLex( piece ) );
+					}
+
+					lastSplit = i + 1;
+				}
+			}
+
+			piece = s.Substring( lastSplit, s.Length - lastSplit );
+
+			if ( piece != "" ) {
+				pieces.Add( piece );
+				list.InternalValues.Add( ParseLex( piece ) );
+			}
+
+			//return null;
+			return list;
 		}
 
 		public void TestFunction() {
-			// test stuff below
+			// lh: (+ x y)
+			//     (=> some-func '(int) '(x) '(+ x 3))
 
 			List<mysToken> testExpression = new List<mysToken>();
 
