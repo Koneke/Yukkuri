@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 
 namespace mysharp
@@ -30,9 +31,6 @@ namespace mysharp
 
 			// test stuff below
 
-			//mysSymbol addition = nameSpaces[ "global" ].Create( "+" );
-			//nameSpaces[ "global" ].Define( addition, mysBuiltins.Addition );
-
 			List<mysToken> testExpression = new List<mysToken>();
 
 			mysFunctionGroup fg = new mysFunctionGroup();
@@ -43,21 +41,34 @@ namespace mysharp
 			f.Symbols.Add( new mysSymbol( "y" ) );
 			f.Signature.Add( mysTypes.Integral );
 
+			f.Function.InternalValues.Add( EvaluateSymbol( GetSymbol( "+" ) ) );
+			f.Function.InternalValues.Add( new mysSymbol( "x" ) );
+			f.Function.InternalValues.Add( new mysSymbol( "y" ) );
+
 			fg.Variants.Add( f );
 
-			testExpression.Add( EvaluateSymbol( GetSymbol( "+" ) ) );
-			testExpression.Add( EvaluateSymbol( GetSymbol( "+" ) ) );
-			testExpression.Add( new mysIntegral( 1 ) );
+			//testExpression.Add( EvaluateSymbol( GetSymbol( "+" ) ) );
+			testExpression.Add( fg );
 			testExpression.Add( new mysIntegral( 2 ) );
 			testExpression.Add( new mysIntegral( 3 ) );
 
 			mysList expression = new mysList( testExpression );
-			expression.Evaluate( new Stack<mysSymbolSpace>( spaceStack ) );
+			mysToken result = expression.Evaluate(
+				spaceStack
+				//new Stack<mysSymbolSpace>( spaceStack )
+			);
+
+			var a = 0;
 		}
 
+		// not sure where exactly to put this fucking thing really
+		// marking obsolete for now so we know that we're using the one in
+		// REPL and not in list
+		[Obsolete]
 		mysToken EvaluateSymbol( mysSymbol symbol ) {
 			Stack<mysSymbolSpace> evaluationStack =
-				new Stack<mysSymbolSpace>( spaceStack );
+				//new Stack<mysSymbolSpace>( spaceStack );
+				spaceStack.Clone();
 
 			while ( evaluationStack.Count > 0 ) {
 				mysSymbolSpace space = evaluationStack.Pop();
@@ -70,8 +81,7 @@ namespace mysharp
 		}
 
 		mysSymbol GetSymbol( string symbolString ) {
-			Stack<mysSymbolSpace> evaluationStack =
-				new Stack<mysSymbolSpace>( spaceStack );
+			Stack<mysSymbolSpace> evaluationStack = spaceStack.Clone();
 
 			while ( evaluationStack.Count > 0 ) {
 				mysSymbolSpace space = evaluationStack.Pop();
@@ -144,16 +154,32 @@ namespace mysharp
 
 	// lh: should (/must) be a token later again
 	//     it just got a bit confusing for a while
-	public class mysSymbol// : mysToken
+	public class mysSymbol : mysToken
 	{
 		private string stringRepresentation;
 
 		public mysSymbol( string symbolString ) {
+			Type = mysTypes.Symbol;
 			stringRepresentation = symbolString;
+		}
+
+		public override bool Equals(object obj)
+		{
+			if ( obj == null || obj.GetType() != GetType() )
+				return false;
+
+			mysSymbol s = (mysSymbol)obj;
+
+			return s.stringRepresentation == stringRepresentation;
+		}
+
+		public override int GetHashCode()
+		{
+			return stringRepresentation.GetHashCode();
 		}
 	}
 
-	class mysList : mysToken
+	public class mysList : mysToken
 	{
 		public List<mysToken> InternalValues;
 
@@ -163,6 +189,23 @@ namespace mysharp
 
 		public mysList( List<mysToken> list ) {
 			InternalValues = new List<mysToken>( list );
+		}
+
+		mysToken EvaluateSymbol(
+			mysSymbol symbol,
+			Stack<mysSymbolSpace> spaceStack
+		) {
+			Stack<mysSymbolSpace> evaluationStack = spaceStack.Clone();
+				//new Stack<mysSymbolSpace>( spaceStack );
+
+			while ( evaluationStack.Count > 0 ) {
+				mysSymbolSpace space = evaluationStack.Pop();
+				if ( space.Defined( symbol ) ) {
+					return space.GetValue( symbol );
+				}
+			}
+
+			throw new ArgumentException( "Symbol isn't defined." );
 		}
 
 		//public List<mysToken> Evaluate(
@@ -183,6 +226,11 @@ namespace mysharp
 					currentExpression.Count > currentLast
 				) {
 					last = currentExpression.ElementAt( currentLast );
+
+					// evaluate symbols down
+					while ( last.Type == mysTypes.Symbol ) {
+						last = EvaluateSymbol( last as mysSymbol, spaceStack );
+					}
 					
 					if ( last.Type == mysTypes.FunctionGroup ) {
 						mysFunctionGroup fg = last as mysFunctionGroup;
@@ -205,7 +253,8 @@ namespace mysharp
 									currentExpression.Insert(
 										currentLast,
 										(matching as mysBuiltin).Call(
-											new Stack<mysSymbolSpace>( spaceStack ),
+											//new Stack<mysSymbolSpace>( spaceStack ),
+											spaceStack.Clone(),
 											passedArgs
 										)
 									);
@@ -213,7 +262,8 @@ namespace mysharp
 									currentExpression.Insert(
 										currentLast,
 										matching.Call(
-											new Stack<mysSymbolSpace>( spaceStack ),
+											//new Stack<mysSymbolSpace>( spaceStack ),
+											spaceStack.Clone(),
 											passedArgs
 										)
 									);
@@ -252,6 +302,7 @@ namespace mysharp
 	}
 
 	public enum mysTypes {
+		Symbol,
 		Integral,
 		Floating,
 		List,
@@ -281,8 +332,12 @@ namespace mysharp
 			//     of the arguments
 			variants.RemoveAll( v =>
 				v.Signature
+					// va = type expected
+					// a.Type = type received
 					.Zip( arguments, (va, a) => va == a.Type )
+					// find the ones where previous comparison was true
 					.Where( p => p )
+					// make sure the count is right
 					.Count() != arguments.Count
 			);
 
@@ -305,6 +360,11 @@ namespace mysharp
 				action( t.ElementAt( i ), other.ElementAt( i ) );
 			}
 		}
+
+		public static Stack<T> Clone<T>(this Stack<T> stack) {
+			Contract.Requires( stack != null );
+			return new Stack<T>( new Stack<T>( stack ) );
+		}
 	}
 
 	public class mysFunction
@@ -320,14 +380,19 @@ namespace mysharp
 			get { return Signature.Count; }
 		}
 
-		public List<mysToken> Function;
+		//public List<mysToken> Function;
+		public mysList Function;
 
 		public mysFunction() {
 			Signature = new List<mysTypes>();
 			Symbols = new List<mysSymbol>();
-			Function = new List<mysToken>();
+
+			//Function = new List<mysToken>();
+			Function = new mysList();
 		}
 
+		// might want to move the stack cloning inside here, instead of having
+		// to do it every time we call a function outside? gets cleaner that way
 		public virtual mysToken Call(
 			Stack<mysSymbolSpace> spaceStack,
 			List<mysToken> arguments
@@ -343,9 +408,7 @@ namespace mysharp
 			spaceStack.Push( internalSpace );
 
 			// evaluate
-
-			// lh: until we have userdefined functions in
-			return new mysIntegral( 0 );
+			return Function.Evaluate( spaceStack );
 		}
 	}
 
