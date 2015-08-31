@@ -24,13 +24,14 @@ namespace mysharp
 			nameSpaces.Add( "global" , new mysSymbolSpace() );
 
 			spaceStack = new Stack<mysSymbolSpace>();
+			spaceStack.Push( nameSpaces[ "global" ] );
 
-			mysBuiltins.Setup();
+			mysBuiltins.Setup( nameSpaces[ "global" ] );
 
 			// test stuff below
 
-			mysSymbol addition = nameSpaces[ "global" ].Create( "+" );
-			nameSpaces[ "global" ].Define( addition, mysBuiltins.Addition );
+			//mysSymbol addition = nameSpaces[ "global" ].Create( "+" );
+			//nameSpaces[ "global" ].Define( addition, mysBuiltins.Addition );
 
 			List<mysToken> testExpression = new List<mysToken>();
 
@@ -44,8 +45,8 @@ namespace mysharp
 
 			fg.Variants.Add( f );
 
-			testExpression.Add( EvaluateSymbol( addition ) );
-			testExpression.Add( EvaluateSymbol( addition ) );
+			testExpression.Add( EvaluateSymbol( GetSymbol( "+" ) ) );
+			testExpression.Add( EvaluateSymbol( GetSymbol( "+" ) ) );
 			testExpression.Add( new mysIntegral( 1 ) );
 			testExpression.Add( new mysIntegral( 2 ) );
 			testExpression.Add( new mysIntegral( 3 ) );
@@ -60,17 +61,27 @@ namespace mysharp
 
 			while ( evaluationStack.Count > 0 ) {
 				mysSymbolSpace space = evaluationStack.Pop();
-				if ( space.Exists( symbol ) ) {
+				if ( space.Defined( symbol ) ) {
 					return space.GetValue( symbol );
 				}
 			}
 
-			// check global
-			if ( nameSpaces[ "global" ].Exists( symbol ) ) {
-				return nameSpaces[ "global" ].GetValue( symbol );
+			throw new ArgumentException( "Symbol isn't defined." );
+		}
+
+		mysSymbol GetSymbol( string symbolString ) {
+			Stack<mysSymbolSpace> evaluationStack =
+				new Stack<mysSymbolSpace>( spaceStack );
+
+			while ( evaluationStack.Count > 0 ) {
+				mysSymbolSpace space = evaluationStack.Pop();
+
+				if ( space.Exists( symbolString ) ) {
+					return space.Get( symbolString );
+				}
 			}
 
-			throw new ArgumentException( "Symbol isn't defined." );
+			throw new ArgumentException( "Symbol doesn't exist." );
 		}
 	}
 
@@ -94,12 +105,16 @@ namespace mysharp
 			return symbols[ symbolString ];
 		}
 
-		public bool Exists( mysSymbol symbol ) {
-			return Values.ContainsKey( symbol );
+		public bool Exists( string symbolString ) {
+			return symbols.ContainsKey( symbolString );
 		}
 
 		public void Define( mysSymbol symbol, mysToken value ) {
 			Values.Add( symbol, value );
+		}
+
+		public bool Defined( mysSymbol symbol ) {
+			return Values.ContainsKey( symbol );
 		}
 
 		public mysToken GetValue( mysSymbol symbol ) {
@@ -150,7 +165,8 @@ namespace mysharp
 			InternalValues = new List<mysToken>( list );
 		}
 
-		public List<mysToken> Evaluate(
+		//public List<mysToken> Evaluate(
+		public mysToken Evaluate(
 			//List<mysToken> expression
 			Stack<mysSymbolSpace> spaceStack
 		) {
@@ -221,15 +237,17 @@ namespace mysharp
 						queue.Enqueue( last );
 					}
 
-					//queue.Enqueue( last );
-					//currentExpression.RemoveAt( currentExpression.Count - 1 );
 					currentLast--;
 				}
 
 				break;
 			}
 
-			return queue.Reverse().ToList();
+			if ( queue.Count > 1 ) {
+				return new mysList( queue.Reverse().ToList() );
+			} else {
+				return queue.Dequeue();
+			}
 		}
 	}
 
@@ -334,10 +352,13 @@ namespace mysharp
 	public static class mysBuiltins {
 		public static mysFunctionGroup Addition;
 
-		public static void Setup() {
+		static void SetupAddition( mysSymbolSpace global ) {
 			Addition = new mysFunctionGroup();
 
-			mysBuiltin addition = new mysBuiltin();
+			mysBuiltin addition;
+
+			// int int variant
+			addition = new mysBuiltin();
 			addition.Signature.Add( mysTypes.Integral );
 			addition.Signature.Add( mysTypes.Integral );
 
@@ -350,6 +371,16 @@ namespace mysharp
 			);
 
 			Addition.Variants.Add( addition );
+			//
+
+			global.Define(
+				global.Create( "+" ),
+				Addition
+			);
+		}
+
+		public static void Setup( mysSymbolSpace global ) {
+			SetupAddition( global );
 		}
 	}
 
