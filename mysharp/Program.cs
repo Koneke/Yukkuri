@@ -98,10 +98,10 @@ namespace mysharp
 
 			List<mysToken> tokens = new List<mysToken>();
 
-			if ( split.First() == "(" && split.Last() == ")" ) {
+			/*if ( split.First() == "(" && split.Last() == ")" ) {
 				split.RemoveAt( split.Count - 1 );
 				split.RemoveAt( 0 );
-			}
+			}*/
 
 			bool quote = false;
 
@@ -111,38 +111,8 @@ namespace mysharp
 				startToken++
 			) {
 				if ( split[ startToken ] == "(" ) {
-					/*for (
-						int endToken = split.Count - 1;
-						endToken >= 0;
-						endToken--
-					) {
-						if ( split[ endToken ] == ")" ) {
-							int count = endToken - startToken + 1;
-
-							string body = 
-								string.Join(
-									" ",
-									split
-										.Skip( startToken + 1 )
-										.Take( count - 2 )
-								);
-
-							tokens.Add( Parse( body ) );
-
-							split.RemoveRange(
-								startToken,
-								endToken - startToken + 1
-							);
-							startToken--;
-							var b = 0;
-
-							break;
-						}
-
-						var c = 0;
-					}*/
-
 					int depth = 0;
+
 					for (
 						int endToken = startToken + 1;
 						endToken < split.Count;
@@ -175,6 +145,7 @@ namespace mysharp
 									endToken - startToken + 1
 								);
 								startToken--;
+								break;
 							}
 						}
 					}
@@ -236,12 +207,19 @@ namespace mysharp
 			//parsed = parser.Parse( "(+ (+ 1 2) (+ 3 4))" );
 			//result = parsed.Evaluate( spaceStack );
 
-			parsed = parser.Parse( "=> 'some-func '(:int) '(x) '(+ 3 x)" );
+			//parsed = parser.Parse( "=> 'some-func '(:int) '(x) '(+ 3 x)" );
+			//result = parsed.Evaluate( spaceStack );
+
+			//parsed = parser.Parse( "some-func 2" );
+			//result = parsed.Evaluate( spaceStack );
+			
+			parsed = parser.Parse(
+				"(some-func 2)" +
+				"(=> 'some-func '(:int) '(x) '(+ 3 x))"
+				//+ "(some-func 2)"
+			);
 			result = parsed.Evaluate( spaceStack );
 
-			parsed = parser.Parse( "some-func 2" );
-			result = parsed.Evaluate( spaceStack );
-			
 			var a = 0;
 		}
 
