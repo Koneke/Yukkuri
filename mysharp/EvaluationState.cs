@@ -4,6 +4,16 @@ using System.Linq;
 
 namespace mysharp
 {
+	// todo: bunching, i.e. instead of instantly evaluating functions as we
+	//       encounter then, we bunch them with their arguments, and make that
+	//       a token. then, when there's not callables left, only bunches and
+	//       values, we evaluate bunches in reverse order of encountering them
+	//       (or by depth, rather?)
+	//       which should be a nice left-to-right evaluation.
+	//       with that, stuff like
+	//         (=> 'some-func '(:int) '(x) '(+ 3 x)) (some-func 2)
+	//       should work as expected, unlike now where some-func will be
+	//       used first, then defined...
 	public class EvaluationState
 	{
 		public static mysToken EvaluateSymbol(
@@ -29,7 +39,6 @@ namespace mysharp
 		List<mysToken> currentExpression;
 		Stack<mysSymbolSpace> evaluationStack;
 
-		//public void Create(
 		public EvaluationState(
 			List<mysToken> initial,
 			Stack<mysSymbolSpace> spaceStack
@@ -37,9 +46,7 @@ namespace mysharp
 			queue = new Queue<mysToken>();
 			currentExpression = new List<mysToken>( initial );
 
-			// why do we clone...? should reusing it be fine?
-			// even preferable, in fact?
-			evaluationStack = spaceStack.Clone();
+			evaluationStack = spaceStack;
 
 			currentIndex = currentExpression.Count - 1;
 		}

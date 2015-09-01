@@ -33,16 +33,8 @@ namespace mysharp
 			return token;
 		}
 
-		// todo: given two lists, should return two separate lists
-		//       (change return type to List<mysList>), instead of one list of
-		//       both given lists. This so we can make sure to parse things the
-		//       right order when we give it a toplevel expression.
-		// todo: actually no, or well yes, but that still wont cut it.
-		//       we really need to make evaluate bunch things before evaluating,
-		//       i.e. first decide, using right-to-left, what args are to which
-		//       functions, then evaluate things, from left-to-right.
-		//       should solve the top-level issue too.
 		// jesus fuck why does this function still look like this.
+		// redo, split, nicen
 		public mysList Parse( string expression ) {
 			List<string> split = expression
 				.Replace( "(", " ( " )

@@ -35,8 +35,13 @@ namespace mysharp
 	}
 	public class mysREPL
 	{
+		// just for ease of access/reading
 		public mysSymbolSpace Global;
+
 		public Dictionary<string, mysSymbolSpace> nameSpaces;
+
+		// not sure if we actually need this in the repl...?
+		// might be enough to just pass in global
 		public Stack<mysSymbolSpace> spaceStack;
 
 		public mysREPL() {
@@ -71,6 +76,11 @@ namespace mysharp
 
 			parsed = parser.Parse(
 				"(some-func 2)"
+			);
+			result = parsed.Evaluate( spaceStack );
+
+			parsed = parser.Parse(
+				"some-func some-func 2"
 			);
 			result = parsed.Evaluate( spaceStack );
 
