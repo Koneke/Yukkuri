@@ -44,9 +44,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EvaluationState.cs" />
     <Compile Include="mysBuiltIns.cs" />
     <Compile Include="mysFunction.cs" />
     <Compile Include="mysList.cs" />
+    <Compile Include="mysParser.cs" />
     <Compile Include="mysSymbolSpace.cs" />
     <Compile Include="mysToken.cs" />
     <Compile Include="Program.cs" />
