@@ -215,10 +215,21 @@ namespace mysharp
 			//parsed = parser.Parse( "some-func 2" );
 			//result = parsed.Evaluate( spaceStack );
 			
-			parsed = parser.Parse(
-				"(some-func 2)" +
+			/*parsed = parser.Parse(
+				//"(some-func 2)" +
 				"(=> 'some-func '(:int) '(x) '(+ 3 x))"
 				//+ "(some-func 2)"
+			);*/
+
+			parsed = parser.Parse(
+				//"(+ (- 3 1) 2)"
+				"(=> 'some-func '(:int) '(x) '(+ 3 x))"
+				//"(+ 1 2)"
+			);
+			result = parsed.Evaluate( spaceStack );
+
+			parsed = parser.Parse(
+				"(some-func 2)"
 			);
 			result = parsed.Evaluate( spaceStack );
 

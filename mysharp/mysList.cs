@@ -34,6 +34,48 @@ namespace mysharp
 			throw new ArgumentException( "Symbol isn't defined." );
 		}
 
+		int evaluateFunctionGroup(
+			mysFunctionGroup fg,
+			List<mysToken> passedArgs,
+			Stack<mysSymbolSpace> evaluationStack,
+			out mysToken outval
+		) {
+			while ( passedArgs.Count >= 0 ) {
+				mysFunction matching = fg.Judge( passedArgs );
+
+				if ( matching != null ) {
+					// call function and add our result back into
+					// the expression
+					mysToken returned;
+					if ( matching is mysBuiltin ) {
+						returned =
+							(matching as mysBuiltin).Call(
+							evaluationStack,
+							passedArgs
+						);
+					} else {
+						returned = matching.Call(
+							evaluationStack,
+							passedArgs
+						);
+					}
+
+					outval = returned;
+
+					return passedArgs.Count;
+				} else {
+					if ( passedArgs.Count > 0 ) {
+						// remove last, try again.
+						passedArgs.RemoveAt( passedArgs.Count - 1 );
+					} else {
+						throw new NoSuchSignatureException();
+					}
+				}
+			}
+
+			throw new NoSuchSignatureException();
+		}
+
 		public mysToken Evaluate(
 			Stack<mysSymbolSpace> spaceStack
 		) {
@@ -89,59 +131,29 @@ namespace mysharp
 
 						List<mysToken> passedArgs = queue.Reverse().ToList();
 
-						while ( passedArgs.Count >= 0 ) {
-							mysFunction matching = fg.Judge( passedArgs );
+						mysToken returned;
 
-							//if ( fg.Judge( passedArgs ) != null ) {
-							if ( matching != null ) {
-								// remove the now evaluated bit from the expr
-								currentExpression.RemoveRange(
-									currentLast, passedArgs.Count + 1
-								);
+						int taken = evaluateFunctionGroup(
+							fg,
+							passedArgs,
+							evaluationStack,
+							out returned
+						);
 
-								// call function and add our result back into
-								// the expression
-								if ( matching is mysBuiltin ) {
-									mysToken returned =
-										(matching as mysBuiltin).Call(
-										evaluationStack,
-										passedArgs
-									);
+						currentExpression.RemoveRange(
+							currentLast, taken + 1
+						);
 
-									if ( returned != null ) {
-										currentExpression.Insert(
-											currentLast,
-											returned
-										);
-									}
-								} else {
-									mysToken returned = matching.Call(
-										evaluationStack,
-										passedArgs
-									);
-
-									if ( returned != null ) {
-										currentExpression.Insert(
-											currentLast,
-											returned
-										);
-									}
-								}
-
-								// automatically gets decremented outside of
-								// this while loop.
-								currentLast = currentExpression.Count;
-								queue.Clear();
-								break;
-							} else {
-								if ( passedArgs.Count > 0 ) {
-									// remove last, try again.
-									passedArgs.RemoveAt( passedArgs.Count - 1 );
-								} else {
-									throw new NoSuchSignatureException();
-								}
-							}
+						if ( returned != null ) {
+							//queue.Enqueue( returned );
+							currentExpression.Insert(
+								currentLast,
+								returned
+							);
 						}
+
+						currentLast = currentExpression.Count;
+						queue.Clear();
 					} else {
 						if ( last is mysList ) {
 							mysToken returned = 
