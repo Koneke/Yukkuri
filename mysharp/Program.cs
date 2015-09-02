@@ -54,6 +54,8 @@ namespace mysharp
 			spaceStack.Push( Global );
 
 			mysBuiltins.Setup( Global );
+
+			var a = 0;
 		}
 
 		public void TestFunction() {
@@ -64,6 +66,16 @@ namespace mysharp
 
 			parsed = parser.Parse(
 				"+ 1 3"
+			);
+			result = parsed.Evaluate( spaceStack );
+
+			parsed = parser.Parse(
+				"+ (- 3 1) 2"
+			);
+			result = parsed.Evaluate( spaceStack );
+
+			parsed = parser.Parse(
+				"+ - 3 1 2"
 			);
 			result = parsed.Evaluate( spaceStack );
 

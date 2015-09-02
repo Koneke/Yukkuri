@@ -11,7 +11,6 @@ namespace mysharp
 		public List<mysFunction> Variants;
 
 		public mysFunctionGroup() {
-			Type = mysTypes.FunctionGroup;
 			Variants = new List<mysFunction>();
 		}
 
@@ -28,7 +27,10 @@ namespace mysharp
 				v.Signature
 					// va = type expected
 					// a.Type = type received
-					.Zip( arguments, (va, a) => va == a.Type )
+					.Zip(
+						arguments,
+						(va, a) => va == a.Type
+					)
 					// find the ones where previous comparison was true
 					.Where( p => p )
 					// make sure the count is right
@@ -43,12 +45,13 @@ namespace mysharp
 		}
 	}
 
-	public class mysFunction
+	public class mysFunction : mysToken
 	{
 		// lh: A function is in essence just a list that we interpret as a
 		//     parseblock when the function is called upon, making sure to
 		//     substitute in our passed values.
 
+		public mysTypes ReturnType;
 		public List<mysTypes> Signature;
 		public List<mysSymbol> Symbols;
 

@@ -105,6 +105,7 @@ namespace mysharp.Builtins
 
 			lambdaVariant = new mysBuiltin();
 			lambdaVariant.Signature.Add( mysTypes.Symbol );
+			lambdaVariant.Signature.Add( mysTypes.mysType );
 			lambdaVariant.Signature.Add( mysTypes.List );
 			lambdaVariant.Signature.Add( mysTypes.List );
 			lambdaVariant.Signature.Add( mysTypes.List );
@@ -135,6 +136,8 @@ namespace mysharp.Builtins
 		static void setupIntIntVariant() {
 			mysBuiltin variant = new mysBuiltin();
 
+			variant.ReturnType = mysTypes.Integral;
+
 			variant.Signature.Add( mysTypes.Integral );
 			variant.Signature.Add( mysTypes.Integral );
 
@@ -155,8 +158,12 @@ namespace mysharp.Builtins
 
 			setupIntIntVariant();
 
+			mysSymbol symbol = global.Create( "+" );
+			symbol.Type = mysTypes.FunctionGroup;
+			functionGroup.Type = mysTypes.FunctionGroup;
+
 			global.Define(
-				global.Create( "+" ),
+				symbol,
 				functionGroup
 			);
 		}
@@ -167,6 +174,8 @@ namespace mysharp.Builtins
 
 		static void setupIntIntVariant() {
 			mysBuiltin variant = new mysBuiltin();
+
+			variant.ReturnType = mysTypes.Integral;
 
 			variant.Signature.Add( mysTypes.Integral );
 			variant.Signature.Add( mysTypes.Integral );
@@ -188,18 +197,25 @@ namespace mysharp.Builtins
 
 			setupIntIntVariant();
 
+			mysSymbol symbol = global.Create( "-" );
+			symbol.Type = mysTypes.FunctionGroup;
+			functionGroup.Type = mysTypes.FunctionGroup;
+
 			global.Define(
-				global.Create( "-" ),
+				symbol,
 				functionGroup
 			);
 		}
 	}
 
+	[Obsolete("Not actually obsolete, but broken")]
 	public static class MultiplicationBuiltin {
 		static mysFunctionGroup functionGroup;
 
 		static void setupIntIntVariant() {
 			mysBuiltin variant = new mysBuiltin();
+
+			variant.ReturnType = mysTypes.Integral;
 
 			variant.Signature.Add( mysTypes.Integral );
 			variant.Signature.Add( mysTypes.Integral );
@@ -228,11 +244,14 @@ namespace mysharp.Builtins
 		}
 	}
 
+	[Obsolete("Not actually obsolete, but broken")]
 	public static class DivisionBuiltin {
 		static mysFunctionGroup functionGroup;
 
 		static void setupIntIntVariant() {
 			mysBuiltin variant = new mysBuiltin();
+
+			variant.ReturnType = mysTypes.Integral;
 
 			variant.Signature.Add( mysTypes.Integral );
 			variant.Signature.Add( mysTypes.Integral );
@@ -270,8 +289,8 @@ namespace mysharp
 		) {
 			Builtins.AdditionBuiltin.Setup( global );
 			Builtins.SubtractionBuiltin.Setup( global );
-			Builtins.MultiplicationBuiltin.Setup( global );
-			Builtins.DivisionBuiltin.Setup( global );
+			//Builtins.MultiplicationBuiltin.Setup( global );
+			//Builtins.DivisionBuiltin.Setup( global );
 
 			Builtins.lambdaBuiltin.Setup( global );
 		}

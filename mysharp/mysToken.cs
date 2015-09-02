@@ -1,10 +1,12 @@
 ﻿namespace mysharp
 {
 	public enum mysTypes {
+		NULLTYPE,
 		Symbol,
 		Integral,
 		Floating,
 		List,
+		Function,
 		FunctionGroup,
 		mysType
 	}
