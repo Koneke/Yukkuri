@@ -30,7 +30,7 @@ namespace mysharp
 		static void Main(string[] args)
 		{
 			mysREPL repl = new mysREPL();
-			repl.TestFunction();
+			//repl.TestFunction();
 		}
 	}
 	public class mysREPL
@@ -55,6 +55,28 @@ namespace mysharp
 
 			mysBuiltins.Setup( Global );
 
+			mysList parsed;
+			mysToken result;
+			mysParser parser = new mysParser();
+
+			bool quit = false;
+			while ( !quit ) {
+				Console.Write( " > " );
+				string input = Console.ReadLine();
+				if ( input == "(quit)" ) {
+					quit = true;
+				} else {
+					parsed = parser.Parse( input );
+					result = parsed.Evaluate( spaceStack );
+
+					if ( result != null ) {
+						Console.WriteLine( result.ToString() + "\n" );
+					} else {
+						Console.WriteLine( "Ok.\n" );
+					}
+				}
+			}
+
 			var a = 0;
 		}
 
@@ -65,9 +87,14 @@ namespace mysharp
 			mysList parsed;
 
 			parsed = parser.Parse(
-				"+ 1 3"
+				"+ (+ 3 1) (+ 2 4)"
 			);
 			result = parsed.Evaluate( spaceStack );
+
+			parsed = parser.Parse(
+				"+ 1 3"
+			);
+			//result = parsed.Evaluate( spaceStack );
 
 			parsed = parser.Parse(
 				"+ (- 3 1) 2"

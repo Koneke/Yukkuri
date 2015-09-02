@@ -66,6 +66,11 @@
 			Type = mysTypes.mysType;
 			TypeValue = typeValue;
 		}
+
+		public override string ToString()
+		{
+			return TypeValue.ToString();
+		}
 	}
 
 	public class mysIntegral : mysToken
@@ -76,6 +81,11 @@
 			Type = mysTypes.Integral;
 			Value = value;
 		}
+
+		public override string ToString()
+		{
+			return Value.ToString();
+		}
 	}
 
 	public class mysFloating : mysToken
@@ -85,6 +95,11 @@
 		public mysFloating( double value ) {
 			Type = mysTypes.Floating;
 			Value = value;
+		}
+
+		public override string ToString()
+		{
+			return Value.ToString();
 		}
 	}
 }

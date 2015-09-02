@@ -62,6 +62,8 @@ namespace mysharp
 		public mysList Function;
 
 		public mysFunction() {
+			Type = mysTypes.Function;
+
 			Signature = new List<mysTypes>();
 			Symbols = new List<mysSymbol>();
 

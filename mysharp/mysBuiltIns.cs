@@ -85,7 +85,10 @@ namespace mysharp.Builtins
 			} else {
 				// create 
 				fg = new mysFunctionGroup();
+				fg.Type = mysTypes.FunctionGroup;
+
 				ss.Define( symbol, fg );
+				symbol.Type = mysTypes.FunctionGroup;
 			}
 
 			fg.Variants.Add( f );
@@ -113,18 +116,22 @@ namespace mysharp.Builtins
 			lambdaVariant.Function = (args, sss) => {
 				mysSymbolSpace ss = sss.Peek();
 
-				mysSymbol symbol = args[ 0 ] as mysSymbol;
-				mysList types = args[ 1 ] as mysList;
-				mysList symbols = args[ 2 ] as mysList;
-				mysList body = args[ 3 ] as mysList;
+				mysSymbol fnsymbol = args[ 0 ] as mysSymbol;
+				mysList types = args[ 2 ] as mysList;
+				mysList symbols = args[ 3 ] as mysList;
+				mysList body = args[ 4 ] as mysList;
 
-				return Evaluate( symbol, types, symbols, body, sss );
+				return Evaluate( fnsymbol, types, symbols, body, sss );
 			};
 
 			lambda.Variants.Add( lambdaVariant );
+			
+			mysSymbol symbol = global.Create( "=>" );
+			symbol.Type = mysTypes.FunctionGroup;
+			lambda.Type = mysTypes.FunctionGroup;
 
 			global.Define(
-				global.Create( "=>" ),
+				symbol,
 				lambda
 			);
 		}
@@ -208,7 +215,6 @@ namespace mysharp.Builtins
 		}
 	}
 
-	[Obsolete("Not actually obsolete, but broken")]
 	public static class MultiplicationBuiltin {
 		static mysFunctionGroup functionGroup;
 
@@ -237,14 +243,17 @@ namespace mysharp.Builtins
 
 			setupIntIntVariant();
 
+			mysSymbol symbol = global.Create( "*" );
+			symbol.Type = mysTypes.FunctionGroup;
+			functionGroup.Type = mysTypes.FunctionGroup;
+			
 			global.Define(
-				global.Create( "*" ),
+				symbol,
 				functionGroup
 			);
 		}
 	}
 
-	[Obsolete("Not actually obsolete, but broken")]
 	public static class DivisionBuiltin {
 		static mysFunctionGroup functionGroup;
 
@@ -273,8 +282,12 @@ namespace mysharp.Builtins
 
 			setupIntIntVariant();
 
+			mysSymbol symbol = global.Create( "/" );
+			symbol.Type = mysTypes.FunctionGroup;
+			functionGroup.Type = mysTypes.FunctionGroup;
+			
 			global.Define(
-				global.Create( "/" ),
+				symbol,
 				functionGroup
 			);
 		}
@@ -289,8 +302,8 @@ namespace mysharp
 		) {
 			Builtins.AdditionBuiltin.Setup( global );
 			Builtins.SubtractionBuiltin.Setup( global );
-			//Builtins.MultiplicationBuiltin.Setup( global );
-			//Builtins.DivisionBuiltin.Setup( global );
+			Builtins.MultiplicationBuiltin.Setup( global );
+			Builtins.DivisionBuiltin.Setup( global );
 
 			Builtins.lambdaBuiltin.Setup( global );
 		}
