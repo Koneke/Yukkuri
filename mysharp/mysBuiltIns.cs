@@ -321,6 +321,14 @@ namespace mysharp
 			Stack<mysSymbolSpace> spaceStack,
 			List<mysToken> arguments
 		) {
+			arguments = arguments.Select( t =>
+				t.Type == mysTypes.Symbol && !t.Quoted
+				? EvaluationMachine.EvaluateSymbol(
+					t as mysSymbol,
+					spaceStack)
+				: t
+			).ToList();
+
 			return Function( arguments, spaceStack );
 		}
 	}

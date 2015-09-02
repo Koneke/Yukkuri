@@ -24,7 +24,6 @@ namespace mysharp
 				spaceStack
 			);
 
-			es.PreProcess();
 			return es.Evaluate();
 		}
 	}

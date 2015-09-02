@@ -35,7 +35,7 @@ namespace mysharp
 
 		// jesus fuck why does this function still look like this.
 		// redo, split, nicen
-		public mysList Parse( string expression ) {
+		public List<mysToken> Parse( string expression ) {
 			List<string> split = expression
 				.Replace( "(", " ( " )
 				.Replace( ")", " ) " )
@@ -69,18 +69,20 @@ namespace mysharp
 							if ( depth == -1 ) {
 								int count = endToken - startToken + 1;
 
-								string body = 
-									string.Join(
-										" ",
-										split
-											.Skip( startToken + 1 )
-											.Take( count - 2 )
-									);
-
-								tokens.Add(
-									Parse( body )
-										.Quote( quote )
+								string body = string.Join(
+									" ",
+									split
+										.Skip( startToken + 1 )
+										.Take( count - 2 )
 								);
+
+								List<mysToken> bodyTokens = Parse( body );
+
+								mysList list = new mysList(
+									bodyTokens,
+									quote
+								);
+								tokens.Add( list );
 
 								quote = false;
 
@@ -109,11 +111,11 @@ namespace mysharp
 
 					split.RemoveAt( startToken );
 					startToken--;
-					var a = 0; // just for breaking
 				}
 			}
 
-			return new mysList( tokens );
+			return tokens;
+			//return new mysList( tokens );
 		}
 	}
 

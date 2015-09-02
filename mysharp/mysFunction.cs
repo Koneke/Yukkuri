@@ -15,11 +15,28 @@ namespace mysharp
 		}
 
 		// lh: returns a matching function, or null if we didn't like the input.
-		public mysFunction Judge( List<mysToken> arguments ) {
+		public mysFunction Judge(
+			List<mysToken> arguments,
+			Stack<mysSymbolSpace> spaceStack
+		) {
 
 			List<mysFunction> variants = new List<mysFunction>( Variants );
 			// lh: make this a bit cleverer later to handle variadics.
 			variants.RemoveAll( v => v.SignatureLength != arguments.Count );
+
+			System.Func<mysSymbol, mysTypes> symbolType = 
+				symbol =>
+					EvaluationMachine.EvaluateSymbolType(
+						symbol,
+						spaceStack
+					);
+
+			System.Func<mysTypes, mysToken, bool> typeCheck =
+				(type, token) =>
+					type == token.Type ||
+					( token.Type == mysTypes.Symbol &&
+					  symbolType( token as mysSymbol ) == type)
+			;
 
 			// lh: make sure the types of our sig match perfectly with the types
 			//     of the arguments
@@ -29,7 +46,14 @@ namespace mysharp
 					// a.Type = type received
 					.Zip(
 						arguments,
-						(va, a) => va == a.Type
+						typeCheck
+						/*(va, a) =>
+							va == a.Type ||
+							( a.Type == mysTypes.Symbol &&
+							EvaluationMachine.EvaluateSymbolType(
+								a as mysSymbol,
+								spaceStack
+							) == va )*/
 					)
 					// find the ones where previous comparison was true
 					.Where( p => p )
@@ -74,6 +98,14 @@ namespace mysharp
 			Stack<mysSymbolSpace> spaceStack,
 			List<mysToken> arguments
 		) {
+			arguments = arguments.Select( t =>
+				t.Type == mysTypes.Symbol && !t.Quoted
+				? EvaluationMachine.EvaluateSymbol(
+					t as mysSymbol,
+					spaceStack)
+				: t
+			).ToList();
+
 			// future, cache somehow?
 			mysSymbolSpace internalSpace = new mysSymbolSpace();
 
@@ -84,11 +116,20 @@ namespace mysharp
 
 			spaceStack.Push( internalSpace );
 
-			mysToken result = Function.Evaluate( spaceStack );
+			EvaluationMachine em = new EvaluationMachine();
+			List<mysToken> result = em.Evaluate(
+				Function.InternalValues,
+				spaceStack
+			);
 
 			spaceStack.Pop();
 
-			return result;
+			if ( result.Count < 2 ) {
+				return result.FirstOrDefault();
+			} else {
+				// maybe quoted..? unsure atm
+				return new mysList( result );
+			}
 		}
 	}
 }

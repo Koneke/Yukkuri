@@ -55,8 +55,7 @@ namespace mysharp
 
 			mysBuiltins.Setup( Global );
 
-			mysList parsed;
-			mysToken result;
+			List<mysToken> parsed;
 			mysParser parser = new mysParser();
 
 			bool quit = false;
@@ -67,19 +66,111 @@ namespace mysharp
 					quit = true;
 				} else {
 					parsed = parser.Parse( input );
-					result = parsed.Evaluate( spaceStack );
 
-					if ( result != null ) {
-						Console.WriteLine( result.ToString() + "\n" );
-					} else {
-						Console.WriteLine( "Ok.\n" );
+					EvaluationMachine em = new EvaluationMachine();
+					List<mysToken> output = em.Evaluate( parsed, spaceStack );
+
+					Console.WriteLine( string.Join( ", ", output ) );
+
+					Console.WriteLine( "Ok.\n" );
+				}
+			}
+		}
+
+		/*
+		public List<mysToken> Evaluate(
+			List<mysToken> tokens,
+			Stack<mysSymbolSpace> spaceStack
+		) {
+			// while any list
+			// eval list
+			while ( true ) {
+				mysList list = tokens.First( t =>
+					t.Type == mysTypes.List &&
+					!t.Quoted
+				) as mysList;
+
+				int index = tokens.IndexOf( list );
+				tokens.Remove( list );
+
+				tokens.InsertRange(
+					index,
+					Evaluate( list.InternalValues )
+				);
+			}
+
+			for ( int i = 0; i < tokens.Count(); i++ ) {
+				if ( tokens[ i ].Type == mysTypes.Symbol ) {
+					if ( !tokens[ i ].Quoted ) {
+						tokens[ i ] = EvaluateSymbol(
+							tokens[ i ] as mysSymbol,
+							spaceStack
+						);
 					}
+				}
+
+				if ( tokens[ i ].Type == mysTypes.FunctionGroup ) {
+					mysFunctionGroup fg = tokens[ i ] as mysFunctionGroup;
+				}
+
+				switch ( tokens[ i ].Type ) {
+					case mysTypes.Function:
+						break;
+					case mysTypes.List:
+						break;
+					// only quoted symbols end up here, so we ok
+					case mysTypes.Symbol:
+					case mysTypes.Integral:
+					case mysTypes.Floating:
+					case mysTypes.mysType:
+						break;
+					default:
+						throw new ArgumentException();
 				}
 			}
 
-			var a = 0;
+			// function arg pairing
+
+			// exec
+
+			// return
+
+			throw new NotImplementedException();
 		}
 
+		public static mysTypes EvaluateSymbolType(
+			mysSymbol symbol,
+			Stack<mysSymbolSpace> spaceStack
+		) {
+			Stack<mysSymbolSpace> evaluationStack = spaceStack.Clone();
+
+			mysToken temp = new mysSymbol( symbol.ToString() );
+
+			while ( temp.Type == mysTypes.Symbol ) {
+				temp = EvaluateSymbol( symbol, evaluationStack );
+			}
+
+			return temp.Type;
+		} 
+
+		public static mysToken EvaluateSymbol(
+			mysSymbol symbol,
+			Stack<mysSymbolSpace> spaceStack
+		) {
+			Stack<mysSymbolSpace> evaluationStack = spaceStack.Clone();
+
+			while ( evaluationStack.Count > 0 ) {
+				mysSymbolSpace space = evaluationStack.Pop();
+
+				if ( space.Defined( symbol ) ) {
+					return space.GetValue( symbol );
+				}
+			}
+
+			throw new ArgumentException( "Symbol isn't defined." );
+		}
+		*/
+		/*
 		public void TestFunction() {
 			mysParser parser = new mysParser();
 
@@ -125,5 +216,6 @@ namespace mysharp
 
 			var a = 0;
 		}
+		*/
 	}
 }

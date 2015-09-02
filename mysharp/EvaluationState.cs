@@ -4,9 +4,152 @@ using System.Linq;
 
 namespace mysharp
 {
+	public class EvaluationMachine {
+		public List<mysToken> Evaluate(
+			List<mysToken> tokens,
+			Stack<mysSymbolSpace> spaceStack
+		) {
+			// while any list
+			// eval list
+			while ( true ) {
+				mysList list = tokens.FirstOrDefault( t =>
+					t.Type == mysTypes.List &&
+					!t.Quoted
+				) as mysList;
+
+				if ( list == null ) {
+					break;
+				}
+
+				int index = tokens.IndexOf( list );
+				tokens.Remove( list );
+
+				tokens.InsertRange(
+					index,
+					Evaluate(
+						list.InternalValues,
+						spaceStack
+					)
+				);
+			}
+
+			for ( int i = 0; i < tokens.Count(); i++ ) {
+				if ( tokens[ i ].Type == mysTypes.Symbol ) {
+					if ( !tokens[ i ].Quoted ) {
+						tokens[ i ] = EvaluateSymbol(
+							tokens[ i ] as mysSymbol,
+							spaceStack
+						);
+					}
+				}
+
+				if ( tokens[ i ].Type == mysTypes.FunctionGroup ) {
+					mysFunctionGroup fg = tokens[ i ] as mysFunctionGroup;
+
+					int signatureLength = fg.Variants
+						.OrderBy( v => v.SignatureLength )
+						.Last()
+						.SignatureLength
+					;
+
+					mysFunction f = null;
+					for ( int j = signatureLength; j >= 0; j-- ) {
+						List<mysToken> args = tokens
+							.Skip( i + 1 )
+							.Take( j )
+							.ToList()
+						;
+
+						f = fg.Judge( args, spaceStack );
+
+						if ( f != null ) {
+							break;
+						}
+					}
+
+					if ( f == null ) {
+						throw new NoSuchSignatureException();
+					}
+
+					tokens.RemoveAt( i );
+					tokens.Insert( i, f );
+				}
+
+				switch ( tokens[ i ].Type ) {
+					case mysTypes.Function:
+						mysFunction f = tokens[ i ] as mysFunction;
+
+						mysToken t = f.Call(
+							spaceStack, // should be last arg really...
+							tokens
+								.Skip( i + 1 )
+								.Take( f.SignatureLength )
+								.ToList()
+						);
+
+						tokens.RemoveRange( i, f.SignatureLength + 1 );
+
+						if ( t != null ) {
+							tokens.Insert( i, t );
+						}
+
+						break;
+
+					// only quoted symbols end up here, so we ok
+					case mysTypes.Symbol:
+					// same here, should only be quoted ones
+					case mysTypes.List:
+					case mysTypes.Integral:
+					case mysTypes.Floating:
+					case mysTypes.mysType:
+						break;
+					default:
+						throw new ArgumentException();
+				}
+			}
+
+			return tokens;
+		}
+
+		void step() {
+		}
+
+		public static mysTypes EvaluateSymbolType(
+			mysSymbol symbol,
+			Stack<mysSymbolSpace> spaceStack
+		) {
+			Stack<mysSymbolSpace> evaluationStack = spaceStack.Clone();
+
+			mysToken temp = new mysSymbol( symbol.ToString() );
+
+			while ( temp.Type == mysTypes.Symbol ) {
+				temp = EvaluateSymbol( symbol, evaluationStack );
+			}
+
+			return temp.Type;
+		} 
+
+		public static mysToken EvaluateSymbol(
+			mysSymbol symbol,
+			Stack<mysSymbolSpace> spaceStack
+		) {
+			Stack<mysSymbolSpace> evaluationStack = spaceStack.Clone();
+
+			while ( evaluationStack.Count > 0 ) {
+				mysSymbolSpace space = evaluationStack.Pop();
+
+				if ( space.Defined( symbol ) ) {
+					return space.GetValue( symbol );
+				}
+			}
+
+			throw new ArgumentException( "Symbol isn't defined." );
+		}
+
+	}
+
 	public class mysPreCall : mysToken {
 		public List<mysToken> Bunch;
-		//public mysList Bunch;
 
 		public mysPreCall(
 			mysList bunch,
@@ -102,209 +245,8 @@ namespace mysharp
 			currentIndex = currentExpression.Count - 1;
 		}
 
-		public mysToken EvaluateBunch( mysPreCall bunch ) {
-			EvaluationState bes = new EvaluationState(
-				bunch.Bunch,
-				evaluationStack
-			);
-
-			bes.PreProcess();
-			return bes.Evaluate();
-
-			/*EvaluationState bes = new EvaluationState(
-				bunch.Bunch,
-				evaluationStack
-			);
-			var a = bes.PreProcess();
-
-			if ( !(a is mysList) ) {
-				return a;
-			}*/
-
-			//mysToken evaluated = bes.Evaluate();
-
-			List<mysToken> expression = new List<mysToken>(
-				bunch.Bunch
-			);
-
-			List<mysToken> output = new List<mysToken>();
-
-			// generate sub bunches here???????
-
-			// notice, l to r
-			foreach( mysToken t in expression ) {
-			//foreach( mysToken t in (a as mysList).InternalValues ) {
-				if ( t is mysPreCall ) {
-					mysPreCall pc = t as mysPreCall;
-
-					// if we evaluate the bunch, make sure to remove it
-					// from the stack so it doesn't get evaluated again by the
-					// higher level.
-					bunchStack.Remove( pc );
-
-					mysToken returned = EvaluateBunch( pc );
-
-					if ( returned != null ) {
-						output.Add( returned );
-					}
-				} else {
-					output.Add( t );
-				}
-			}
-
-			// update the current expression to post-bunch state, create a new
-			// output for the next phase of evaluation.
-			expression = output;
-			output = new List<mysToken>();
-
-			foreach( mysToken t in expression ) {
-				// okay, so this should never possibly be anything taking any
-				// kind of at this point undetermined number of arguments,
-				// E V E R.
-				// I guess this could be problematic if we could return
-				// function groups from functions...? maybe? or that might
-				// actually already work.
-				// either way, it might be a bit picky here.
-				mysToken token = t;
-
-				// apparently, we have had a function group slip through to
-				// this point.
-				while ( token.Type == mysTypes.Symbol ) {
-					token = EvaluateSymbol( t as mysSymbol, evaluationStack );
-				}
-
-				if ( token is mysFunction ) {
-					output.Add(
-						evaluateFunction(
-							t as mysFunction,
-							expression
-								.Skip( 1 )
-								.Take( expression.Count - 1 )
-								.ToList()
-						)
-					);
-					break;
-				}
-
-				var a = 0;
-			}
-
-			if ( output.Count < 2 ) {
-				return output.FirstOrDefault();
-			} else {
-				return new mysList( output );
-			}
-		}
-
-		public mysToken PreProcess() {
-			// move the 'any processable check' out
-			/*while( CanStep() ) {
-				if ( currentExpression.Any(
-					t => !t.Quoted && (
-						t.Type == mysTypes.Symbol ||
-						t.Type == mysTypes.Function ||
-						t.Type == mysTypes.FunctionGroup ||
-						t.Type == mysTypes.List
-				))) {
-					Step();
-				} else {
-					break;
-				}
-			}*/
-
-			while ( CanStep() ) {
-				Step();
-			}
-
-			// everything should be bunched and nice by now, yes?
-			if ( currentExpression.Count < 2 ) {
-				return currentExpression.FirstOrDefault();
-			} else {
-				return new mysList( currentExpression );
-			}
-		}
-
 		public mysToken Evaluate() {
-			//PreProcess();
-
-			List<mysToken> outExpression =
-				new List<mysToken>( currentExpression );
-
-			// bunch evaluation
-			var a = 0;
-			// we want to evaluate it lifo
-			bunchStack.Reverse();
-			while ( bunchStack.Count > 0 ) {
-				mysPreCall bunch = bunchStack.First();
-
-				mysToken result = EvaluateBunch( bunch );
-				outExpression.Remove( bunch );
-				bunchStack.Remove( bunch );
-
-				if ( result != null ) {
-					outExpression.Add( result );
-				}
-			}
-
-			List<mysToken> output = new List<mysToken>();
-
-			foreach( mysToken t in outExpression ) {
-				// okay, so this should never possibly be anything taking any
-				// kind of at this point undetermined number of arguments,
-				// E V E R.
-				// I guess this could be problematic if we could return
-				// function groups from functions...? maybe? or that might
-				// actually already work.
-				// either way, it might be a bit picky here.
-				mysToken token = t;
-
-				// apparently, we have had a function group slip through to
-				// this point.
-				while ( !token.Quoted && token.Type == mysTypes.Symbol ) {
-					token = EvaluateSymbol( t as mysSymbol, evaluationStack );
-				}
-
-				if ( token is mysFunction ) {
-					output.Add(
-						evaluateFunction(
-							t as mysFunction,
-							outExpression
-								.Skip( 1 )
-								.Take( outExpression.Count - 1 )
-								.ToList()
-						)
-					);
-					break;
-				}
-
-				output.Add( t );
-
-				var d = 0;
-			}
-
-			if ( output.Count < 2 ) {
-				return output.FirstOrDefault();
-			} else {
-				return new mysList( output );
-			}
-
-			if ( outExpression.Count < 2 ) {
-				return outExpression.FirstOrDefault();
-			} else {
-				return new mysList( outExpression );
-			}
-
-			if ( queue.Count > 1 ) {
-				return new mysList(
-					queue.Reverse().ToList()
-				);
-			} else {
-				if ( queue.Count == 0 ) {
-					return null;
-				}
-
-				return queue.Dequeue();
-			}
+			throw new NotImplementedException();
 		}
 
 		// true if we should continue afterwards
@@ -337,14 +279,17 @@ namespace mysharp
 		}
 
 		// should be evaluate functiongroup/function *TOKEN*
-		int evaluateFunctionGroup(
+		/*int evaluateFunctionGroup(
 			out mysToken outval
 		) {
 			mysFunctionGroup fg = current as mysFunctionGroup;
 			List<mysToken> passedArgs = queue.Reverse().ToList();
 
 			while ( passedArgs.Count >= 0 ) {
-				mysFunction matching = fg.Judge( passedArgs );
+				mysFunction matching = fg.Judge(
+					passedArgs,
+					spaceStack
+				);
 
 				if ( matching != null ) {
 					List<mysToken> bunch = new List<mysToken>( passedArgs );
@@ -371,9 +316,9 @@ namespace mysharp
 			}
 
 			throw new NoSuchSignatureException();
-		}
+		}*/
 
-		void handleFunctionGroup() {
+		/*void handleFunctionGroup() {
 			mysToken returned;
 
 			int taken = evaluateFunctionGroup(
@@ -399,7 +344,7 @@ namespace mysharp
 
 			currentIndex = currentExpression.Count;
 			queue.Clear();
-		}
+		}*/
 
 		public bool CanStep() {
 			return
@@ -430,16 +375,6 @@ namespace mysharp
 				return;
 			}
 
-			/*mysTypes type = current.Type;
-
-			if ( type == mysTypes.Symbol ) {
-				EvaluateSymbolType(
-					current as mysSymbol,
-					evaluationStack
-				);
-			}*/
-
-			//switch ( current.Type ) {
 			switch ( EvaluateTokenType( current, evaluationStack ) ) {
 				case mysTypes.Function:
 					mysFunction f = current as mysFunction;
@@ -474,34 +409,10 @@ namespace mysharp
 					break;
 
 				case mysTypes.FunctionGroup:
-					handleFunctionGroup();
+					//handleFunctionGroup();
 					break;
 
 				case mysTypes.List:
-					// this wont run anything
-					// so it can-
-					// except it fucking will though?
-					// or, well no? beca
-					// fuck, yes it will.
-					// because it's not only going to generate
-					// bunches, it's going to evaluate them too.
-
-					//mysToken evaluatedList = 
-						//(current as mysList)
-							//.Evaluate( evaluationStack ) as mysList;
-
-					/*
-					
-					EvaluationState listes = new EvaluationState(
-						(current as mysList).InternalValues,
-						evaluationStack
-					);
-
-					mysToken preprocessed = listes.PreProcess();
-
-					queue.Enqueue( preprocessed );
-					
-					*/
 
 					mysPreCall pc = new mysPreCall(
 						current as mysList,
@@ -510,36 +421,11 @@ namespace mysharp
 
 					bunchStack.Add( pc );
 
-					/*mysToken evaluatedList = 
-						(current as mysList)
-							.Evaluate( evaluationStack ) as mysList;
-					*/
-
-					/*
-					mysPreCall bunch = new mysPreCall(
-						//(current as mysList),
-						evaluatedList,
-						mysTypes.List
-					);
-					queue.Enqueue( bunch );
-					*/
-
 					currentExpression.Remove( current );
-					//currentExpression.Insert( currentIndex, bunch );
-					//currentExpression.Insert( currentIndex, evaluatedList );
-					//currentExpression.Insert( currentIndex, preprocessed );
 					currentExpression.Insert( currentIndex, pc );
 
 					queue.Enqueue( pc );
 
-					break;
-
-					mysToken returned = ( current as mysList )
-						.Evaluate( evaluationStack );
-
-					if ( returned != null ) {
-						queue.Enqueue( returned );
-					}
 					break;
 
 				default:
