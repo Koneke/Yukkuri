@@ -4,6 +4,162 @@ using System.Linq;
 
 namespace mysharp.Builtins
 {
+	public static class Addition {
+		static mysFunctionGroup functionGroup;
+
+		static void setupIntIntVariant() {
+			mysBuiltin variant = new mysBuiltin();
+
+			variant.ReturnType = mysTypes.Integral;
+
+			variant.Signature.Add( mysTypes.Integral );
+			variant.Signature.Add( mysTypes.Integral );
+
+			variant.Function =
+				new Func<List<mysToken>, Stack<mysSymbolSpace>, mysToken>(
+				(args, sss) =>
+					new mysIntegral(
+						(args[ 0 ] as mysIntegral).Value +
+						(args[ 1 ] as mysIntegral).Value
+					)
+			);
+
+			functionGroup.Variants.Add( variant );
+		}
+
+		public static void Setup( mysSymbolSpace global ) {
+			functionGroup = new mysFunctionGroup();
+
+			setupIntIntVariant();
+
+			mysSymbol symbol = global.Create( "+" );
+			symbol.Type = mysTypes.FunctionGroup;
+			functionGroup.Type = mysTypes.FunctionGroup;
+
+			global.Define(
+				symbol,
+				functionGroup
+			);
+		}
+	}
+
+	public static class Subtraction {
+		static mysFunctionGroup functionGroup;
+
+		static void setupIntIntVariant() {
+			mysBuiltin variant = new mysBuiltin();
+
+			variant.ReturnType = mysTypes.Integral;
+
+			variant.Signature.Add( mysTypes.Integral );
+			variant.Signature.Add( mysTypes.Integral );
+
+			variant.Function =
+				new Func<List<mysToken>, Stack<mysSymbolSpace>, mysToken>(
+				(args, sss) =>
+					new mysIntegral(
+						(args[ 0 ] as mysIntegral).Value -
+						(args[ 1 ] as mysIntegral).Value
+					)
+			);
+
+			functionGroup.Variants.Add( variant );
+		}
+
+		public static void Setup( mysSymbolSpace global ) {
+			functionGroup = new mysFunctionGroup();
+
+			setupIntIntVariant();
+
+			mysSymbol symbol = global.Create( "-" );
+			symbol.Type = mysTypes.FunctionGroup;
+			functionGroup.Type = mysTypes.FunctionGroup;
+
+			global.Define(
+				symbol,
+				functionGroup
+			);
+		}
+	}
+
+	public static class Multiplication {
+		static mysFunctionGroup functionGroup;
+
+		static void setupIntIntVariant() {
+			mysBuiltin variant = new mysBuiltin();
+
+			variant.ReturnType = mysTypes.Integral;
+
+			variant.Signature.Add( mysTypes.Integral );
+			variant.Signature.Add( mysTypes.Integral );
+
+			variant.Function =
+				new Func<List<mysToken>, Stack<mysSymbolSpace>, mysToken>(
+				(args, sss) =>
+					new mysIntegral(
+						(args[ 0 ] as mysIntegral).Value *
+						(args[ 1 ] as mysIntegral).Value
+					)
+			);
+
+			functionGroup.Variants.Add( variant );
+		}
+
+		public static void Setup( mysSymbolSpace global ) {
+			functionGroup = new mysFunctionGroup();
+
+			setupIntIntVariant();
+
+			mysSymbol symbol = global.Create( "*" );
+			symbol.Type = mysTypes.FunctionGroup;
+			functionGroup.Type = mysTypes.FunctionGroup;
+			
+			global.Define(
+				symbol,
+				functionGroup
+			);
+		}
+	}
+
+	public static class Division {
+		static mysFunctionGroup functionGroup;
+
+		static void setupIntIntVariant() {
+			mysBuiltin variant = new mysBuiltin();
+
+			variant.ReturnType = mysTypes.Integral;
+
+			variant.Signature.Add( mysTypes.Integral );
+			variant.Signature.Add( mysTypes.Integral );
+
+			variant.Function =
+				new Func<List<mysToken>, Stack<mysSymbolSpace>, mysToken>(
+				(args, sss) =>
+					new mysIntegral(
+						(args[ 0 ] as mysIntegral).Value /
+						(args[ 1 ] as mysIntegral).Value
+					)
+			);
+
+			functionGroup.Variants.Add( variant );
+		}
+
+		public static void Setup( mysSymbolSpace global ) {
+			functionGroup = new mysFunctionGroup();
+
+			setupIntIntVariant();
+
+			mysSymbol symbol = global.Create( "/" );
+			symbol.Type = mysTypes.FunctionGroup;
+			functionGroup.Type = mysTypes.FunctionGroup;
+			
+			global.Define(
+				symbol,
+				functionGroup
+			);
+		}
+	}
+
 	public static class Assign {
 		static void defineFunction(
 			mysSymbol symbol,
@@ -186,162 +342,6 @@ namespace mysharp.Builtins
 		}
 	}
 
-	public static class Addition {
-		static mysFunctionGroup functionGroup;
-
-		static void setupIntIntVariant() {
-			mysBuiltin variant = new mysBuiltin();
-
-			variant.ReturnType = mysTypes.Integral;
-
-			variant.Signature.Add( mysTypes.Integral );
-			variant.Signature.Add( mysTypes.Integral );
-
-			variant.Function =
-				new Func<List<mysToken>, Stack<mysSymbolSpace>, mysToken>(
-				(args, sss) =>
-					new mysIntegral(
-						(args[ 0 ] as mysIntegral).Value +
-						(args[ 1 ] as mysIntegral).Value
-					)
-			);
-
-			functionGroup.Variants.Add( variant );
-		}
-
-		public static void Setup( mysSymbolSpace global ) {
-			functionGroup = new mysFunctionGroup();
-
-			setupIntIntVariant();
-
-			mysSymbol symbol = global.Create( "+" );
-			symbol.Type = mysTypes.FunctionGroup;
-			functionGroup.Type = mysTypes.FunctionGroup;
-
-			global.Define(
-				symbol,
-				functionGroup
-			);
-		}
-	}
-
-	public static class Subtraction {
-		static mysFunctionGroup functionGroup;
-
-		static void setupIntIntVariant() {
-			mysBuiltin variant = new mysBuiltin();
-
-			variant.ReturnType = mysTypes.Integral;
-
-			variant.Signature.Add( mysTypes.Integral );
-			variant.Signature.Add( mysTypes.Integral );
-
-			variant.Function =
-				new Func<List<mysToken>, Stack<mysSymbolSpace>, mysToken>(
-				(args, sss) =>
-					new mysIntegral(
-						(args[ 0 ] as mysIntegral).Value -
-						(args[ 1 ] as mysIntegral).Value
-					)
-			);
-
-			functionGroup.Variants.Add( variant );
-		}
-
-		public static void Setup( mysSymbolSpace global ) {
-			functionGroup = new mysFunctionGroup();
-
-			setupIntIntVariant();
-
-			mysSymbol symbol = global.Create( "-" );
-			symbol.Type = mysTypes.FunctionGroup;
-			functionGroup.Type = mysTypes.FunctionGroup;
-
-			global.Define(
-				symbol,
-				functionGroup
-			);
-		}
-	}
-
-	public static class Multiplication {
-		static mysFunctionGroup functionGroup;
-
-		static void setupIntIntVariant() {
-			mysBuiltin variant = new mysBuiltin();
-
-			variant.ReturnType = mysTypes.Integral;
-
-			variant.Signature.Add( mysTypes.Integral );
-			variant.Signature.Add( mysTypes.Integral );
-
-			variant.Function =
-				new Func<List<mysToken>, Stack<mysSymbolSpace>, mysToken>(
-				(args, sss) =>
-					new mysIntegral(
-						(args[ 0 ] as mysIntegral).Value *
-						(args[ 1 ] as mysIntegral).Value
-					)
-			);
-
-			functionGroup.Variants.Add( variant );
-		}
-
-		public static void Setup( mysSymbolSpace global ) {
-			functionGroup = new mysFunctionGroup();
-
-			setupIntIntVariant();
-
-			mysSymbol symbol = global.Create( "*" );
-			symbol.Type = mysTypes.FunctionGroup;
-			functionGroup.Type = mysTypes.FunctionGroup;
-			
-			global.Define(
-				symbol,
-				functionGroup
-			);
-		}
-	}
-
-	public static class Division {
-		static mysFunctionGroup functionGroup;
-
-		static void setupIntIntVariant() {
-			mysBuiltin variant = new mysBuiltin();
-
-			variant.ReturnType = mysTypes.Integral;
-
-			variant.Signature.Add( mysTypes.Integral );
-			variant.Signature.Add( mysTypes.Integral );
-
-			variant.Function =
-				new Func<List<mysToken>, Stack<mysSymbolSpace>, mysToken>(
-				(args, sss) =>
-					new mysIntegral(
-						(args[ 0 ] as mysIntegral).Value /
-						(args[ 1 ] as mysIntegral).Value
-					)
-			);
-
-			functionGroup.Variants.Add( variant );
-		}
-
-		public static void Setup( mysSymbolSpace global ) {
-			functionGroup = new mysFunctionGroup();
-
-			setupIntIntVariant();
-
-			mysSymbol symbol = global.Create( "/" );
-			symbol.Type = mysTypes.FunctionGroup;
-			functionGroup.Type = mysTypes.FunctionGroup;
-			
-			global.Define(
-				symbol,
-				functionGroup
-			);
-		}
-	}
-
 	public static class Car {
 		static mysFunctionGroup functionGroup;
 
@@ -402,6 +402,21 @@ namespace mysharp.Builtins
 				symbol,
 				functionGroup
 			);
+		}
+	}
+
+	public static class NewClrObject
+	{
+		static mysFunctionGroup functionGroup;
+
+		public static void Setup( mysSymbolSpace global ) {
+			functionGroup = new mysFunctionGroup();
+
+			mysBuiltin f = new mysBuiltin();
+
+			// ... we don't have strings yet
+			// so just do a temporary, set test object
+			// f.Signature.Add( 
 		}
 	}
 }

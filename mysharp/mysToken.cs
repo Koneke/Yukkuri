@@ -7,9 +7,11 @@
 		Integral,
 		Floating,
 		List,
+		String,
 		Function,
 		FunctionGroup,
-		mysType
+		mysType,
+		clrObject
 	}
 
 	public class mysToken
@@ -107,6 +109,36 @@
 		public override string ToString()
 		{
 			return $"(fl: {Value})";
+		}
+	}
+
+	public class mysString : mysToken
+	{
+		string Value;
+
+		public mysString( string value ) {
+			Type = mysTypes.String;
+			Value = value;
+		}
+
+		public override string ToString()
+		{
+			return $"(str: {Value})";
+		}
+	}
+
+	public class clrObject : mysToken
+	{
+		object Value;
+
+		public clrObject( object value ) {
+			Type = mysTypes.clrObject;
+			Value = value;
+		}
+
+		public override string ToString()
+		{
+			return $"(clr: {Value})";
 		}
 	}
 }

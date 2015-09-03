@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Linq;
+using System.Reflection;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Linq;
 
 namespace mysharp
 {
@@ -67,6 +68,7 @@ namespace mysharp
 			repl.REPLloop();
 		}
 	}
+
 	public class mysREPL
 	{
 		// just for ease of access/reading
@@ -163,6 +165,32 @@ namespace mysharp
 						break;
 				}
 			}
+		}
+
+		public void ExposeTo( Assembly a ) {
+			foreach(Type t in a.GetTypes() ) {
+				Console.WriteLine( t.FullName );
+			}
+
+			Type type = a.GetType( "sample_application.SampleClass" );
+
+			foreach ( FieldInfo fi in type.GetFields() ) {
+				Console.WriteLine( "Field: " + fi.Name );
+			}
+
+			foreach ( MethodInfo mi in type.GetMethods() ) {
+				Console.WriteLine( "Method: " + mi.Name );
+			}
+
+			MethodInfo m = type.GetMethod( "AMethod" );
+			dynamic obj = Activator.CreateInstance( type );
+			object result = m.Invoke( obj, new object[] { } );
+
+			if ( result is int ) {
+				;
+			}
+
+			;
 		}
 	}
 }

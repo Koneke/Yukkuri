@@ -126,10 +126,13 @@ namespace mysharp
 
 						break;
 
+					// do we really need this list here..?
+
 					// only quoted symbols end up here, so we ok
 					case mysTypes.Symbol:
 					// same here, should only be quoted ones
 					case mysTypes.List:
+					case mysTypes.String:
 					case mysTypes.Integral:
 					case mysTypes.Floating:
 					case mysTypes.mysType:

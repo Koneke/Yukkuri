@@ -29,6 +29,7 @@ namespace mysharp_tests
 			string expression,
 			System.Func<mysToken, bool> evaluation
 		) {
+			// might want to not autocar this, but it is useful right now
 			mysToken result = REPL.Evaluate( expression ).Car();
 
 			Debug.Assert(

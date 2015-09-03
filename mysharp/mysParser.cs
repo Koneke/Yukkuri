@@ -15,6 +15,7 @@ namespace mysharp
 				{ "fng",  mysTypes.FunctionGroup },
 
 				{ "list",  mysTypes.List },
+				{ "str",  mysTypes.String },
 
 				{ "sym",  mysTypes.Symbol },
 
@@ -97,10 +98,43 @@ namespace mysharp
 			int current;
 			bool quote;
 
+			Queue<string> stringQueue;
+
 			public ParseMachine(
-				string expression
+				string expression,
+				Queue<string> inheritedStringQueue = null
 			) {
-				this.expression = expression
+				bool inString = false;
+				string currentString = "";
+				stringQueue = inheritedStringQueue ?? new Queue<string>();
+
+				string expressionCopy = expression;
+
+				for ( int i = 0; i < expression.Count(); i++ ) {
+					if ( expression[ i ] == '"' ) {
+						if ( i > 0 && expression[ i - 1 ] == '\\' ) {
+							currentString += expression[ i ];
+						} else {
+							inString = !inString;
+
+							if ( !inString ) {
+								stringQueue.Enqueue( currentString );
+								expressionCopy = expressionCopy
+									.Replace(
+										"\"" + currentString + "\"",
+										"STR_LEX"
+									);
+								currentString = "";
+							}
+						}
+					} else {
+						if ( inString ) {
+							currentString += expression[ i ];
+						}
+					}
+				}
+
+				this.expression = expressionCopy
 					.Replace( "(", " ( " )
 					.Replace( ")", " ) " )
 					.Replace( "[", " [ " )
@@ -121,8 +155,6 @@ namespace mysharp
 			int findBuddy( string character ) {
 				int depth = 0;
 
-				bool inQuote = false;
-
 				string matching;
 				switch ( character ) {
 					case "(": matching = ")"; break;
@@ -135,18 +167,12 @@ namespace mysharp
 					endToken < expression.Count;
 					endToken++
 				) {
-					if ( !inQuote ) {
-						if ( expression[ endToken ] == character ) {
-							depth++;
-						} else if ( expression[ endToken ] == matching ) {
-							depth--;
-							if ( depth == -1 ) {
-								return endToken;
-							}
-						}
-					} else if ( expression[ endToken ] == "\"" ) {
-						if ( expression[ endToken - 1 ] != "\\" ) {
-							inQuote = !inQuote;
+					if ( expression[ endToken ] == character ) {
+						depth++;
+					} else if ( expression[ endToken ] == matching ) {
+						depth--;
+						if ( depth == -1 ) {
+							return endToken;
 						}
 					}
 				}
@@ -159,7 +185,7 @@ namespace mysharp
 					" ", expression.Between( current + 1, length - 2)
 				);
 
-				ParseMachine pm = new ParseMachine( body );
+				ParseMachine pm = new ParseMachine( body, stringQueue );
 				while ( pm.CanStep() ) {
 					pm.Step();
 				}
@@ -210,6 +236,18 @@ namespace mysharp
 
 					case "'":
 						quote = true;
+
+						expression.RemoveAt( current );
+						current--;
+						break;
+
+					case "STR_LEX":
+						Tokens.Add(
+							new mysString( stringQueue.Dequeue() )
+								.Quote( quote )
+						);
+
+						quote = false;
 
 						expression.RemoveAt( current );
 						current--;
