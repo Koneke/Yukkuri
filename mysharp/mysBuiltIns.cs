@@ -4,63 +4,12 @@ using System.Linq;
 
 namespace mysharp.Builtins
 {
-	public static class lambdaBuiltin  {
-		static void Argumentcheck(
+	public static class assignBuiltin {
+		static void defineFunction(
 			mysSymbol symbol,
-			mysList sig,
-			mysList body
+			mysFunction f,
+			mysSymbolSpace ss
 		) {
-			if (
-				symbol == null || sig == null || body == null
-			) {
-				throw new ArgumentException();
-			}
-
-			if ( sig.InternalValues.Count %2 != 0 ) {
-				throw new ArgumentException();
-			}
-
-			for ( int i = 0; i < sig.InternalValues.Count; i++ ) {
-				if ( sig.InternalValues[ i ].Type !=
-					( i % 2 == 0
-						? mysTypes.Symbol
-						: mysTypes.mysType )
-				) {
-					throw new ArgumentException();
-				}
-			}
-		}
-
-		public static mysToken Evaluate(
-			mysSymbol symbol,
-			mysList sig,
-			mysList body,
-			Stack<mysSymbolSpace> sss
-		) {
-			mysSymbolSpace ss = sss.Peek();
-
-			Argumentcheck( symbol, sig, body );
-
-			// define function variant
-			mysFunction f = new mysFunction();
-
-			// these two should probably be joined at some point
-			for ( int i = 0; i < sig.InternalValues.Count; i++ ) {
-				if ( sig.InternalValues[ i ].Type == mysTypes.Symbol ) {
-					f.Symbols.Add(
-						sig.InternalValues[ i ] as mysSymbol
-					);
-				} else {
-					f.Signature.Add(
-						( sig.InternalValues[ i ] as mysTypeToken )
-							.TypeValue
-					);
-				}
-			}
-
-			f.Function = body;
-			// end define function variant
-
 			mysFunctionGroup fg = null;
 
 			// if symbol defined and of wrong type, undef it
@@ -99,13 +48,111 @@ namespace mysharp.Builtins
 			}
 
 			fg.Variants.Add( f );
+		}
 
-			// since we return our function group, unless quoted
-			// we'll automatically evaluate it.
-			// this is probably a good reason for allowing null returns.
-			//return fg.Quote();
+		public static mysToken Evaluate(
+			mysSymbol symbol,
+			mysToken value,
+			Stack<mysSymbolSpace> stackSpace
+		) {
+
+			switch ( value.Type ) {
+				case mysTypes.Function:
+					defineFunction(
+						symbol,
+						value as mysFunction,
+						stackSpace.Peek()
+					);
+					break;
+
+				default:
+					stackSpace.Peek().Define( symbol, value );
+					break;
+			}
 
 			return null;
+		}
+
+		public static void Setup( mysSymbolSpace global )
+		{
+			mysFunctionGroup assign = new mysFunctionGroup();
+			mysBuiltin assignVariant = new mysBuiltin();
+
+			assignVariant = new mysBuiltin();
+			assignVariant.Signature.Add( mysTypes.Symbol );
+			assignVariant.Signature.Add( mysTypes.ANY );
+
+			assignVariant.Function = (args, sss) => {
+				mysSymbolSpace ss = sss.Peek();
+
+				mysSymbol assignsymbol = args[ 0 ] as mysSymbol;
+				mysToken value = args[ 1 ];
+
+				return Evaluate( assignsymbol, value, sss );
+			};
+
+			assign.Variants.Add( assignVariant );
+			
+			mysSymbol symbol = global.Create( "def" );
+			assign.Type = mysTypes.FunctionGroup;
+
+			global.Define(
+				symbol,
+				assign
+			);
+		}
+	}
+
+	public static class lambdaBuiltin  {
+		static void Argumentcheck(
+			mysList sig,
+			mysList body
+		) {
+			if ( sig.InternalValues.Count %2 != 0 ) {
+				throw new ArgumentException();
+			}
+
+			for ( int i = 0; i < sig.InternalValues.Count; i++ ) {
+				if ( sig.InternalValues[ i ].Type !=
+					( i % 2 == 0
+						? mysTypes.Symbol
+						: mysTypes.mysType )
+				) {
+					throw new ArgumentException();
+				}
+			}
+		}
+
+		public static mysToken Evaluate(
+			mysList sig,
+			mysList body,
+			Stack<mysSymbolSpace> sss
+		) {
+			mysSymbolSpace ss = sss.Peek();
+
+			Argumentcheck( sig, body );
+
+			// define function variant
+			mysFunction f = new mysFunction();
+
+			// these two should probably be joined at some point
+			for ( int i = 0; i < sig.InternalValues.Count; i++ ) {
+				if ( sig.InternalValues[ i ].Type == mysTypes.Symbol ) {
+					f.Symbols.Add(
+						sig.InternalValues[ i ] as mysSymbol
+					);
+				} else {
+					f.Signature.Add(
+						( sig.InternalValues[ i ] as mysTypeToken )
+							.TypeValue
+					);
+				}
+			}
+
+			f.Function = body;
+			// end define function variant
+
+			return f;
 		}
 
 		public static void Setup( mysSymbolSpace global )
@@ -114,20 +161,16 @@ namespace mysharp.Builtins
 			mysBuiltin lambdaVariant = new mysBuiltin();
 
 			lambdaVariant = new mysBuiltin();
-			lambdaVariant.Signature.Add( mysTypes.Symbol );
-			// might want to (heh) return to this later
-			//lambdaVariant.Signature.Add( mysTypes.mysType );
 			lambdaVariant.Signature.Add( mysTypes.List );
 			lambdaVariant.Signature.Add( mysTypes.List );
 
 			lambdaVariant.Function = (args, sss) => {
 				mysSymbolSpace ss = sss.Peek();
 
-				mysSymbol fnsymbol = args[ 0 ] as mysSymbol;
-				mysList sig = args[ 1 ] as mysList;
-				mysList body = args[ 2 ] as mysList;
+				mysList sig = args[ 0 ] as mysList;
+				mysList body = args[ 1 ] as mysList;
 
-				return Evaluate( fnsymbol, sig, body, sss );
+				return Evaluate( sig, body, sss );
 			};
 
 			lambda.Variants.Add( lambdaVariant );
@@ -312,6 +355,7 @@ namespace mysharp
 			Builtins.DivisionBuiltin.Setup( global );
 
 			Builtins.lambdaBuiltin.Setup( global );
+			Builtins.assignBuiltin.Setup( global );
 		}
 	}
 

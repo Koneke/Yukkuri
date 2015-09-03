@@ -2,6 +2,7 @@
 {
 	public enum mysTypes {
 		NULLTYPE,
+		ANY,
 		Symbol,
 		Integral,
 		Floating,

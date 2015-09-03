@@ -34,6 +34,7 @@ namespace mysharp
 			System.Func<mysTypes, mysToken, bool> typeCheck =
 				(type, token) =>
 					type == token.Type ||
+					type == mysTypes.ANY ||
 					( token.Type == mysTypes.Symbol &&
 					  symbolType( token as mysSymbol ) == type)
 			;
@@ -47,13 +48,6 @@ namespace mysharp
 					.Zip(
 						arguments,
 						typeCheck
-						/*(va, a) =>
-							va == a.Type ||
-							( a.Type == mysTypes.Symbol &&
-							EvaluationMachine.EvaluateSymbolType(
-								a as mysSymbol,
-								spaceStack
-							) == va )*/
 					)
 					// find the ones where previous comparison was true
 					.Where( p => p )
