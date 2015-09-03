@@ -38,6 +38,25 @@ namespace mysharp
 				.Skip( first )
 				.Take( count );
 		}
+
+		public static T Car<T>(
+			this IEnumerable<T> enumerable
+		) {
+			return enumerable.FirstOrDefault();
+		}
+
+		public static IEnumerable<T> Cdr<T>(
+			this IEnumerable<T> enumerable
+		) {
+			return enumerable.Skip( 1 );
+		}
+
+		public static string StringJoin<T>(
+			this IEnumerable<T> enumerable,
+			string separator = ""
+		) {
+			return string.Join( separator, enumerable );
+		}
 	}
 
 	class Program
@@ -73,30 +92,61 @@ namespace mysharp
 			mysParser parser = new mysParser();
 
 			bool quit = false;
+			bool strict = false;
+			string accumInput = "";
+
 			while ( !quit ) {
-				Console.Write( " > " );
+				Console.Write(
+					accumInput == ""
+					? " > "
+					: " . "
+				);
 				string input = Console.ReadLine();
-				if ( input == "(quit)" ) {
-					quit = true;
-				} else {
-					parsed = parser.Parse( input );
 
-					try {
-						EvaluationMachine em = new EvaluationMachine();
-						List<mysToken> output = em.Evaluate(
-							parsed,
-							spaceStack
-						);
+				switch ( input ) {
+					case "quit":
+					case "(quit)":
+						quit = true;
+						break;
 
-						string outputstring = string.Join( ", ", output );
-						if ( outputstring != "" ) {
-							Console.WriteLine( outputstring );
+					case "strict":
+					case "(strict)":
+						strict = !strict;
+						Console.WriteLine( "Strict is now {0}.\n", strict );
+						break;
+
+					default:
+						accumInput += input;
+
+						if ( input.Last() == '\\') {
+							break;
 						}
 
-						Console.WriteLine( "Ok.\n" );
-					} catch (Exception e) {
-						Console.WriteLine( e.Message + "\n" );
-					}
+						accumInput = accumInput
+							.Replace( '\\', ' ' )
+							.Replace( "\t", "" )
+						;
+
+						parsed = parser.Parse( accumInput );
+						accumInput = "";
+
+						try {
+							EvaluationMachine em = new EvaluationMachine(
+								parsed,
+								spaceStack
+							);
+							List<mysToken> output = em.Evaluate();
+
+							string outputstring = string.Join( ", ", output );
+							if ( outputstring != "" ) {
+								Console.WriteLine( outputstring );
+							}
+
+							Console.WriteLine( "Ok.\n" );
+						} catch (Exception e) when ( !strict ) {
+							Console.WriteLine( e.Message + "\n" );
+						}
+						break;
 				}
 			}
 		}

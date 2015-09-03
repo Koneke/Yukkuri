@@ -77,6 +77,17 @@ namespace mysharp
 			get { return Signature.Count; }
 		}
 
+		public override string ToString()
+		{
+			return string.Format(
+				"(fn: sig: [{0}])",
+				string.Join(
+					", ",
+					Signature.Select( s => s.ToString() )
+				)
+			);
+		}
+
 		public mysList Function;
 
 		public mysFunction() {
@@ -110,11 +121,11 @@ namespace mysharp
 
 			spaceStack.Push( internalSpace );
 
-			EvaluationMachine em = new EvaluationMachine();
-			List<mysToken> result = em.Evaluate(
+			EvaluationMachine em = new EvaluationMachine(
 				Function.InternalValues,
 				spaceStack
 			);
+			List<mysToken> result = em.Evaluate();
 
 			spaceStack.Pop();
 

@@ -5,13 +5,18 @@ using System.Linq;
 namespace mysharp
 {
 	public class EvaluationMachine {
-		public List<mysToken> Evaluate(
+		List<mysToken> tokens;
+		Stack<mysSymbolSpace> spaceStack;
+
+		public EvaluationMachine(
 			List<mysToken> tokenList,
 			Stack<mysSymbolSpace> spaceStack
 		) {
-			// operate on copy so we're non-destructive
-			List<mysToken> tokens = new List<mysToken>( tokenList );
+			tokens = new List<mysToken>( tokenList );
+			this.spaceStack = spaceStack;
+		}
 
+		void EvaluateLists() {
 			// while any list
 			// eval list
 			while ( true ) {
@@ -27,14 +32,23 @@ namespace mysharp
 				int index = tokens.IndexOf( list );
 				tokens.Remove( list );
 
+				EvaluationMachine em = new EvaluationMachine(
+					list.InternalValues,
+					spaceStack
+				);
+
 				tokens.InsertRange(
 					index,
-					Evaluate(
-						list.InternalValues,
-						spaceStack
-					)
+					em.Evaluate()
 				);
 			}
+		}
+
+		public List<mysToken> Evaluate() {
+			// operate on copy so we're non-destructive
+			//tokens = new List<mysToken>( tokenList );
+
+			EvaluateLists();
 
 			mysSymbol symbolic = null;
 

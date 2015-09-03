@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace mysharp.Builtins
 {
-	public static class assignBuiltin {
+	public static class Assign {
 		static void defineFunction(
 			mysSymbol symbol,
 			mysFunction f,
@@ -103,7 +103,7 @@ namespace mysharp.Builtins
 		}
 	}
 
-	public static class lambdaBuiltin  {
+	public static class Lambda  {
 		static void Argumentcheck(
 			mysList sig,
 			mysList body
@@ -186,7 +186,7 @@ namespace mysharp.Builtins
 		}
 	}
 
-	public static class AdditionBuiltin {
+	public static class Addition {
 		static mysFunctionGroup functionGroup;
 
 		static void setupIntIntVariant() {
@@ -225,7 +225,7 @@ namespace mysharp.Builtins
 		}
 	}
 
-	public static class SubtractionBuiltin {
+	public static class Subtraction {
 		static mysFunctionGroup functionGroup;
 
 		static void setupIntIntVariant() {
@@ -264,7 +264,7 @@ namespace mysharp.Builtins
 		}
 	}
 
-	public static class MultiplicationBuiltin {
+	public static class Multiplication {
 		static mysFunctionGroup functionGroup;
 
 		static void setupIntIntVariant() {
@@ -303,7 +303,7 @@ namespace mysharp.Builtins
 		}
 	}
 
-	public static class DivisionBuiltin {
+	public static class Division {
 		static mysFunctionGroup functionGroup;
 
 		static void setupIntIntVariant() {
@@ -341,6 +341,69 @@ namespace mysharp.Builtins
 			);
 		}
 	}
+
+	public static class Car {
+		static mysFunctionGroup functionGroup;
+
+		public static void Setup( mysSymbolSpace global ) {
+			functionGroup = new mysFunctionGroup();
+
+			mysBuiltin f = new mysBuiltin();
+
+			//f.returnType
+
+			f.Signature.Add( mysTypes.List );
+
+			f.Function = (args, sss) =>
+				( args[ 0 ] as mysList ).InternalValues
+					.FirstOrDefault()
+			;
+
+			functionGroup.Variants.Add( f );
+
+			mysSymbol symbol = global.Create( "car" );
+			symbol.Type = mysTypes.FunctionGroup;
+			functionGroup.Type = mysTypes.FunctionGroup;
+			
+			global.Define(
+				symbol,
+				functionGroup
+			);
+		}
+	}
+
+	public static class Cdr {
+		static mysFunctionGroup functionGroup;
+
+		public static void Setup( mysSymbolSpace global ) {
+			functionGroup = new mysFunctionGroup();
+
+			mysBuiltin f = new mysBuiltin();
+
+			//f.returnType
+
+			f.Signature.Add( mysTypes.List );
+
+			f.Function = (args, sss) =>
+				new mysList(
+					( args[ 0 ] as mysList ).InternalValues
+						.Skip( 1 )
+						.ToList()
+				).Quote( args[ 0 ].Quoted )
+			;
+
+			functionGroup.Variants.Add( f );
+
+			mysSymbol symbol = global.Create( "cdr" );
+			symbol.Type = mysTypes.FunctionGroup;
+			functionGroup.Type = mysTypes.FunctionGroup;
+			
+			global.Define(
+				symbol,
+				functionGroup
+			);
+		}
+	}
 }
 
 namespace mysharp
@@ -349,13 +412,16 @@ namespace mysharp
 		public static void Setup(
 			mysSymbolSpace global
 		) {
-			Builtins.AdditionBuiltin.Setup( global );
-			Builtins.SubtractionBuiltin.Setup( global );
-			Builtins.MultiplicationBuiltin.Setup( global );
-			Builtins.DivisionBuiltin.Setup( global );
+			Builtins.Addition.Setup( global );
+			Builtins.Subtraction.Setup( global );
+			Builtins.Multiplication.Setup( global );
+			Builtins.Division.Setup( global );
 
-			Builtins.lambdaBuiltin.Setup( global );
-			Builtins.assignBuiltin.Setup( global );
+			Builtins.Lambda.Setup( global );
+			Builtins.Assign.Setup( global );
+
+			Builtins.Car.Setup( global );
+			Builtins.Cdr.Setup( global );
 		}
 	}
 

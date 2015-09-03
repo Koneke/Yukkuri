@@ -76,7 +76,7 @@
 
 		public override string ToString()
 		{
-			return TypeValue.ToString();
+			return $"(typetoken: {TypeValue})";
 		}
 	}
 
@@ -91,7 +91,7 @@
 
 		public override string ToString()
 		{
-			return Value.ToString();
+			return $"(int: {Value})";
 		}
 	}
 
@@ -106,7 +106,7 @@
 
 		public override string ToString()
 		{
-			return Value.ToString();
+			return $"(fl: {Value})";
 		}
 	}
 }
