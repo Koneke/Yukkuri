@@ -54,7 +54,11 @@
 
 		public override string ToString()
 		{
-			return stringRepresentation;
+			return string.Format(
+				"({1}sym: {0})",
+				stringRepresentation,
+				Quoted ? "q " : ""
+			);
 		}
 
 		// move symbol evaluate in here? makes sense

@@ -36,13 +36,19 @@ namespace mysharp
 				);
 			}
 
+			mysSymbol symbolic = null;
+
 			for ( int i = 0; i < tokens.Count(); i++ ) {
 				if ( tokens[ i ].Type == mysTypes.Symbol ) {
+					symbolic = tokens[ i ] as mysSymbol;
+
 					if ( !tokens[ i ].Quoted ) {
 						tokens[ i ] = EvaluateSymbol(
 							tokens[ i ] as mysSymbol,
 							spaceStack
 						);
+					} else {
+						tokens[ i ].Quoted = false;
 					}
 				}
 
@@ -71,7 +77,15 @@ namespace mysharp
 					}
 
 					if ( f == null ) {
-						throw new NoSuchSignatureException();
+						throw new NoSuchSignatureException(
+							string.Format(
+								"Can't evaluate functiongroup {0}: " +
+								"No such signature exists.",
+								symbolic != null
+									? symbolic.ToString()
+									: "(unknown symbol)"
+							)
+						);
 					}
 
 					tokens.RemoveAt( i );
@@ -143,7 +157,12 @@ namespace mysharp
 				}
 			}
 
-			throw new ArgumentException( "Symbol isn't defined." );
+			throw new ArgumentException(
+				string.Format(
+					"Can't evaluate symbol {0}: Symbol isn't defined.",
+					symbol.ToString()
+				)
+			);
 		}
 	}
 }

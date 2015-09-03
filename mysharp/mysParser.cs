@@ -7,7 +7,7 @@ namespace mysharp
 	public class mysParser
 	{
 		// parses SIMPLE VALUES, NOT LISTS
-		public mysToken ParseLex( string s ) {
+		public static mysToken ParseLex( string s ) {
 			mysToken token = null;
 
 			if ( s[ 0 ] == ':' ) {
@@ -33,90 +33,157 @@ namespace mysharp
 			return token;
 		}
 
-		// jesus fuck why does this function still look like this.
-		// redo, split, nicen
-		public List<mysToken> Parse( string expression ) {
-			List<string> split = expression
-				.Replace( "(", " ( " )
-				.Replace( ")", " ) " )
-				.Replace( "'", " ' " )
-				.Split(' ')
-				.Where( sub => sub != " " && sub != "" )
-				.ToList()
-			;
+		class ParseMachine
+		{
+			public List<mysToken> Tokens;
+			List<string> expression;
+			int current;
+			bool quote;
 
-			List<mysToken> tokens = new List<mysToken>();
-
-			bool quote = false;
-
-			for (
-				int startToken = 0;
-				startToken < split.Count;
-				startToken++
+			public ParseMachine(
+				string expression
 			) {
-				if ( split[ startToken ] == "(" ) {
-					int depth = 0;
+				this.expression = expression
+					.Replace( "(", " ( " )
+					.Replace( ")", " ) " )
+					.Replace( "[", " [ " )
+					.Replace( "]", " ] " )
+					.Replace( "'", " ' " )
+					.Split(' ')
+					.Where( sub => sub != " " && sub != "" )
+					.ToList()
+				;
 
-					for (
-						int endToken = startToken + 1;
-						endToken < split.Count;
-						endToken++
-					) {
-						if ( split[ endToken ] == "(" ) {
-							depth++;
-						} else if ( split[ endToken ] == ")" ) {
-							depth--;
-							if ( depth == -1 ) {
-								int count = endToken - startToken + 1;
+				current = 0;
 
-								string body = string.Join(
-									" ",
-									split
-										.Skip( startToken + 1 )
-										.Take( count - 2 )
-								);
+				Tokens = new List<mysToken>();
 
-								List<mysToken> bodyTokens = Parse( body );
-
-								mysList list = new mysList(
-									bodyTokens,
-									quote
-								);
-								tokens.Add( list );
-
-								quote = false;
-
-								split.RemoveRange(
-									startToken,
-									endToken - startToken + 1
-								);
-								startToken--;
-								break;
-							}
-						}
-					}
-				} else if ( split[ startToken ] == "'" ) {
-					quote = true;
-
-					split.RemoveAt( startToken );
-					startToken--;
-				} else {
-					// simple value
-					tokens.Add(
-						ParseLex( split[ startToken ] )
-							.Quote( quote )
-					);
-
-					quote = false;
-
-					split.RemoveAt( startToken );
-					startToken--;
-				}
+				quote = false;
 			}
 
-			return tokens;
-			//return new mysList( tokens );
+			int findBuddy( string character ) {
+				int depth = 0;
+
+				bool inQuote = false;
+
+				string matching;
+				switch ( character ) {
+					case "(": matching = ")"; break;
+					case "[": matching = "]"; break;
+					default: throw new FormatException();
+				}
+
+				for (
+					int endToken = current + 1;
+					endToken < expression.Count;
+					endToken++
+				) {
+					if ( !inQuote ) {
+						if ( expression[ endToken ] == character ) {
+							depth++;
+						} else if ( expression[ endToken ] == matching ) {
+							depth--;
+							if ( depth == -1 ) {
+								return endToken;
+							}
+						}
+					} else if ( expression[ endToken ] == "\"" ) {
+						if ( expression[ endToken - 1 ] != "\\" ) {
+							inQuote = !inQuote;
+						}
+					}
+				}
+
+				throw new FormatException();
+			}
+
+			void makeList( int length ) {
+				string body = string.Join(
+					" ", expression.Between( current + 1, length - 2)
+				);
+
+				ParseMachine pm = new ParseMachine( body );
+				while ( pm.CanStep() ) {
+					pm.Step();
+				}
+
+				List<mysToken> bodyTokens = pm.Tokens;
+
+				mysList list = new mysList(
+					bodyTokens,
+					quote
+				);
+				Tokens.Add( list );
+
+				quote = false;
+
+				expression.RemoveRange(
+					current,
+					length
+				);
+
+				current--;
+			}
+
+			public bool CanStep() {
+				return current < expression.Count;
+			}
+
+			public void Step() {
+				string token = expression[ current ];
+
+				int end, count;
+
+				switch ( token ) {
+					case "(":
+						end = findBuddy( token );
+						count = end - current + 1;
+
+						makeList( count );
+						break;
+
+					case "[":
+						quote = true;
+
+						end = findBuddy( token );
+						count = end - current + 1;
+
+						makeList( count );
+						break;
+
+					case "'":
+						quote = true;
+
+						expression.RemoveAt( current );
+						current--;
+						break;
+
+					default:
+						// simple value
+						Tokens.Add(
+							ParseLex( expression[ current ] )
+								.Quote( quote )
+						);
+
+						quote = false;
+
+						expression.RemoveAt( current );
+						current--;
+						break;
+				}
+
+				current++;
+			}
+		}
+
+		public List<mysToken> Parse( string expression ) {
+
+			ParseMachine pm = new ParseMachine( expression );
+			while ( pm.CanStep() ) {
+				pm.Step();
+			}
+
+			return pm.Tokens;
 		}
 	}
-
 }

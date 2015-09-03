@@ -5,7 +5,12 @@ using System.Linq;
 
 namespace mysharp
 {
-	class NoSuchSignatureException : Exception { }
+	class NoSuchSignatureException : Exception
+	{
+		public NoSuchSignatureException(string message) : base(message)
+		{
+		}
+	}
 
 	public static class Extensions
 	{
@@ -22,6 +27,16 @@ namespace mysharp
 		public static Stack<T> Clone<T>(this Stack<T> stack) {
 			Contract.Requires( stack != null );
 			return new Stack<T>( new Stack<T>( stack ) );
+		}
+
+		public static IEnumerable<T> Between<T>(
+			this IEnumerable<T> enumerable,
+			int first,
+			int count
+		) {
+			return enumerable
+				.Skip( first )
+				.Take( count );
 		}
 	}
 
@@ -66,15 +81,22 @@ namespace mysharp
 				} else {
 					parsed = parser.Parse( input );
 
-					EvaluationMachine em = new EvaluationMachine();
-					List<mysToken> output = em.Evaluate( parsed, spaceStack );
+					try {
+						EvaluationMachine em = new EvaluationMachine();
+						List<mysToken> output = em.Evaluate(
+							parsed,
+							spaceStack
+						);
 
-					string outputstring = string.Join( ", ", output );
-					if ( outputstring != "" ) {
-						Console.WriteLine( outputstring );
+						string outputstring = string.Join( ", ", output );
+						if ( outputstring != "" ) {
+							Console.WriteLine( outputstring );
+						}
+
+						Console.WriteLine( "Ok.\n" );
+					} catch (Exception e) {
+						Console.WriteLine( e.Message + "\n" );
 					}
-
-					Console.WriteLine( "Ok.\n" );
 				}
 			}
 		}

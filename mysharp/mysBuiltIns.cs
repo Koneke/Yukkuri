@@ -86,6 +86,18 @@ namespace mysharp.Builtins
 				symbol.Type = mysTypes.FunctionGroup;
 			}
 
+			mysFunction collision = fg.Variants.FirstOrDefault(
+				v => v.Signature
+					.Zip( f.Signature, (a, b) => a == b )
+					.Count() == v.SignatureLength
+			);
+
+			if ( collision != null ) {
+				// overwrite a conflicting sig! should probably
+				// notify the user about this when it happens.
+				fg.Variants.Remove( collision );
+			}
+
 			fg.Variants.Add( f );
 
 			// since we return our function group, unless quoted

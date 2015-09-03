@@ -15,5 +15,13 @@ namespace mysharp
 			Quoted = quoted;
 			InternalValues = new List<mysToken>( list );
 		}
+
+		public override string ToString()
+		{
+			return string.Format(
+				"(list: {0})",
+				string.Join(", ", InternalValues)
+			);
+		}
 	}
 }
