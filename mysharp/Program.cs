@@ -64,6 +64,7 @@ namespace mysharp
 		static void Main(string[] args)
 		{
 			mysREPL repl = new mysREPL();
+			repl.REPLloop();
 		}
 	}
 	public class mysREPL
@@ -78,6 +79,8 @@ namespace mysharp
 		public Stack<mysSymbolSpace> spaceStack;
 
 		public mysREPL() {
+			parser = new mysParser();
+
 			nameSpaces = new Dictionary<string, mysSymbolSpace>();
 
 			Global = new mysSymbolSpace();
@@ -87,12 +90,32 @@ namespace mysharp
 			spaceStack.Push( Global );
 
 			mysBuiltins.Setup( Global );
+		}
 
-			List<mysToken> parsed;
-			mysParser parser = new mysParser();
+		public List<mysToken> Evaluate( string expression ) {
+			List<mysToken> parsed = parser.Parse( expression );
 
+			try {
+				EvaluationMachine em = new EvaluationMachine(
+					parsed,
+					spaceStack
+				);
+				List<mysToken> output = em.Evaluate();
+
+				return output;
+			} catch (Exception e) when ( !strict ) {
+				Console.WriteLine( e.Message + "\n" );
+				return null;
+			}
+		}
+
+		mysParser parser;
+		bool strict;
+
+		// loop loop, I know...
+		public void REPLloop() {
 			bool quit = false;
-			bool strict = false;
+			strict = false;
 			string accumInput = "";
 
 			while ( !quit ) {
@@ -127,25 +150,16 @@ namespace mysharp
 							.Replace( "\t", "" )
 						;
 
-						parsed = parser.Parse( accumInput );
-						accumInput = "";
+						List<mysToken> output = Evaluate( accumInput );
 
-						try {
-							EvaluationMachine em = new EvaluationMachine(
-								parsed,
-								spaceStack
-							);
-							List<mysToken> output = em.Evaluate();
-
-							string outputstring = string.Join( ", ", output );
-							if ( outputstring != "" ) {
-								Console.WriteLine( outputstring );
-							}
-
-							Console.WriteLine( "Ok.\n" );
-						} catch (Exception e) when ( !strict ) {
-							Console.WriteLine( e.Message + "\n" );
+						string outputstring = string.Join( ", ", output );
+						if ( outputstring != "" ) {
+							Console.WriteLine( outputstring );
 						}
+
+						Console.WriteLine( "Ok.\n" );
+
+						accumInput = "";
 						break;
 				}
 			}
