@@ -6,9 +6,12 @@ namespace mysharp
 {
 	public class EvaluationMachine {
 		public List<mysToken> Evaluate(
-			List<mysToken> tokens,
+			List<mysToken> tokenList,
 			Stack<mysSymbolSpace> spaceStack
 		) {
+			// operate on copy so we're non-destructive
+			List<mysToken> tokens = new List<mysToken>( tokenList );
+
 			// while any list
 			// eval list
 			while ( true ) {

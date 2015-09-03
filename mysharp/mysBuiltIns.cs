@@ -7,60 +7,55 @@ namespace mysharp.Builtins
 	public static class lambdaBuiltin  {
 		static void Argumentcheck(
 			mysSymbol symbol,
-			mysList types,
-			mysList symbols,
+			mysList sig,
 			mysList body
 		) {
 			if (
-				symbol == null || types == null ||
-				symbols == null || body == null
+				symbol == null || sig == null || body == null
 			) {
 				throw new ArgumentException();
 			}
 
-			if (
-				types.InternalValues.Count() !=
-				symbols.InternalValues.Count()
-			) {
+			if ( sig.InternalValues.Count %2 != 0 ) {
 				throw new ArgumentException();
 			}
 
-			if (
-				types.InternalValues.Count <= 0 ||
-				types.InternalValues
-					.Any(t => (t as mysToken).Type != mysTypes.mysType)
-			) {
-				throw new ArgumentException();
-			}
-
-			if (
-				symbols.InternalValues.Count <= 0 ||
-				symbols.InternalValues
-					.Any(t => (t as mysToken).Type != mysTypes.Symbol)
-			) {
-				throw new ArgumentException();
+			for ( int i = 0; i < sig.InternalValues.Count; i++ ) {
+				if ( sig.InternalValues[ i ].Type !=
+					( i % 2 == 0
+						? mysTypes.Symbol
+						: mysTypes.mysType )
+				) {
+					throw new ArgumentException();
+				}
 			}
 		}
 
 		public static mysToken Evaluate(
 			mysSymbol symbol,
-			mysList types,
-			mysList symbols,
+			mysList sig,
 			mysList body,
 			Stack<mysSymbolSpace> sss
 		) {
 			mysSymbolSpace ss = sss.Peek();
 
-			Argumentcheck( symbol, types, symbols, body );
+			Argumentcheck( symbol, sig, body );
 
 			// define function variant
 			mysFunction f = new mysFunction();
+
 			// these two should probably be joined at some point
-			foreach ( mysToken t in types.InternalValues ) {
-				f.Signature.Add( ( t as mysTypeToken ).TypeValue );
-			}
-			foreach ( mysToken t in symbols.InternalValues ) {
-				f.Symbols.Add( t as mysSymbol  );
+			for ( int i = 0; i < sig.InternalValues.Count; i++ ) {
+				if ( sig.InternalValues[ i ].Type == mysTypes.Symbol ) {
+					f.Symbols.Add(
+						sig.InternalValues[ i ] as mysSymbol
+					);
+				} else {
+					f.Signature.Add(
+						( sig.InternalValues[ i ] as mysTypeToken )
+							.TypeValue
+					);
+				}
 			}
 
 			f.Function = body;
@@ -108,8 +103,8 @@ namespace mysharp.Builtins
 
 			lambdaVariant = new mysBuiltin();
 			lambdaVariant.Signature.Add( mysTypes.Symbol );
-			lambdaVariant.Signature.Add( mysTypes.mysType );
-			lambdaVariant.Signature.Add( mysTypes.List );
+			// might want to (heh) return to this later
+			//lambdaVariant.Signature.Add( mysTypes.mysType );
 			lambdaVariant.Signature.Add( mysTypes.List );
 			lambdaVariant.Signature.Add( mysTypes.List );
 
@@ -117,11 +112,10 @@ namespace mysharp.Builtins
 				mysSymbolSpace ss = sss.Peek();
 
 				mysSymbol fnsymbol = args[ 0 ] as mysSymbol;
-				mysList types = args[ 2 ] as mysList;
-				mysList symbols = args[ 3 ] as mysList;
-				mysList body = args[ 4 ] as mysList;
+				mysList sig = args[ 1 ] as mysList;
+				mysList body = args[ 2 ] as mysList;
 
-				return Evaluate( fnsymbol, types, symbols, body, sss );
+				return Evaluate( fnsymbol, sig, body, sss );
 			};
 
 			lambda.Variants.Add( lambdaVariant );

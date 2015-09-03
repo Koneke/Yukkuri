@@ -30,7 +30,6 @@ namespace mysharp
 		static void Main(string[] args)
 		{
 			mysREPL repl = new mysREPL();
-			//repl.TestFunction();
 		}
 	}
 	public class mysREPL
@@ -70,7 +69,10 @@ namespace mysharp
 					EvaluationMachine em = new EvaluationMachine();
 					List<mysToken> output = em.Evaluate( parsed, spaceStack );
 
-					Console.WriteLine( string.Join( ", ", output ) );
+					string outputstring = string.Join( ", ", output );
+					if ( outputstring != "" ) {
+						Console.WriteLine( outputstring );
+					}
 
 					Console.WriteLine( "Ok.\n" );
 				}
