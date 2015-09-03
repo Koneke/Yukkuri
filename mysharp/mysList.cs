@@ -15,16 +15,5 @@ namespace mysharp
 			Quoted = quoted;
 			InternalValues = new List<mysToken>( list );
 		}
-
-		public mysToken Evaluate(
-			Stack<mysSymbolSpace> spaceStack
-		) {
-			EvaluationState es = new EvaluationState(
-				InternalValues,
-				spaceStack
-			);
-
-			return es.Evaluate();
-		}
 	}
 }

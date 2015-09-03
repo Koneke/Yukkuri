@@ -56,6 +56,8 @@
 		{
 			return stringRepresentation;
 		}
+
+		// move symbol evaluate in here? makes sense
 	}
 
 	public class mysTypeToken : mysToken
