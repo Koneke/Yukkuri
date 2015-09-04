@@ -5,47 +5,6 @@ using System.Linq;
 namespace mysharp
 {
 	public class EvaluationMachine {
-
-		// move these to mysSymbol?
-		// less args and makes more sense semantically
-
-		public static mysTypes EvaluateSymbolType(
-			mysSymbol symbol,
-			Stack<mysSymbolSpace> spaceStack
-		) {
-			Stack<mysSymbolSpace> evaluationStack = spaceStack.Clone();
-
-			mysToken temp = new mysSymbol( symbol.ToString() );
-
-			while ( temp.Type == mysTypes.Symbol ) {
-				temp = EvaluateSymbol( symbol, evaluationStack );
-			}
-
-			return temp.Type;
-		} 
-
-		public static mysToken EvaluateSymbol(
-			mysSymbol symbol,
-			Stack<mysSymbolSpace> spaceStack
-		) {
-			Stack<mysSymbolSpace> evaluationStack = spaceStack.Clone();
-
-			while ( evaluationStack.Count > 0 ) {
-				mysSymbolSpace space = evaluationStack.Pop();
-
-				if ( space.Defined( symbol ) ) {
-					return space.GetValue( symbol );
-				}
-			}
-
-			throw new ArgumentException(
-				string.Format(
-					"Can't evaluate symbol {0}: Symbol isn't defined.",
-					symbol.ToString()
-				)
-			);
-		}
-
 		List<mysToken> tokens;
 		Stack<mysSymbolSpace> spaceStack;
 
@@ -109,10 +68,8 @@ namespace mysharp
 			symbolic = tokens[ current ] as mysSymbol;
 
 			if ( !tokens[ current ].Quoted ) {
-				tokens[ current ] = EvaluateSymbol(
-					tokens[ current ] as mysSymbol,
-					spaceStack
-				);
+				tokens[ current ] = ( tokens[ current ] as mysSymbol )
+					.EvaluateSymbol( spaceStack );
 			} else {
 				tokens[ current ].Quoted = false;
 			}

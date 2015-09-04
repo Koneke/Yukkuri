@@ -24,12 +24,9 @@ namespace mysharp
 			// lh: make this a bit cleverer later to handle variadics.
 			variants.RemoveAll( v => v.SignatureLength != arguments.Count );
 
-			System.Func<mysSymbol, mysTypes> symbolType = 
-				symbol =>
-					EvaluationMachine.EvaluateSymbolType(
-						symbol,
-						spaceStack
-					);
+			System.Func<mysSymbol, mysTypes> symbolType = symbol =>
+				symbol.EvaluateSymbolType( spaceStack )
+			;
 
 			System.Func<mysTypes, mysToken, bool> typeCheck =
 				(type, token) =>
@@ -105,9 +102,7 @@ namespace mysharp
 		) {
 			arguments = arguments.Select( t =>
 				t.Type == mysTypes.Symbol && !t.Quoted
-				? EvaluationMachine.EvaluateSymbol(
-					t as mysSymbol,
-					spaceStack)
+				? ( t as mysSymbol ).EvaluateSymbol( spaceStack )
 				: t
 			).ToList();
 

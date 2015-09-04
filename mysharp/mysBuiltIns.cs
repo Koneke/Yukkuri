@@ -4,6 +4,10 @@ using System.Linq;
 
 namespace mysharp.Builtins
 {
+	// might want to move this stuff to its own project?
+	// and ref to that?
+	// makes sense to keep the sort of "standard library" separate.
+
 	public static class Addition {
 		static mysFunctionGroup functionGroup;
 
@@ -454,9 +458,7 @@ namespace mysharp
 		) {
 			arguments = arguments.Select( t =>
 				t.Type == mysTypes.Symbol && !t.Quoted
-				? EvaluationMachine.EvaluateSymbol(
-					t as mysSymbol,
-					spaceStack)
+				? ( t as mysSymbol ).EvaluateSymbol( spaceStack )
 				: t
 			).ToList();
 

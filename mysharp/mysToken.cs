@@ -31,42 +31,6 @@
 		}
 	}
 
-	public class mysSymbol : mysToken
-	{
-		private string stringRepresentation;
-
-		public mysSymbol( string symbolString ) {
-			Type = mysTypes.Symbol;
-			stringRepresentation = symbolString;
-		}
-
-		public override bool Equals(object obj)
-		{
-			if ( obj == null || obj.GetType() != GetType() )
-				return false;
-
-			mysSymbol s = (mysSymbol)obj;
-
-			return s.stringRepresentation == stringRepresentation;
-		}
-
-		public override int GetHashCode()
-		{
-			return stringRepresentation.GetHashCode();
-		}
-
-		public override string ToString()
-		{
-			return string.Format(
-				"({1}sym: {0})",
-				stringRepresentation,
-				Quoted ? "q " : ""
-			);
-		}
-
-		// move symbol evaluate in here? makes sense
-	}
-
 	public class mysTypeToken : mysToken
 	{
 		public mysTypes TypeValue;
