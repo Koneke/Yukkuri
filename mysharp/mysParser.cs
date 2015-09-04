@@ -8,19 +8,19 @@ namespace mysharp
 	{
 		static Dictionary<string, mysTypes> typeNameDictionary =
 			new Dictionary<string, mysTypes>() {
-				{ "int",  mysTypes.Integral },
-				{ "float",  mysTypes.Floating },
+				{ "int", mysTypes.Integral },
+				{ "float", mysTypes.Floating },
 
-				{ "fn",  mysTypes.Function },
-				{ "fng",  mysTypes.FunctionGroup },
+				{ "fn", mysTypes.Function },
+				{ "fng", mysTypes.FunctionGroup },
 
-				{ "list",  mysTypes.List },
-				{ "str",  mysTypes.String },
+				{ "list", mysTypes.List },
+				{ "str", mysTypes.String },
 
-				{ "sym",  mysTypes.Symbol },
+				{ "sym", mysTypes.Symbol },
 
-				{ "type",  mysTypes.mysType },
-				{ "any",  mysTypes.ANY },
+				{ "type", mysTypes.mysType },
+				{ "any", mysTypes.ANY },
 			};
 
 		static string GetSign( string lex ) {
@@ -104,14 +104,36 @@ namespace mysharp
 				string expression,
 				Queue<string> inheritedStringQueue = null
 			) {
+				stringQueue = inheritedStringQueue ?? new Queue<string>();
+
+				this.expression =
+					parseStrings( expression )
+					.Replace( "(", " ( " )
+					.Replace( ")", " ) " )
+					.Replace( "[", " [ " )
+					.Replace( "]", " ] " )
+					.Replace( "'", " ' " )
+					.Split(' ')
+					.Where( sub => sub != " " && sub != "" )
+					.ToList()
+				;
+
+				current = 0;
+
+				Tokens = new List<mysToken>();
+
+				quote = false;
+			}
+
+			string parseStrings( string expression ) {
 				bool inString = false;
 				string currentString = "";
-				stringQueue = inheritedStringQueue ?? new Queue<string>();
 
 				string expressionCopy = expression;
 
 				for ( int i = 0; i < expression.Count(); i++ ) {
 					if ( expression[ i ] == '"' ) {
+						// escaping is broken atm
 						if ( i > 0 && expression[ i - 1 ] == '\\' ) {
 							currentString += expression[ i ];
 						} else {
@@ -134,79 +156,9 @@ namespace mysharp
 					}
 				}
 
-				this.expression = expressionCopy
-					.Replace( "(", " ( " )
-					.Replace( ")", " ) " )
-					.Replace( "[", " [ " )
-					.Replace( "]", " ] " )
-					.Replace( "'", " ' " )
-					.Split(' ')
-					.Where( sub => sub != " " && sub != "" )
-					.ToList()
-				;
-
-				current = 0;
-
-				Tokens = new List<mysToken>();
-
-				quote = false;
+				return expressionCopy;
 			}
 
-			int findBuddy( string character ) {
-				int depth = 0;
-
-				string matching;
-				switch ( character ) {
-					case "(": matching = ")"; break;
-					case "[": matching = "]"; break;
-					default: throw new FormatException();
-				}
-
-				for (
-					int endToken = current + 1;
-					endToken < expression.Count;
-					endToken++
-				) {
-					if ( expression[ endToken ] == character ) {
-						depth++;
-					} else if ( expression[ endToken ] == matching ) {
-						depth--;
-						if ( depth == -1 ) {
-							return endToken;
-						}
-					}
-				}
-
-				throw new FormatException();
-			}
-
-			void makeList( int length ) {
-				string body = string.Join(
-					" ", expression.Between( current + 1, length - 2)
-				);
-
-				ParseMachine pm = new ParseMachine( body, stringQueue );
-				while ( pm.CanStep() ) {
-					pm.Step();
-				}
-
-				List<mysToken> bodyTokens = pm.Tokens;
-
-				mysList list = new mysList(
-					bodyTokens,
-					quote
-				);
-				Tokens.Add( list );
-
-				quote = false;
-
-				expression.RemoveRange(
-					current,
-					length
-				);
-
-				current--;
-			}
 
 			public bool CanStep() {
 				return current < expression.Count;
@@ -269,6 +221,63 @@ namespace mysharp
 
 				current++;
 			}
+
+			int findBuddy( string character ) {
+				int depth = 0;
+
+				string matching;
+				switch ( character ) {
+					case "(": matching = ")"; break;
+					case "[": matching = "]"; break;
+					default: throw new FormatException();
+				}
+
+				for (
+					int endToken = current + 1;
+					endToken < expression.Count;
+					endToken++
+				) {
+					if ( expression[ endToken ] == character ) {
+						depth++;
+					} else if ( expression[ endToken ] == matching ) {
+						depth--;
+						if ( depth == -1 ) {
+							return endToken;
+						}
+					}
+				}
+
+				throw new FormatException();
+			}
+
+			void makeList( int length ) {
+				string body = string.Join(
+					" ", expression.Between( current + 1, length - 2)
+				);
+
+				ParseMachine pm = new ParseMachine( body, stringQueue );
+				while ( pm.CanStep() ) {
+					pm.Step();
+				}
+
+				List<mysToken> bodyTokens = pm.Tokens;
+
+				mysList list = new mysList(
+					bodyTokens,
+					quote
+				);
+				Tokens.Add( list );
+
+				quote = false;
+
+				expression.RemoveRange(
+					current,
+					length
+				);
+
+				current--;
+			}
+
 		}
 
 		public List<mysToken> Parse( string expression ) {

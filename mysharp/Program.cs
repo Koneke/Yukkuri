@@ -154,12 +154,15 @@ namespace mysharp
 
 						List<mysToken> output = Evaluate( accumInput );
 
-						string outputstring = string.Join( ", ", output );
-						if ( outputstring != "" ) {
-							Console.WriteLine( outputstring );
-						}
+						if ( output != null ) {
+							string outputstring = string.Join( ", ", output );
 
-						Console.WriteLine( "Ok.\n" );
+							if ( outputstring != "" ) {
+								Console.WriteLine( outputstring );
+							}
+
+							Console.WriteLine( "Ok.\n" );
+						}
 
 						accumInput = "";
 						break;
