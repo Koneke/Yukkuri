@@ -19,8 +19,9 @@ namespace mysharp
 		public override string ToString()
 		{
 			return string.Format(
-				"(list: {0})",
-				string.Join(", ", InternalValues)
+				"({1} list: {0})",
+				string.Join(", ", InternalValues),
+				Quoted ? "q" : ""
 			);
 		}
 	}

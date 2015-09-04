@@ -23,43 +23,18 @@ namespace mysharp
 				{ "any", mysTypes.ANY },
 			};
 
-		static string GetSign( string lex ) {
-			string sign = null;
-
-			if ( lex[ 0 ] == '-' || lex[ 0 ] == '+' ) {
-				sign = "" + lex[ 0 ];
-			}
-
-			return sign;
-		}
-
 		static bool IsInteger( string lex ) {
-			return GetSign( lex ) == null
-				? lex.All( char.IsDigit )
-				: ( lex.Count() > 1 && lex.Cdr().All( char.IsDigit ) )
-			;
+			long result;
+			return long.TryParse( lex, out result );
 		}
 
 		static bool IsFloating( string lex ) {
+			double result;
 			// can probably be done culturesensitive and nice?
-			if ( lex.Count( c => c == '.' || c == ',' ) != 1 ) {
-				return false;
-			}
-
-			lex = lex
-				.Replace( ".", "" )
-				.Replace( ",", "" )
-			;
-
-			if ( GetSign( lex ) != null ) {
-				lex = lex.Cdr().StringJoin();
-			}
-
-			// if we have nothing left after stripping decimal sign and
-			// sign, we're obviously not a number.
-			// if there's actually stuff left after the stripping, we're a
-			// floating point number if all that's left is digits.
-			return lex.Count() > 0 && lex.All( char.IsDigit );
+			return double.TryParse(
+				lex.Replace( ".", "," ),
+				out result
+			);
 		}
 
 		// parses SIMPLE VALUES, NOT LISTS
@@ -154,7 +129,6 @@ namespace mysharp
 				return expressionCopy;
 			}
 
-
 			public bool CanStep() {
 				return current < expression.Count;
 			}
@@ -162,23 +136,14 @@ namespace mysharp
 			public void Step() {
 				string token = expression[ current ];
 
-				int end, count;
-
 				switch ( token ) {
 					case "(":
-						end = findBuddy( token );
-						count = end - current + 1;
-
-						makeList( count );
+						makeList();
 						break;
 
 					case "[":
 						quote = true;
-
-						end = findBuddy( token );
-						count = end - current + 1;
-
-						makeList( count );
+						makeList();
 						break;
 
 					case "'":
@@ -245,7 +210,9 @@ namespace mysharp
 				throw new FormatException();
 			}
 
-			void makeList( int length ) {
+			void makeList() {
+				int length = findBuddy( expression[ current ] ) - current + 1;
+
 				string body = string.Join(
 					" ", expression.Between( current + 1, length - 2)
 				);

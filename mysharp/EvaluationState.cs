@@ -70,19 +70,13 @@ namespace mysharp
 			if ( !tokens[ current ].Quoted ) {
 				tokens[ current ] = ( tokens[ current ] as mysSymbol )
 					.Value( spaceStack );
-			} else {
-				tokens[ current ].Quoted = false;
 			}
 		}
 
 		void resolveFunctionGroup() {
 			mysFunctionGroup fg = tokens[ current ] as mysFunctionGroup;
 
-			int signatureLength = fg.Variants
-				.OrderBy( v => v.SignatureLength )
-				.Last()
-				.SignatureLength
-			;
+			int signatureLength = fg.Variants.Max( v => v.SignatureLength );
 
 			mysFunction f = null;
 			for ( int j = signatureLength; j >= 0; j-- ) {
@@ -95,6 +89,7 @@ namespace mysharp
 				f = fg.Judge( args, spaceStack );
 
 				if ( f != null ) {
+					// escape early if we have a positive match
 					break;
 				}
 			}
@@ -145,7 +140,10 @@ namespace mysharp
 				preprocessSymbol();
 			}
 
-			if ( tokens[ current ].Type == mysTypes.FunctionGroup ) {
+			if (
+				tokens[ current ].Type == mysTypes.FunctionGroup &&
+				!tokens[ current ].Quoted
+			) {
 				resolveFunctionGroup();
 			}
 

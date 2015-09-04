@@ -24,6 +24,7 @@ namespace mysharp
 
 			while ( evaluationStack.Count > 0 ) {
 				mysSymbolSpace space = evaluationStack.Pop();
+
 				if ( space.Defined( symbol ) ) {
 					return space.GetValue( symbol );
 				}
@@ -49,6 +50,7 @@ namespace mysharp
 				}
 			}
 
+			// should this return null?
 			return null;
 		}
 
