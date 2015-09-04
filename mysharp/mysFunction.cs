@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
+using System.Collections.Generic;
 
 namespace mysharp
 {
@@ -19,44 +19,68 @@ namespace mysharp
 			List<mysToken> arguments,
 			Stack<mysSymbolSpace> spaceStack
 		) {
-
 			List<mysFunction> variants = new List<mysFunction>( Variants );
-			// lh: make this a bit cleverer later to handle variadics.
-			variants.RemoveAll( v => v.SignatureLength != arguments.Count );
 
-			System.Func<mysSymbol, mysTypes> symbolType = symbol =>
-				symbol.EvaluateSymbolType( spaceStack )
-			;
-
-			System.Func<mysTypes, mysToken, bool> typeCheck =
-				(type, token) =>
-					type == token.Type ||
-					type == mysTypes.ANY ||
-					( token.Type == mysTypes.Symbol &&
-					  symbolType( token as mysSymbol ) == type)
-			;
-
-			// lh: make sure the types of our sig match perfectly with the types
-			//     of the arguments
-			variants.RemoveAll( v =>
-				v.Signature
-					// va = type expected
-					// a.Type = type received
-					.Zip(
-						arguments,
-						typeCheck
-					)
-					// find the ones where previous comparison was true
-					.Where( p => p )
-					// make sure the count is right
-					.Count() != arguments.Count
+			variants.RemoveAll(
+				v => !judgeVariant( v, arguments, spaceStack )
 			);
 
-			if ( variants.Count != 1 ) {
+			if ( variants.Count == 0 ) {
 				return null;
+			} else if ( variants.Count != 1 ) {
+				throw new SignatureAmbiguityException();
 			}
 
 			return variants[ 0 ];
+		}
+
+		bool judgeVariant(
+			mysFunction variant,
+			List<mysToken> arguments,
+			Stack<mysSymbolSpace> spaceStack
+		) {
+			// lh: make this a bit cleverer later to handle variadics.
+			if ( variant.SignatureLength != arguments.Count ) {
+				return false;
+			}
+
+			if ( variant.Signature
+				.Zip(
+					arguments,
+					(type, token) => typeCheck( type, token, spaceStack )
+				)
+				// if the zip of our two collections is less than the count
+				// we started with, at least one given token did not match
+				// the sig, so we remove that variant from the potential
+				// ones.
+				.Where( p => p )
+				.Count() != arguments.Count
+			) {
+				return false;
+			}
+
+			return true;
+		}
+
+		// given a type from our sig, and the token supplied as a potential
+		// argument, see if they match
+		bool typeCheck(
+			mysTypes type,
+			mysToken token,
+			Stack<mysSymbolSpace> spaceStack
+		) {
+			// we might need to do weird shit with symbols in here?
+			// like, you should only really be able to send a quoted symbol
+			// in (mainly for ease of reading the code, easy to see reasoning
+			// etc., less likely for bugs to occur because of an accidental sig
+			// match).
+
+			return 
+				type == token.Type ||
+				type == mysTypes.ANY ||
+				// massive c#6 boner right here
+				type == ( token as mysSymbol )?.DeepType( spaceStack )
+			;
 		}
 	}
 
@@ -102,7 +126,7 @@ namespace mysharp
 		) {
 			arguments = arguments.Select( t =>
 				t.Type == mysTypes.Symbol && !t.Quoted
-				? ( t as mysSymbol ).EvaluateSymbol( spaceStack )
+				? ( t as mysSymbol ).Value( spaceStack )
 				: t
 			).ToList();
 

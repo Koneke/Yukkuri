@@ -3,12 +3,25 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Text;
 
 namespace mysharp
 {
 	class NoSuchSignatureException : Exception
 	{
-		public NoSuchSignatureException(string message) : base(message)
+		public NoSuchSignatureException( string message )
+			: base( message )
+		{
+		}
+	}
+
+	class SignatureAmbiguityException : Exception {
+		public SignatureAmbiguityException()
+		{
+		}
+
+		public SignatureAmbiguityException( string message )
+			: base( message )
 		{
 		}
 	}
@@ -71,10 +84,18 @@ namespace mysharp
 
 	public class mysREPL
 	{
+		// I don't think global/general namespace stuff should be in the repl?
+		// the repl should probably just be our "front end", so to speak
+
 		// just for ease of access/reading
 		public mysSymbolSpace Global;
 
 		public Dictionary<string, mysSymbolSpace> nameSpaces;
+
+		mysParser parser;
+		bool quit;
+		bool strict;
+		string accumulatedInput;
 
 		// not sure if we actually need this in the repl...?
 		// might be enough to just pass in global
@@ -111,63 +132,66 @@ namespace mysharp
 			}
 		}
 
-		mysParser parser;
-		bool strict;
-
 		// loop loop, I know...
 		public void REPLloop() {
-			bool quit = false;
+			quit = false;
 			strict = false;
-			string accumInput = "";
+			accumulatedInput = "";
 
 			while ( !quit ) {
+				// show standard prompt > if we are not currently continuing a
+				// multiline command, else show the continuation prompt .
 				Console.Write(
-					accumInput == ""
+					accumulatedInput.Count() == 0
 					? " > "
 					: " . "
 				);
+
 				string input = Console.ReadLine();
 
 				switch ( input ) {
-					case "quit":
 					case "(quit)":
 						quit = true;
 						break;
 
-					case "strict":
 					case "(strict)":
 						strict = !strict;
 						Console.WriteLine( "Strict is now {0}.\n", strict );
 						break;
 
 					default:
-						accumInput += input;
-
-						if ( input.Last() == '\\') {
-							break;
-						}
-
-						accumInput = accumInput
-							.Replace( '\\', ' ' )
-							.Replace( "\t", "" )
-						;
-
-						List<mysToken> output = Evaluate( accumInput );
-
-						if ( output != null ) {
-							string outputstring = string.Join( ", ", output );
-
-							if ( outputstring != "" ) {
-								Console.WriteLine( outputstring );
-							}
-
-							Console.WriteLine( "Ok.\n" );
-						}
-
-						accumInput = "";
+						handleInput( input );
 						break;
 				}
 			}
+		}
+
+		void handleInput( string input ) {
+			if ( input.Last() == '\\') {
+				input = input.Substring( 0, input.Length - 1);
+				accumulatedInput += input;
+				return;
+			} else {
+				accumulatedInput += input;
+			}
+
+			accumulatedInput = accumulatedInput
+				.Replace( "\t", " " )
+			;
+
+			List<mysToken> output = Evaluate( accumulatedInput );
+
+			if ( output != null ) {
+				string outputstring = string.Join( ", ", output );
+
+				if ( outputstring != "" ) {
+					Console.WriteLine( outputstring );
+				}
+
+				Console.WriteLine( "Ok.\n" );
+			}
+
+			accumulatedInput = "";
 		}
 
 		public void ExposeTo( Assembly a ) {

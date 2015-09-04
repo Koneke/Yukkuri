@@ -69,7 +69,7 @@ namespace mysharp
 
 			if ( !tokens[ current ].Quoted ) {
 				tokens[ current ] = ( tokens[ current ] as mysSymbol )
-					.EvaluateSymbol( spaceStack );
+					.Value( spaceStack );
 			} else {
 				tokens[ current ].Quoted = false;
 			}

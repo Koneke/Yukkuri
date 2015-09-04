@@ -36,7 +36,7 @@ namespace mysharp
 			);
 		}
 
-		public mysToken EvaluateSymbol(
+		public mysToken Value(
 			Stack<mysSymbolSpace> spaceStack
 		) {
 			Stack<mysSymbolSpace> evaluationStack = spaceStack.Clone();
@@ -57,14 +57,14 @@ namespace mysharp
 			);
 		}
 
-		public mysTypes EvaluateSymbolType(
+		public mysTypes DeepType(
 			Stack<mysSymbolSpace> spaceStack
 		) {
 			mysToken temp = new mysSymbol( ToString() );
 
 			while ( temp.Type == mysTypes.Symbol ) {
 				// EvaluateSymbol clones the stack by itself
-				temp = EvaluateSymbol( spaceStack );
+				temp = Value( spaceStack );
 			}
 
 			return temp.Type;

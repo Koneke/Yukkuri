@@ -34,17 +34,14 @@ namespace mysharp
 		}
 
 		static bool IsInteger( string lex ) {
-			string sign = GetSign( lex );
-
-			return sign == null
+			return GetSign( lex ) == null
 				? lex.All( char.IsDigit )
-				: ( lex.Count() > 1 && lex.Skip( 1 ).All( char.IsDigit ) )
+				: ( lex.Count() > 1 && lex.Cdr().All( char.IsDigit ) )
 			;
 		}
 
 		static bool IsFloating( string lex ) {
-			string sign = GetSign( lex );
-
+			// can probably be done culturesensitive and nice?
 			if ( lex.Count( c => c == '.' || c == ',' ) != 1 ) {
 				return false;
 			}
@@ -54,19 +51,15 @@ namespace mysharp
 				.Replace( ",", "" )
 			;
 
-			if ( sign == null ) {
-				return lex.All( char.IsDigit );
-			} else {
-				// less than three chars when sign is null means either
-				// lacking digit, or ./,
-				if ( lex.Count() < 3 ) {
-					return false;
-				}
-
+			if ( GetSign( lex ) != null ) {
 				lex = lex.Cdr().StringJoin();
-
-				return lex.All( char.IsDigit );
 			}
+
+			// if we have nothing left after stripping decimal sign and
+			// sign, we're obviously not a number.
+			// if there's actually stuff left after the stripping, we're a
+			// floating point number if all that's left is digits.
+			return lex.Count() > 0 && lex.All( char.IsDigit );
 		}
 
 		// parses SIMPLE VALUES, NOT LISTS
@@ -133,14 +126,16 @@ namespace mysharp
 
 				for ( int i = 0; i < expression.Count(); i++ ) {
 					if ( expression[ i ] == '"' ) {
-						// escaping is broken atm
 						if ( i > 0 && expression[ i - 1 ] == '\\' ) {
 							currentString += expression[ i ];
 						} else {
 							inString = !inString;
 
 							if ( !inString ) {
-								stringQueue.Enqueue( currentString );
+								stringQueue.Enqueue(
+									currentString.Replace( "\\\"", "\"" )
+								);
+
 								expressionCopy = expressionCopy
 									.Replace(
 										"\"" + currentString + "\"",
@@ -281,8 +276,8 @@ namespace mysharp
 		}
 
 		public List<mysToken> Parse( string expression ) {
-
 			ParseMachine pm = new ParseMachine( expression );
+
 			while ( pm.CanStep() ) {
 				pm.Step();
 			}
