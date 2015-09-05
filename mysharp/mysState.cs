@@ -20,6 +20,17 @@ namespace mysharp
 			exposedAssemblies = new List<Assembly>();
 
 			Global = new mysSymbolSpace();
+
+			Global.Define(
+				Global.Create( "true" ),
+				new mysBoolean( true )
+			);
+
+			Global.Define(
+				Global.Create( "false" ),
+				new mysBoolean( false )
+			);
+
 			nameSpaces.Add( "global" , Global );
 
 			mysBuiltins.Setup( Global );

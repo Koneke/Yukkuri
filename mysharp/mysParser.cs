@@ -10,6 +10,7 @@ namespace mysharp
 			new Dictionary<string, mysTypes>() {
 				{ "int", mysTypes.Integral },
 				{ "float", mysTypes.Floating },
+				{ "bool", mysTypes.Boolean },
 
 				{ "fn", mysTypes.Function },
 				{ "fng", mysTypes.FunctionGroup },
@@ -77,7 +78,6 @@ namespace mysharp
 				Queue<string> inheritedStringQueue = null
 			) {
 				stringQueue = inheritedStringQueue ?? new Queue<string>();
-
 
 				this.expression =
 					prepare( expression )

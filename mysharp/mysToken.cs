@@ -6,6 +6,7 @@
 		Symbol,
 		Integral,
 		Floating,
+		Boolean,
 		List,
 		String,
 		Function,
@@ -91,6 +92,23 @@
 		public override string ToString()
 		{
 			return $"(fl: {Value})";
+		}
+	}
+
+	public class mysBoolean : mysToken
+	{
+		public bool Value {
+			get { return (bool)InternalValue; }
+		}
+
+		public mysBoolean( bool value )
+			: base ( value, mysTypes.Floating )
+		{
+		}
+
+		public override string ToString()
+		{
+			return $"(bool: {Value})";
 		}
 	}
 
