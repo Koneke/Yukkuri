@@ -29,13 +29,12 @@ namespace mysharp_tests
 			string expression,
 			System.Func<mysToken, bool> evaluation
 		) {
-			// might want to not autocar this, but it is useful right now
-			mysToken result = REPL.Evaluate( expression ).Car();
-
-			Debug.Assert(
-				evaluation( result ),
-				$"Failing at {expression}."
-			);
+			foreach( mysToken token in REPL.Evaluate( expression ) ) {
+				Debug.Assert(
+					evaluation( token ),
+					$"Failing at {expression}."
+				);
+			}
 		}
 
 		[Test]
@@ -119,6 +118,26 @@ namespace mysharp_tests
 			Test( REPL, "(* (+ 2 1) 3)", 9 );
 			Test( REPL, "(/ (+ 2 1) 3)", 1 );
 			Test( REPL, "(/ 6 3)", 2 );
+		}
+
+		[Test]
+		public void StringParsingTests() {
+			mysharp.mysREPL REPL = new mysREPL();
+
+			string quote = "\"";
+			string escapedQuote = @"\" + "\"";
+
+			Test(
+				REPL,
+				quote + "foo" + quote,
+				t => (t as mysString).Value == "foo"
+			);
+
+			Test(
+				REPL,
+				quote + escapedQuote + "foo" + quote,
+				t => (t as mysString).Value == ( escapedQuote + "foo" )
+			);
 		}
 	}
 }

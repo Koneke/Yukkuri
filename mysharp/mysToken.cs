@@ -63,7 +63,7 @@
 
 	public class mysFloating : mysToken
 	{
-		double Value;
+		public double Value;
 
 		public mysFloating( double value ) {
 			Type = mysTypes.Floating;
@@ -78,7 +78,7 @@
 
 	public class mysString : mysToken
 	{
-		string Value;
+		public string Value;
 
 		public mysString( string value ) {
 			Type = mysTypes.String;
@@ -93,7 +93,7 @@
 
 	public class clrObject : mysToken
 	{
-		object Value;
+		public object Value;
 
 		public clrObject( object value ) {
 			Type = mysTypes.clrObject;
