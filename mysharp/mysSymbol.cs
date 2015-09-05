@@ -7,8 +7,9 @@ namespace mysharp
 	{
 		private string stringRepresentation;
 
-		public mysSymbol( string symbolString ) {
-			Type = mysTypes.Symbol;
+		public mysSymbol( string symbolString )
+			: base ( null, mysTypes.Symbol )
+		{
 			stringRepresentation = symbolString;
 		}
 

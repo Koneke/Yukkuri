@@ -304,7 +304,7 @@ namespace mysharp.Builtins
 				} else {
 					f.Signature.Add(
 						( sig.InternalValues[ i ] as mysTypeToken )
-							.TypeValue
+							.Value
 					);
 				}
 			}

@@ -47,6 +47,7 @@
     <Compile Include="EvaluationState.cs" />
     <Compile Include="mysBuiltIns.cs" />
     <Compile Include="mysFunction.cs" />
+    <Compile Include="mysFunctionGroup.cs" />
     <Compile Include="mysList.cs" />
     <Compile Include="mysParser.cs" />
     <Compile Include="mysSymbol.cs" />

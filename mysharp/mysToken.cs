@@ -19,6 +19,16 @@
 		public mysTypes Type;
 		public bool Quoted;
 
+		protected object InternalValue;
+
+		public mysToken(
+			object value,
+			mysTypes type
+		) {
+			InternalValue = value;
+			Type = type;
+		}
+
 		public mysToken Quote() {
 			Quoted = true;
 			return this;
@@ -33,26 +43,32 @@
 
 	public class mysTypeToken : mysToken
 	{
-		public mysTypes TypeValue;
+		public mysTypes Value {
+			get {
+				return (mysTypes)InternalValue;
+			}
+		}
 
-		public mysTypeToken( mysTypes typeValue ) {
-			Type = mysTypes.mysType;
-			TypeValue = typeValue;
+		public mysTypeToken( mysTypes typeValue )
+			: base ( typeValue, mysTypes.mysType )
+		{
 		}
 
 		public override string ToString()
 		{
-			return $"(typetoken: {TypeValue})";
+			return $"(typetoken: {Value})";
 		}
 	}
 
 	public class mysIntegral : mysToken
 	{
-		public long Value;
+		public long Value {
+			get { return (long)InternalValue; }
+		}
 
-		public mysIntegral( long value ) {
-			Type = mysTypes.Integral;
-			Value = value;
+		public mysIntegral( long value )
+			: base ( value, mysTypes.Integral )
+		{
 		}
 
 		public override string ToString()
@@ -63,11 +79,13 @@
 
 	public class mysFloating : mysToken
 	{
-		public double Value;
+		public double Value {
+			get { return (double)InternalValue; }
+		}
 
-		public mysFloating( double value ) {
-			Type = mysTypes.Floating;
-			Value = value;
+		public mysFloating( double value )
+			: base ( value, mysTypes.Floating )
+		{
 		}
 
 		public override string ToString()
@@ -78,11 +96,13 @@
 
 	public class mysString : mysToken
 	{
-		public string Value;
+		public string Value {
+			get { return (string)InternalValue; }
+		}
 
-		public mysString( string value ) {
-			Type = mysTypes.String;
-			Value = value;
+		public mysString( string value )
+			: base ( value, mysTypes.String )
+		{
 		}
 
 		public override string ToString()
@@ -93,11 +113,13 @@
 
 	public class clrObject : mysToken
 	{
-		public object Value;
+		public object Value {
+			get { return InternalValue; }
+		}
 
-		public clrObject( object value ) {
-			Type = mysTypes.clrObject;
-			Value = value;
+		public clrObject( object value )
+			: base ( value, mysTypes.clrObject )
+		{
 		}
 
 		public override string ToString()

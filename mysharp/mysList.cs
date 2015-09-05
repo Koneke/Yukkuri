@@ -10,8 +10,9 @@ namespace mysharp
 			: this( new List<mysToken>(), quoted ) {
 		}
 
-		public mysList( List<mysToken> list, bool quoted = false ) {
-			Type = mysTypes.List;
+		public mysList( List<mysToken> list, bool quoted = false )
+			: base ( null, mysTypes.List )
+		{
 			Quoted = quoted;
 			InternalValues = new List<mysToken>( list );
 		}
