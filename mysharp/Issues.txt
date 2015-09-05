@@ -1,0 +1,1 @@
+﻿"f"\""" doesn't substitute f back in (reports error with STR_LEX).

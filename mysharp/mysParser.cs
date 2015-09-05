@@ -59,6 +59,10 @@ namespace mysharp
 			return token;
 		}
 
+		// made to parse *ONE* statement (i.e., like, one line of REPL)
+		// (even if that contains several expressions, like (f 2)(g 3))
+		// might also sort of make this less nested....
+		// this is a nested class, with another nested class inside..
 		class ParseMachine
 		{
 			public List<mysToken> Tokens;
@@ -74,63 +78,118 @@ namespace mysharp
 			) {
 				stringQueue = inheritedStringQueue ?? new Queue<string>();
 
+
 				this.expression =
-					parseStrings( expression )
-					.Replace( "(", " ( " )
-					.Replace( ")", " ) " )
-					.Replace( "[", " [ " )
-					.Replace( "]", " ] " )
-					.Replace( "'", " ' " )
+					prepare( expression )
 					.Split(' ')
 					.Where( sub => sub != " " && sub != "" )
 					.ToList()
 				;
 
 				current = 0;
-
 				Tokens = new List<mysToken>();
-
 				quote = false;
 			}
 
-			string parseStrings( string expression ) {
-				bool inString = false;
-				string currentString = "";
+			string prepare( string expression ) {
+				return
+					( new StringParser( expression, stringQueue ) ).Parse()
+					.Replace( "(", " ( " )
+					.Replace( ")", " ) " )
+					.Replace( "[", " [ " )
+					.Replace( "]", " ] " )
+					.Replace( "'", " ' " )
+				;
+			}
 
-				string expressionCopy = expression;
+			class StringParser
+			{
+				string expression;
+				Queue<string> stringQueue;
 
-				for ( int i = 0; i < expression.Count(); i++ ) {
-					if ( expression[ i ] == '"' ) {
-						if ( i > 0 && expression[ i - 1 ] == '\\' ) {
-							currentString += expression[ i ];
-						} else {
-							inString = !inString;
+				bool inString;
+				string currentString; // current string we're building
+				string outString;
+				int current;
 
-							if ( !inString ) {
-								stringQueue.Enqueue(
-									currentString.Replace( "\\\"", "\"" )
+				public StringParser(
+					string expression,
+					Queue<string> stringQueue
+				) {
+					this.expression = expression;
+					this.stringQueue = stringQueue;
+				}
+
+				public string Parse() {
+					inString = false;
+					currentString = "";
+					outString = expression;
+					current = 0;
+
+					while ( canStep() ) {
+						step();
+					}
+
+					return outString;
+				}
+
+				bool canStep() {
+					return current < expression.Count();
+				}
+
+				bool currentIsQuote() {
+					if ( expression[ current ] != '"' ) {
+						return false;
+					}
+
+					if ( current > 0 && expression[ current - 1 ] == '\\' ) {
+						return false;
+					}
+
+					return true;
+				}
+
+				void step() {
+					if ( currentIsQuote() ) {
+						inString = !inString;
+
+						if ( !inString ) {
+							stringQueue.Enqueue(
+								currentString.Replace( "\\\"", "\"" )
+							);
+
+							outString = outString
+								.Replace(
+									"\"" + currentString + "\"",
+									"STR_LEX"
 								);
-
-								expressionCopy = expressionCopy
-									.Replace(
-										"\"" + currentString + "\"",
-										"STR_LEX"
-									);
-								currentString = "";
-							}
+							currentString = "";
 						}
 					} else {
 						if ( inString ) {
-							currentString += expression[ i ];
+							currentString += expression[ current ];
 						}
 					}
-				}
 
-				return expressionCopy;
+					current++;
+				}
 			}
 
 			public bool CanStep() {
 				return current < expression.Count;
+			}
+
+			void removeCurrent() {
+				expression.RemoveAt( current );
+				current--;
+			}
+
+			void eat( mysToken token ) {
+				Tokens.Add( token.Quote( quote ) );
+
+				quote = false;
+
+				removeCurrent();
 			}
 
 			public void Step() {
@@ -148,34 +207,16 @@ namespace mysharp
 
 					case "'":
 						quote = true;
-
-						expression.RemoveAt( current );
-						current--;
+						removeCurrent();
 						break;
 
 					case "STR_LEX":
-						Tokens.Add(
-							new mysString( stringQueue.Dequeue() )
-								.Quote( quote )
-						);
-
-						quote = false;
-
-						expression.RemoveAt( current );
-						current--;
+						eat( new mysString( stringQueue.Dequeue() ) );
 						break;
 
+					// simple value
 					default:
-						// simple value
-						Tokens.Add(
-							ParseLex( expression[ current ] )
-								.Quote( quote )
-						);
-
-						quote = false;
-
-						expression.RemoveAt( current );
-						current--;
+						eat( ParseLex( expression[ current ] ) );
 						break;
 				}
 
