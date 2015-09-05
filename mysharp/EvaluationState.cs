@@ -170,6 +170,7 @@ namespace mysharp
 				case mysTypes.String:
 				case mysTypes.Integral:
 				case mysTypes.Floating:
+				case mysTypes.Boolean:
 				case mysTypes.mysType:
 					break;
 				default:

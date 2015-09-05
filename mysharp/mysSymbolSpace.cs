@@ -69,7 +69,7 @@ namespace mysharp
 		}
 
 		public void Define( mysSymbol symbol, mysToken value ) {
-			Values.Add( symbol, value );
+			Values[ symbol ] = value;
 		}
 
 		public void Undefine( mysSymbol symbol ) {

@@ -1,11 +1,16 @@
-﻿namespace mysharp
+﻿using System;
+
+namespace mysharp
 {
 	public enum mysTypes {
+		// capitals are, for future reference, the more "meta" types
+		// probably to change at some point
 		NULLTYPE,
 		ANY,
 		Symbol,
 		Integral,
 		Floating,
+		NUMBER,
 		Boolean,
 		List,
 		String,
@@ -20,7 +25,7 @@
 		public mysTypes Type;
 		public bool Quoted;
 
-		protected object InternalValue;
+		public object InternalValue;
 
 		public mysToken(
 			object value,
@@ -39,6 +44,20 @@
 		public mysToken Quote( bool quote ) {
 			Quoted = quote;
 			return this;
+		}
+
+		// whether or not a is assignable from b
+		public static bool AssignableFrom(
+			mysTypes a,
+			mysTypes b
+		) {
+			return
+				a == b ||
+				a == mysTypes.ANY ||
+				( a == mysTypes.NUMBER &&
+					( b == mysTypes.Integral || b == mysTypes.Floating )
+				)
+			;
 		}
 	}
 
@@ -72,6 +91,10 @@
 		{
 		}
 
+		public mysFloating Promote() {
+			return new mysFloating( Value );
+		}
+
 		public override string ToString()
 		{
 			return $"(int: {Value})";
@@ -89,6 +112,17 @@
 		{
 		}
 
+		// UNTESTED, UNSURE ABOUT EXACT BEHAVIOUR
+		public bool CanSafelyBeDemoted() {
+			return Value % 1 == 0;
+		}
+
+		public mysIntegral Demote() {
+			return new mysIntegral(
+				(int)Math.Round( Value )
+			);
+		}
+
 		public override string ToString()
 		{
 			return $"(fl: {Value})";
@@ -102,7 +136,7 @@
 		}
 
 		public mysBoolean( bool value )
-			: base ( value, mysTypes.Floating )
+			: base ( value, mysTypes.Boolean )
 		{
 		}
 

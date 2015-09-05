@@ -113,6 +113,10 @@ namespace mysharp
 				string input = Console.ReadLine();
 
 				switch ( input ) {
+					case "(clear)":
+						Console.Clear();
+						break;
+
 					case "(quit)":
 						quit = true;
 						break;

@@ -77,10 +77,14 @@ namespace mysharp
 			// etc., less likely for bugs to occur because of an accidental sig
 			// match).
 
-			return 
-				type == token.Type ||
-				type == mysTypes.ANY ||
-				type == ( token as mysSymbol )?.DeepType( spaceStack )
+			return
+				AssignableFrom( type, token.Type ) ||
+				AssignableFrom(
+					type,
+					( token as mysSymbol )
+					?.DeepType( spaceStack )
+					?? mysTypes.NULLTYPE
+				)
 			;
 		}
 	}
