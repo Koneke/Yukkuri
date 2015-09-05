@@ -120,6 +120,7 @@
 		public clrObject( object value )
 			: base ( value, mysTypes.clrObject )
 		{
+			;
 		}
 
 		public override string ToString()

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace mysharp.Builtins
 {
@@ -19,14 +20,11 @@ namespace mysharp.Builtins
 			variant.Signature.Add( mysTypes.Integral );
 			variant.Signature.Add( mysTypes.Integral );
 
-			variant.Function =
-				new Func<List<mysToken>, Stack<mysSymbolSpace>, mysToken>(
-				(args, sss) =>
-					new mysIntegral(
-						(args[ 0 ] as mysIntegral).Value +
-						(args[ 1 ] as mysIntegral).Value
-					)
-			);
+			variant.Function = (args, state, sss) =>
+				new mysIntegral(
+					(args[ 0 ] as mysIntegral).Value +
+					(args[ 1 ] as mysIntegral).Value
+				);
 
 			functionGroup.Variants.Add( variant );
 		}
@@ -51,14 +49,11 @@ namespace mysharp.Builtins
 			variant.Signature.Add( mysTypes.Integral );
 			variant.Signature.Add( mysTypes.Integral );
 
-			variant.Function =
-				new Func<List<mysToken>, Stack<mysSymbolSpace>, mysToken>(
-				(args, sss) =>
-					new mysIntegral(
-						(args[ 0 ] as mysIntegral).Value -
-						(args[ 1 ] as mysIntegral).Value
-					)
-			);
+			variant.Function = (args, state, sss) =>
+				new mysIntegral(
+					(args[ 0 ] as mysIntegral).Value -
+					(args[ 1 ] as mysIntegral).Value
+				);
 
 			functionGroup.Variants.Add( variant );
 		}
@@ -83,14 +78,11 @@ namespace mysharp.Builtins
 			variant.Signature.Add( mysTypes.Integral );
 			variant.Signature.Add( mysTypes.Integral );
 
-			variant.Function =
-				new Func<List<mysToken>, Stack<mysSymbolSpace>, mysToken>(
-				(args, sss) =>
-					new mysIntegral(
-						(args[ 0 ] as mysIntegral).Value *
-						(args[ 1 ] as mysIntegral).Value
-					)
-			);
+			variant.Function = (args, state, sss) =>
+				new mysIntegral(
+					(args[ 0 ] as mysIntegral).Value *
+					(args[ 1 ] as mysIntegral).Value
+				);
 
 			functionGroup.Variants.Add( variant );
 		}
@@ -115,14 +107,11 @@ namespace mysharp.Builtins
 			variant.Signature.Add( mysTypes.Integral );
 			variant.Signature.Add( mysTypes.Integral );
 
-			variant.Function =
-				new Func<List<mysToken>, Stack<mysSymbolSpace>, mysToken>(
-				(args, sss) =>
-					new mysIntegral(
-						(args[ 0 ] as mysIntegral).Value /
-						(args[ 1 ] as mysIntegral).Value
-					)
-			);
+			variant.Function = (args, state, sss) =>
+				new mysIntegral(
+					(args[ 0 ] as mysIntegral).Value /
+					(args[ 1 ] as mysIntegral).Value
+				);
 
 			functionGroup.Variants.Add( variant );
 		}
@@ -214,7 +203,7 @@ namespace mysharp.Builtins
 			assignVariant.Signature.Add( mysTypes.Symbol );
 			assignVariant.Signature.Add( mysTypes.ANY );
 
-			assignVariant.Function = (args, sss) => {
+			assignVariant.Function = (args, state, sss) => {
 				mysSymbolSpace ss = sss.Peek();
 
 				mysSymbol assignsymbol = args[ 0 ] as mysSymbol;
@@ -290,7 +279,7 @@ namespace mysharp.Builtins
 			lambdaVariant.Signature.Add( mysTypes.List );
 			lambdaVariant.Signature.Add( mysTypes.List );
 
-			lambdaVariant.Function = (args, sss) => {
+			lambdaVariant.Function = (args, state, sss) => {
 				mysSymbolSpace ss = sss.Peek();
 
 				mysList sig = args[ 0 ] as mysList;
@@ -317,7 +306,7 @@ namespace mysharp.Builtins
 
 			f.Signature.Add( mysTypes.List );
 
-			f.Function = (args, sss) =>
+			f.Function = (args, state, sss) =>
 				( args[ 0 ] as mysList ).InternalValues
 					.FirstOrDefault()
 			;
@@ -338,7 +327,7 @@ namespace mysharp.Builtins
 
 			f.Signature.Add( mysTypes.List );
 
-			f.Function = (args, sss) =>
+			f.Function = (args, state, sss) =>
 				new mysList(
 					( args[ 0 ] as mysList ).InternalValues
 						.Skip( 1 )
@@ -363,9 +352,23 @@ namespace mysharp.Builtins
 
 			f.Signature.Add( mysTypes.String );
 
-			f.Function = (args, sss) =>
-				new mysList()
-			;
+			f.Function = (args, state, sss) => {
+				mysString type = args[ 0 ] as mysString;
+
+				foreach( Assembly a in state.exposedAssemblies ) {
+					if ( a.GetExportedTypes()
+						.Any( t => t.FullName == type.Value )
+					) {
+						return new clrObject(
+							Activator.CreateInstance(
+								a.GetType( type.Value )
+							)
+						);
+					}
+				}
+
+				throw new Exception( "Type not imported." );
+			};
 
 			functionGroup.Variants.Add( f );
 
@@ -390,6 +393,8 @@ namespace mysharp
 
 			Builtins.Car.Setup( global );
 			Builtins.Cdr.Setup( global );
+
+			Builtins.NewClrObject.Setup( global );
 		}
 	}
 
@@ -408,14 +413,16 @@ namespace mysharp
 		
 		public new Func<
 			List<mysToken>,
+			mysState,
 			Stack<mysSymbolSpace>,
 			mysToken
 		> Function;
 
 		// not sure we need to override? but I'm not chancing
 		public override mysToken Call(
-			Stack<mysSymbolSpace> spaceStack,
-			List<mysToken> arguments
+			List<mysToken> arguments,
+			mysState state,
+			Stack<mysSymbolSpace> spaceStack
 		) {
 			arguments = arguments.Select( t =>
 				t.Type == mysTypes.Symbol && !t.Quoted
@@ -423,7 +430,7 @@ namespace mysharp
 				: t
 			).ToList();
 
-			return Function( arguments, spaceStack );
+			return Function( arguments, state, spaceStack );
 		}
 	}
 }

@@ -12,11 +12,12 @@ namespace mysharp
 	{
 		public mysSymbolSpace Global;
 		public Dictionary<string, mysSymbolSpace> nameSpaces;
-		public Dictionary<string, Assembly> exposedAssemblies;
+		//public Dictionary<string, Assembly> exposedAssemblies;
+		public List<Assembly> exposedAssemblies;
 
 		public mysState() {
 			nameSpaces = new Dictionary<string, mysSymbolSpace>();
-			exposedAssemblies = new Dictionary<string, Assembly>();
+			exposedAssemblies = new List<Assembly>();
 
 			Global = new mysSymbolSpace();
 			nameSpaces.Add( "global" , Global );
@@ -30,6 +31,7 @@ namespace mysharp
 
 			EvaluationMachine em = new EvaluationMachine(
 				expression,
+				this,
 				spaceStack
 			);
 			List<mysToken> output = em.Evaluate();
@@ -38,29 +40,7 @@ namespace mysharp
 		}
 
 		public void ExposeTo( Assembly a ) {
-			foreach(Type t in a.GetTypes() ) {
-				Console.WriteLine( t.FullName );
-			}
-
-			Type type = a.GetType( "sample_application.SampleClass" );
-
-			foreach ( FieldInfo fi in type.GetFields() ) {
-				Console.WriteLine( "Field: " + fi.Name );
-			}
-
-			foreach ( MethodInfo mi in type.GetMethods() ) {
-				Console.WriteLine( "Method: " + mi.Name );
-			}
-
-			MethodInfo m = type.GetMethod( "AMethod" );
-			dynamic obj = Activator.CreateInstance( type );
-			object result = m.Invoke( obj, new object[] { } );
-
-			if ( result is int ) {
-				;
-			}
-
-			;
+			exposedAssemblies.Add( a );
 		}
 	}
 }

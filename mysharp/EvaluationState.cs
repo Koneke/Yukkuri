@@ -1,10 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace mysharp
 {
 	public class EvaluationMachine {
+		mysState state;
+
 		List<mysToken> tokens;
 		Stack<mysSymbolSpace> spaceStack;
 
@@ -13,9 +15,11 @@ namespace mysharp
 
 		public EvaluationMachine(
 			List<mysToken> tokenList,
+			mysState state,
 			Stack<mysSymbolSpace> spaceStack
 		) {
 			tokens = new List<mysToken>( tokenList );
+			this.state = state;
 			this.spaceStack = spaceStack;
 		}
 
@@ -50,6 +54,7 @@ namespace mysharp
 
 				EvaluationMachine em = new EvaluationMachine(
 					list.InternalValues,
+					state,
 					spaceStack
 				);
 
@@ -114,11 +119,12 @@ namespace mysharp
 			mysFunction f = tokens[ current ] as mysFunction;
 
 			mysToken t = f.Call(
-				spaceStack, // should be last arg really...
 				tokens
 					.Skip( current + 1 )
 					.Take( f.SignatureLength )
-					.ToList()
+					.ToList(),
+				state,
+				spaceStack
 			);
 
 			tokens.RemoveRange( current, f.SignatureLength + 1 );

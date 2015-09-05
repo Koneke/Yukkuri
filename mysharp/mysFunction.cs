@@ -41,8 +41,9 @@ namespace mysharp
 		}
 
 		public virtual mysToken Call(
-			Stack<mysSymbolSpace> spaceStack,
-			List<mysToken> arguments
+			List<mysToken> arguments,
+			mysState state,
+			Stack<mysSymbolSpace> spaceStack
 		) {
 			arguments = arguments.Select( t =>
 				t.Type == mysTypes.Symbol && !t.Quoted
@@ -62,6 +63,7 @@ namespace mysharp
 
 			EvaluationMachine em = new EvaluationMachine(
 				Function.InternalValues,
+				state,
 				spaceStack
 			);
 			List<mysToken> result = em.Evaluate();
