@@ -36,14 +36,7 @@ namespace mysharp.Builtins
 
 			setupIntIntVariant();
 
-			mysSymbol symbol = global.Create( "+" );
-			symbol.Type = mysTypes.FunctionGroup;
-			functionGroup.Type = mysTypes.FunctionGroup;
-
-			global.Define(
-				symbol,
-				functionGroup
-			);
+			mysBuiltin.DefineInGlobal( "+", functionGroup, global );
 		}
 	}
 
@@ -75,14 +68,7 @@ namespace mysharp.Builtins
 
 			setupIntIntVariant();
 
-			mysSymbol symbol = global.Create( "-" );
-			symbol.Type = mysTypes.FunctionGroup;
-			functionGroup.Type = mysTypes.FunctionGroup;
-
-			global.Define(
-				symbol,
-				functionGroup
-			);
+			mysBuiltin.DefineInGlobal( "-", functionGroup, global );
 		}
 	}
 
@@ -114,14 +100,7 @@ namespace mysharp.Builtins
 
 			setupIntIntVariant();
 
-			mysSymbol symbol = global.Create( "*" );
-			symbol.Type = mysTypes.FunctionGroup;
-			functionGroup.Type = mysTypes.FunctionGroup;
-			
-			global.Define(
-				symbol,
-				functionGroup
-			);
+			mysBuiltin.DefineInGlobal( "*", functionGroup, global );
 		}
 	}
 
@@ -153,14 +132,7 @@ namespace mysharp.Builtins
 
 			setupIntIntVariant();
 
-			mysSymbol symbol = global.Create( "/" );
-			symbol.Type = mysTypes.FunctionGroup;
-			functionGroup.Type = mysTypes.FunctionGroup;
-			
-			global.Define(
-				symbol,
-				functionGroup
-			);
+			mysBuiltin.DefineInGlobal( "/", functionGroup, global );
 		}
 	}
 
@@ -253,13 +225,7 @@ namespace mysharp.Builtins
 
 			assign.Variants.Add( assignVariant );
 			
-			mysSymbol symbol = global.Create( "def" );
-			assign.Type = mysTypes.FunctionGroup;
-
-			global.Define(
-				symbol,
-				assign
-			);
+			mysBuiltin.DefineInGlobal( "def", assign, global );
 		}
 	}
 
@@ -334,15 +300,8 @@ namespace mysharp.Builtins
 			};
 
 			lambda.Variants.Add( lambdaVariant );
-			
-			mysSymbol symbol = global.Create( "=>" );
-			symbol.Type = mysTypes.FunctionGroup;
-			lambda.Type = mysTypes.FunctionGroup;
 
-			global.Define(
-				symbol,
-				lambda
-			);
+			mysBuiltin.DefineInGlobal( "=>", lambda, global );
 		}
 	}
 
@@ -365,14 +324,7 @@ namespace mysharp.Builtins
 
 			functionGroup.Variants.Add( f );
 
-			mysSymbol symbol = global.Create( "car" );
-			symbol.Type = mysTypes.FunctionGroup;
-			functionGroup.Type = mysTypes.FunctionGroup;
-			
-			global.Define(
-				symbol,
-				functionGroup
-			);
+			mysBuiltin.DefineInGlobal( "car", functionGroup, global );
 		}
 	}
 
@@ -398,14 +350,7 @@ namespace mysharp.Builtins
 
 			functionGroup.Variants.Add( f );
 
-			mysSymbol symbol = global.Create( "cdr" );
-			symbol.Type = mysTypes.FunctionGroup;
-			functionGroup.Type = mysTypes.FunctionGroup;
-			
-			global.Define(
-				symbol,
-				functionGroup
-			);
+			mysBuiltin.DefineInGlobal( "cdr", functionGroup, global );
 		}
 	}
 
@@ -418,9 +363,15 @@ namespace mysharp.Builtins
 
 			mysBuiltin f = new mysBuiltin();
 
-			// ... we don't have strings yet
-			// so just do a temporary, set test object
-			// f.Signature.Add( 
+			f.Signature.Add( mysTypes.String );
+
+			f.Function = (args, sss) =>
+				new mysList()
+			;
+
+			functionGroup.Variants.Add( f );
+
+			mysBuiltin.DefineInGlobal( "#new", functionGroup, global );
 		}
 	}
 }
@@ -445,6 +396,18 @@ namespace mysharp
 	}
 
 	public class mysBuiltin : mysFunction {
+		public static void DefineInGlobal(
+			string name,
+			mysFunctionGroup fg,
+			mysSymbolSpace global
+		) {
+			mysSymbol symbol = global.Create( name );
+			symbol.Type = mysTypes.FunctionGroup;
+			fg.Type = mysTypes.FunctionGroup;
+			
+			global.Define( symbol, fg );
+		}
+		
 		public new Func<
 			List<mysToken>,
 			Stack<mysSymbolSpace>,
