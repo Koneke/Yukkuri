@@ -3,7 +3,6 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Text;
 
 namespace mysharp
 {
@@ -84,52 +83,16 @@ namespace mysharp
 
 	public class mysREPL
 	{
-		// I don't think global/general namespace stuff should be in the repl?
-		// the repl should probably just be our "front end", so to speak
-
-		// just for ease of access/reading
-		public mysSymbolSpace Global;
-
-		public Dictionary<string, mysSymbolSpace> nameSpaces;
+		public mysState State;
 
 		mysParser parser;
 		bool quit;
 		bool strict;
 		string accumulatedInput;
 
-		// not sure if we actually need this in the repl...?
-		// might be enough to just pass in global
-		public Stack<mysSymbolSpace> spaceStack;
-
 		public mysREPL() {
 			parser = new mysParser();
-
-			nameSpaces = new Dictionary<string, mysSymbolSpace>();
-
-			Global = new mysSymbolSpace();
-			nameSpaces.Add( "global" , Global );
-
-			spaceStack = new Stack<mysSymbolSpace>();
-			spaceStack.Push( Global );
-
-			mysBuiltins.Setup( Global );
-		}
-
-		public List<mysToken> Evaluate( string expression ) {
-			List<mysToken> parsed = parser.Parse( expression );
-
-			try {
-				EvaluationMachine em = new EvaluationMachine(
-					parsed,
-					spaceStack
-				);
-				List<mysToken> output = em.Evaluate();
-
-				return output;
-			} catch (Exception e) when ( !strict ) {
-				Console.WriteLine( e.Message + "\n" );
-				return null;
-			}
+			State = new mysState();
 		}
 
 		// loop loop, I know...
@@ -166,6 +129,18 @@ namespace mysharp
 			}
 		}
 
+		public List<mysToken> Evaluate( string expression ) {
+			List<mysToken> parsed = parser.Parse( expression );
+
+			try {
+				return State.Evaluate( parsed );
+
+			} catch (Exception e) when ( !strict ) {
+				Console.WriteLine( e.Message + "\n" );
+				return null;
+			}
+		}
+
 		void handleInput( string input ) {
 			if ( input.Last() == '\\') {
 				input = input.Substring( 0, input.Length - 1);
@@ -195,29 +170,7 @@ namespace mysharp
 		}
 
 		public void ExposeTo( Assembly a ) {
-			foreach(Type t in a.GetTypes() ) {
-				Console.WriteLine( t.FullName );
-			}
-
-			Type type = a.GetType( "sample_application.SampleClass" );
-
-			foreach ( FieldInfo fi in type.GetFields() ) {
-				Console.WriteLine( "Field: " + fi.Name );
-			}
-
-			foreach ( MethodInfo mi in type.GetMethods() ) {
-				Console.WriteLine( "Method: " + mi.Name );
-			}
-
-			MethodInfo m = type.GetMethod( "AMethod" );
-			dynamic obj = Activator.CreateInstance( type );
-			object result = m.Invoke( obj, new object[] { } );
-
-			if ( result is int ) {
-				;
-			}
-
-			;
+			State.ExposeTo( a );
 		}
 	}
 }

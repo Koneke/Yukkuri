@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace mysharp.Builtins
 {
@@ -335,8 +335,6 @@ namespace mysharp.Builtins
 			functionGroup = new mysFunctionGroup();
 
 			mysBuiltin f = new mysBuiltin();
-
-			//f.returnType
 
 			f.Signature.Add( mysTypes.List );
 

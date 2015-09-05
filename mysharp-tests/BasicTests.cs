@@ -44,21 +44,21 @@ namespace mysharp_tests
 			mysSymbol x = new mysSymbol( "x" );
 
 			mysharp.mysREPL REPL = new mysREPL();
-			REPL.Global.Define( x, new mysIntegral( testValue ) );
+			REPL.State.Global.Define( x, new mysIntegral( testValue ) );
 
 			mysSymbol x2 = new mysSymbol( "x" );
 
 			Debug.Assert(
-				REPL.Global.Defined( x ),
+				REPL.State.Global.Defined( x ),
 				"Symbol \"x\" not defined."
 			);
 
 			Debug.Assert(
-				REPL.Global.GetValue( x ).Type == mysTypes.Integral,
+				REPL.State.Global.GetValue( x ).Type == mysTypes.Integral,
 				"\"x\" not reported as integral-type."
 			);
 
-			mysIntegral i = REPL.Global.GetValue( x ) as mysIntegral;
+			mysIntegral i = REPL.State.Global.GetValue( x ) as mysIntegral;
 			
 			Debug.Assert(
 				i != null,

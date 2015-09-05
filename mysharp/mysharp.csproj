@@ -50,6 +50,7 @@
     <Compile Include="mysFunctionGroup.cs" />
     <Compile Include="mysList.cs" />
     <Compile Include="mysParser.cs" />
+    <Compile Include="mysState.cs" />
     <Compile Include="mysSymbol.cs" />
     <Compile Include="mysSymbolSpace.cs" />
     <Compile Include="mysToken.cs" />
