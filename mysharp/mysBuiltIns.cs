@@ -174,24 +174,44 @@ namespace mysharp.Builtins
 		public static mysToken Evaluate(
 			mysSymbol symbol,
 			mysToken value,
-			Stack<mysSymbolSpace> stackSpace
+			Stack<mysSymbolSpace> spaceStack
 		) {
+			// NOTICE THIS
+			// since each function has it's own internal space
+			// before grabbing our reference to the space in which
+			// we want to define our symbol, we need to pop the
+			// internal off, or we're going to be defining the symbol
+			// in our internal space, i.e. it will scope out as soon as
+			// we're done. So we pop the internal off, grab our reference
+			// to the space outside of that, then push the internal back on.
+			mysSymbolSpace top = spaceStack.Pop();
+			mysSymbolSpace ss = spaceStack.Peek();
 
 			switch ( value.Type ) {
 				case mysTypes.Function:
 					defineFunction(
 						symbol,
 						value as mysFunction,
-						stackSpace.Peek()
+						spaceStack.Peek()
 					);
 					break;
 
 				default:
-					stackSpace.Peek().Define( symbol, value );
+					mysSymbolSpace space = symbol.DefinedIn( spaceStack );
+					if ( space != null ) {
+						space.Define( symbol, value );
+					} else {
+						//spaceStack.Peek().Define( symbol, value );
+						ss.Define( symbol, value );
+					}
+
+					//spaceStack.Peek().Define( symbol, value );
 					break;
 			}
 
+			spaceStack.Push( top );
 			return null;
+			//return value;
 		}
 
 		public static void Setup( mysSymbolSpace global )
@@ -204,8 +224,6 @@ namespace mysharp.Builtins
 			assignVariant.Signature.Add( mysTypes.ANY );
 
 			assignVariant.Function = (args, state, sss) => {
-				mysSymbolSpace ss = sss.Peek();
-
 				mysSymbol assignsymbol = args[ 0 ] as mysSymbol;
 				mysToken value = args[ 1 ];
 
@@ -530,6 +548,66 @@ namespace mysharp.Builtins.Comparison
 	}
 }
 
+namespace mysharp.Builtins.Looping
+{
+	public static class While
+	{
+		static mysFunctionGroup functionGroup;
+
+		public static void Setup( mysSymbolSpace global ) {
+			functionGroup = new mysFunctionGroup();
+
+			mysBuiltin f = new mysBuiltin();
+
+			f.Signature.Add( mysTypes.List );
+			f.Signature.Add( mysTypes.List );
+
+			f.Function = (args, state, sss) => {
+				mysList conditional = args[ 0 ] as mysList;
+
+				mysToken finalReturn = null;
+
+				while ( true ) {
+					// might want to move this outside somehow, and/or make
+					// em non-destructive, so we can call evaluate several times
+					// without making a new em all the time.
+					// not really expensive to make new ones though I guess, but
+					// it does look a bit clunky.
+					EvaluationMachine em = new EvaluationMachine(
+						conditional.InternalValues,
+						state,
+						sss
+					);
+
+					mysBoolean condition = em.Evaluate().Car() as mysBoolean;
+
+					if ( condition == null ) {
+						throw new ArgumentException();
+					}
+
+					if ( !condition.Value ) {
+						break;
+					}
+
+					em = new EvaluationMachine(
+						( args[ 1 ] as mysList ).InternalValues,
+						state,
+						sss
+					);
+
+					finalReturn = em.Evaluate().Car();
+				}
+
+				return finalReturn;
+			};
+
+			functionGroup.Variants.Add( f );
+
+			mysBuiltin.DefineInGlobal( "while", functionGroup, global );
+		}
+	}
+}
+
 namespace mysharp
 {
 	public static class mysBuiltins {
@@ -554,42 +632,8 @@ namespace mysharp
 
 			Builtins.Comparison.Equals.Setup( global );
 			Builtins.Comparison.GreaterThan.Setup( global );
-		}
-	}
 
-	public class mysBuiltin : mysFunction {
-		public static void DefineInGlobal(
-			string name,
-			mysFunctionGroup fg,
-			mysSymbolSpace global
-		) {
-			mysSymbol symbol = global.Create( name );
-			symbol.Type = mysTypes.FunctionGroup;
-			fg.Type = mysTypes.FunctionGroup;
-			
-			global.Define( symbol, fg );
-		}
-		
-		public new Func<
-			List<mysToken>,
-			mysState,
-			Stack<mysSymbolSpace>,
-			mysToken
-		> Function;
-
-		// not sure we need to override? but I'm not chancing
-		public override mysToken Call(
-			List<mysToken> arguments,
-			mysState state,
-			Stack<mysSymbolSpace> spaceStack
-		) {
-			arguments = arguments.Select( t =>
-				t.Type == mysTypes.Symbol && !t.Quoted
-				? ( t as mysSymbol ).Value( spaceStack )
-				: t
-			).ToList();
-
-			return Function( arguments, state, spaceStack );
+			Builtins.Looping.While.Setup( global );
 		}
 	}
 }

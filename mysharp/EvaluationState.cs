@@ -5,9 +5,8 @@ using System.Collections.Generic;
 namespace mysharp
 {
 	public class EvaluationMachine {
-		mysState state;
-
 		List<mysToken> tokens;
+		mysState state;
 		Stack<mysSymbolSpace> spaceStack;
 
 		mysSymbol symbolic;

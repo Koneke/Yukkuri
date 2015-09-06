@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EvaluationState.cs" />
+    <Compile Include="mysBuiltin.cs" />
     <Compile Include="mysBuiltIns.cs" />
     <Compile Include="mysFunction.cs" />
     <Compile Include="mysFunctionGroup.cs" />

@@ -37,7 +37,7 @@ namespace mysharp
 			);
 		}
 
-		public mysToken Value(
+		public mysSymbolSpace DefinedIn(
 			Stack<mysSymbolSpace> spaceStack
 		) {
 			Stack<mysSymbolSpace> evaluationStack = spaceStack.Clone();
@@ -46,8 +46,19 @@ namespace mysharp
 				mysSymbolSpace space = evaluationStack.Pop();
 
 				if ( space.Defined( this ) ) {
-					return space.GetValue( this );
+					return space;
 				}
+			}
+
+			return null;
+		}
+
+		public mysToken Value(
+			Stack<mysSymbolSpace> spaceStack
+		) {
+			mysSymbolSpace space = DefinedIn( spaceStack );
+			if ( space != null ) {
+				return space.GetValue( this );
 			}
 
 			throw new ArgumentException(

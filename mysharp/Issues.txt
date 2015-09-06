@@ -1,1 +1,3 @@
-﻿"f"\""" doesn't substitute f back in (reports error with STR_LEX).
+﻿Should functions return a single token, or a list of tokens..?
+
+"f"\""" doesn't substitute f back in (reports error with STR_LEX).

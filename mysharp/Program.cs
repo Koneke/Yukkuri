@@ -95,11 +95,15 @@ namespace mysharp
 			State = new mysState();
 		}
 
-		// loop loop, I know...
-		public void REPLloop() {
+		void REPLstart() {
 			quit = false;
 			strict = false;
 			accumulatedInput = "";
+		}
+
+		// loop loop, I know...
+		public void REPLloop() {
+			REPLstart();
 
 			while ( !quit ) {
 				// show standard prompt > if we are not currently continuing a
@@ -115,6 +119,17 @@ namespace mysharp
 				switch ( input ) {
 					case "(clear)":
 						Console.Clear();
+						break;
+
+					case "(nuke!)":
+						State = new mysState();
+
+						REPLstart();
+
+						Console.WriteLine(
+							">> Cleared execution state, REPL status, "+
+							"parser status. All to new. <<\n"
+						);
 						break;
 
 					case "(quit)":
