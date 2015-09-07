@@ -45,9 +45,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Builtins\Arithmetic.cs" />
+    <Compile Include="Builtins\Clr.cs" />
+    <Compile Include="Builtins\Comparison.cs" />
+    <Compile Include="Builtins\Core.cs" />
+    <Compile Include="Builtins\Flow.cs" />
+    <Compile Include="Builtins\ListHandling.cs" />
+    <Compile Include="Builtins\Looping.cs" />
     <Compile Include="EvaluationState.cs" />
+    <Compile Include="Exceptions.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="mysBuiltin.cs" />
-    <Compile Include="mysBuiltIns.cs" />
+    <Compile Include="Builtins\mysBuiltIns.cs" />
     <Compile Include="mysFunction.cs" />
     <Compile Include="mysFunctionGroup.cs" />
     <Compile Include="mysList.cs" />

@@ -59,6 +59,61 @@ namespace mysharp
 				)
 			;
 		}
+
+		public static bool IsNumber(
+			mysToken token
+		) {
+			return AssignableFrom( mysTypes.NUMBER, token.Type );
+		}
+
+		public static mysFloating PromoteNumber(
+			mysToken number
+		) {
+			if (
+				number.Type != mysTypes.Integral &&
+				number.Type != mysTypes.Floating )
+			{
+				throw new ArgumentException();
+			}
+
+			if ( number.Type == mysTypes.Integral ) {
+				return new mysFloating( (number as mysIntegral).Value );
+			}
+
+			return (mysFloating)number;
+		}
+
+		public static bool CanSafelyDemoteNumber(
+			mysToken number
+		) {
+			if ( !AssignableFrom( mysTypes.NULLTYPE, number.Type ) ) {
+				return false;
+			}
+
+			if ( number.Type == mysTypes.Integral ) {
+				return true;
+			}
+
+			if ( (number as mysFloating).Value % 1 == 0 ) {
+				return true;
+			}
+
+			return false;
+		}
+
+		public static mysIntegral DemoteNumber(
+			mysToken number
+		) {
+			if ( !CanSafelyDemoteNumber( number ) ) {
+				throw new ArgumentException();
+			}
+
+			if ( number.Type == mysTypes.Integral ) {
+				return number as mysIntegral;
+			}
+
+			return new mysIntegral( (int)(number as mysFloating).Value );
+		}
 	}
 
 	public class mysTypeToken : mysToken
@@ -89,10 +144,6 @@ namespace mysharp
 		public mysIntegral( long value )
 			: base ( value, mysTypes.Integral )
 		{
-		}
-
-		public mysFloating Promote() {
-			return new mysFloating( Value );
 		}
 
 		public override string ToString()

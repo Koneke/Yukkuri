@@ -3,9 +3,28 @@
 namespace mysharp_tests
 {
 	using mysharp;
-	using System.Collections;
 	using System.Collections.Generic;
 	using System.Diagnostics;
+
+	public static class TestExtensions
+	{
+		public static void Test(
+			this mysREPL REPL,
+			string expression,
+			System.Func<mysToken, bool> evaluation
+		) {
+			List<mysToken> result = REPL.Evaluate( expression );
+
+			foreach( mysToken token in result ) {
+				bool eval = evaluation( token );
+
+				Assert.IsTrue(
+					eval,
+					$"Failing at {expression}."
+				);
+			}
+		}
+	}
 
 	[TestFixture]
 	public class BasicTests
@@ -22,19 +41,6 @@ namespace mysharp_tests
 				( result as mysIntegral ).Value == expected,
 				$"Failing at {expression}."
 			);
-		}
-
-		void Test(
-			mysREPL REPL,
-			string expression,
-			System.Func<mysToken, bool> evaluation
-		) {
-			foreach( mysToken token in REPL.Evaluate( expression ) ) {
-				Debug.Assert(
-					evaluation( token ),
-					$"Failing at {expression}."
-				);
-			}
 		}
 
 		[Test]
@@ -127,16 +133,116 @@ namespace mysharp_tests
 			string quote = "\"";
 			string escapedQuote = @"\" + "\"";
 
-			Test(
-				REPL,
+			(new mysREPL()).Test(
 				quote + "foo" + quote,
 				t => (t as mysString).Value == "foo"
 			);
 
-			Test(
-				REPL,
+			(new mysREPL()).Test(
 				quote + escapedQuote + "foo" + quote,
-				t => (t as mysString).Value == ( escapedQuote + "foo" )
+				t => (t as mysString).Value == ( "\"" + "foo" )
+			);
+		}
+	}
+
+	[TestFixture]
+	public class ComparisonTests
+	{
+		[Test]
+		public void Equality_EqualIntegers_True() {
+			(new mysREPL()).Test(
+				"(= 1 1)",
+				t => (t as mysBoolean).Value == true
+			);
+		}
+
+		[Test]
+		public void Equality_NonEqualIntegers_False() {
+			(new mysREPL()).Test(
+				"(= 0 1)",
+				t => (t as mysBoolean).Value == false
+			);
+		}
+
+		[Test]
+		public void Equality_EqualIntegerAFloatB_True() {
+			(new mysREPL()).Test(
+				"(= 1. 1)",
+				t => (t as mysBoolean).Value == true
+			);
+		}
+
+		[Test]
+		public void Equality_NonEqualIntegerAFloatB_False() {
+			(new mysREPL()).Test(
+				"(= 1. 2)",
+				t => (t as mysBoolean).Value == false 
+			);
+		}
+
+		[Test]
+		public void Equality_NonEqualIntegerANonRoundFloatB_False() {
+			(new mysREPL()).Test(
+				"(= 1.1 1)",
+				t => (t as mysBoolean).Value == false 
+			);
+		}
+
+		[Test]
+		public void Equality_EqualFloats_True() {
+			(new mysREPL()).Test(
+				"(= 1.1 1.1)",
+				t => (t as mysBoolean).Value == true
+			);
+		}
+
+		[Test]
+		public void Equality_NonEqualFloats_False() {
+			(new mysREPL()).Test(
+				"(= 1.1 1.2)",
+				t => (t as mysBoolean).Value == false
+			);
+		}
+
+		// ================================================
+
+		[Test]
+		public void GreaterThan_ALargerThanB_True() {
+			(new mysREPL()).Test(
+				"(> 1 0)",
+				t => (t as mysBoolean).Value == true
+			);
+		}
+
+		[Test]
+		public void GreaterThan_ALargerThanNegativeB_True() {
+			(new mysREPL()).Test(
+				"(> 1 -1)",
+				t => (t as mysBoolean).Value == true
+			);
+		}
+
+		[Test]
+		public void GreaterThan_NegativeALargerThanNegativeB_True() {
+			(new mysREPL()).Test(
+				"(> -1 -2)",
+				t => (t as mysBoolean).Value == true
+			);
+		}
+
+		[Test]
+		public void GreaterThan_NegativeASmallerThanNegativeB_False() {
+			(new mysREPL()).Test(
+				"(> -2 -1)",
+				t => (t as mysBoolean).Value == false
+			);
+		}
+
+		[Test]
+		public void GreaterThan_EqualIntegers_False() {
+			(new mysREPL()).Test(
+				"(> 1 1)",
+				t => (t as mysBoolean).Value == false 
 			);
 		}
 	}
