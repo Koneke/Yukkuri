@@ -12,6 +12,8 @@
 			Builtins.Arithmetic.Multiplication.Setup( global );
 			Builtins.Arithmetic.Division.Setup( global );
 
+			Builtins.Collections.Range.Setup( global );
+
 			Builtins.ListHandling.Car.Setup( global );
 			Builtins.ListHandling.Cdr.Setup( global );
 			Builtins.ListHandling.Cons.Setup( global );
@@ -22,6 +24,7 @@
 			Builtins.Comparison.Equals.Setup( global );
 			Builtins.Comparison.GreaterThan.Setup( global );
 
+			Builtins.Looping.For.Setup( global );
 			Builtins.Looping.While.Setup( global );
 
 			Builtins.Clr.NewClrObject.Setup( global );

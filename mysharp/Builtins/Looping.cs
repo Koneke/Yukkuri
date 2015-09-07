@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace mysharp.Builtins.Looping
 {
@@ -50,6 +51,7 @@ namespace mysharp.Builtins.Looping
 					finalReturn = em.Evaluate().Car();
 				}
 
+				// do we actually need this, or should it be null..?
 				return finalReturn;
 			};
 
@@ -58,5 +60,67 @@ namespace mysharp.Builtins.Looping
 			mysBuiltin.DefineInGlobal( "while", functionGroup, global );
 		}
 	}
-}
 
+	public static class For
+	{
+		static mysFunctionGroup functionGroup;
+
+		public static void Setup( mysSymbolSpace global ) {
+			functionGroup = new mysFunctionGroup();
+
+			mysBuiltin f = new mysBuiltin();
+
+			f.Signature.Add( mysTypes.List );
+			f.Signature.Add( mysTypes.List );
+
+			f.Function = (args, state, sss) => {
+				mysList head = args[ 0 ] as mysList;
+				mysList body = args[ 1 ] as mysList;
+
+				mysSymbol symbol;
+				mysList collection;
+
+				if ( head.InternalValues.Count != 2 ) {
+					throw new ArgumentException();
+				}
+
+				EvaluationMachine em;
+
+				symbol = head.InternalValues[ 0 ] as mysSymbol;
+				collection = head.InternalValues[ 1 ] as mysList;
+
+				em = new EvaluationMachine(
+					new List<mysToken>() { collection },
+					state,
+					sss
+				);
+
+				collection = em.Evaluate().Car() as mysList;
+
+				if ( symbol == null || collection == null ) {
+					throw new ArgumentException();
+				}
+
+				for ( int i = 0; i < collection.InternalValues.Count; i++ ) {
+					sss.Peek().Define(
+						symbol,
+						collection.InternalValues[ i ]
+					);
+
+					em = new EvaluationMachine(
+						body.InternalValues,
+						state,
+						sss
+					);
+
+					em.Evaluate();
+				}
+
+				return null;
+			};
+
+			functionGroup.Variants.Add( f );
+			mysBuiltin.DefineInGlobal( "for", functionGroup, global );
+		}
+	}
+}

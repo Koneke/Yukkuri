@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="Builtins\Arithmetic.cs" />
     <Compile Include="Builtins\Clr.cs" />
+    <Compile Include="Builtins\Collections.cs" />
     <Compile Include="Builtins\Comparison.cs" />
     <Compile Include="Builtins\Core.cs" />
     <Compile Include="Builtins\Flow.cs" />
