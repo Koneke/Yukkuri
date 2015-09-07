@@ -14,6 +14,7 @@
 
 			Builtins.ListHandling.Car.Setup( global );
 			Builtins.ListHandling.Cdr.Setup( global );
+			Builtins.ListHandling.Cons.Setup( global );
 
 			Builtins.Flow.If.Setup( global );
 			Builtins.Flow.When.Setup( global );

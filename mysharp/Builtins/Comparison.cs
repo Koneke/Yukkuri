@@ -5,8 +5,8 @@
 		static mysFunctionGroup functionGroup;
 
 		static bool CompareNumbers( mysToken a, mysToken b ) {
-			mysFloating first = mysToken.PromoteNumber( a );
-			mysFloating second = mysToken.PromoteNumber( b );
+			mysFloating first = mysToken.PromoteToFloat( a );
+			mysFloating second = mysToken.PromoteToFloat( b );
 
 			return first.Value == second.Value;
 		}
@@ -59,11 +59,11 @@
 			f.Signature.Add( mysTypes.NUMBER );
 
 			f.Function = (args, state, sss) => {
-				mysToken.PromoteNumber( args[ 0 ] );
-				mysToken.PromoteNumber( args[ 1 ] );
+				mysToken.PromoteToFloat( args[ 0 ] );
+				mysToken.PromoteToFloat( args[ 1 ] );
 
-				mysFloating first = mysToken.PromoteNumber( args[ 0 ] );
-				mysFloating second = mysToken.PromoteNumber( args[ 1 ] );
+				mysFloating first = mysToken.PromoteToFloat( args[ 0 ] );
+				mysFloating second = mysToken.PromoteToFloat( args[ 1 ] );
 
 				return new mysBoolean(
 					first.Value > second.Value

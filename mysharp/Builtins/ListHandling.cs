@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace mysharp.Builtins.ListHandling
 {
@@ -48,5 +49,30 @@ namespace mysharp.Builtins.ListHandling
 			mysBuiltin.DefineInGlobal( "cdr", functionGroup, global );
 		}
 	}
-}
 
+	public static class Cons {
+		static mysFunctionGroup functionGroup;
+
+		public static void Setup( mysSymbolSpace global ) {
+			functionGroup = new mysFunctionGroup();
+
+			mysBuiltin f = new mysBuiltin();
+
+			f.Signature.Add( mysTypes.ANY );
+			f.Signature.Add( mysTypes.ANY );
+
+			f.Function = (args, state, sss) => {
+				mysList first = mysToken.PromoteToList( args[ 0 ] );
+				mysList second = mysToken.PromoteToList( args[ 1 ] );
+
+				second.InternalValues.InsertRange( 0, first.InternalValues );
+
+				return second.Quote();
+			};
+
+			functionGroup.Variants.Add( f );
+
+			mysBuiltin.DefineInGlobal( "cons", functionGroup, global );
+		}
+	}
+}

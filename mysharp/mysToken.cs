@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace mysharp
 {
@@ -60,13 +61,26 @@ namespace mysharp
 			;
 		}
 
+		public static mysList PromoteToList(
+			mysToken item
+		) {
+			if ( item.Type == mysTypes.List ) {
+				return item as mysList;
+			}
+
+			List<mysToken> newlist = new List<mysToken>();
+			newlist.Add( item );
+
+			return new mysList( newlist );
+		}
+
 		public static bool IsNumber(
 			mysToken token
 		) {
 			return AssignableFrom( mysTypes.NUMBER, token.Type );
 		}
 
-		public static mysFloating PromoteNumber(
+		public static mysFloating PromoteToFloat(
 			mysToken number
 		) {
 			if (
