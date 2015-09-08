@@ -172,6 +172,7 @@ namespace mysharp
 				case mysTypes.Boolean:
 				case mysTypes.mysType:
 				case mysTypes.clrObject:
+				case mysTypes.clrType:
 					break;
 				default:
 					throw new ArgumentException();

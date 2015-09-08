@@ -55,8 +55,11 @@ namespace mysharp.Builtins.ListHandling
 
 		public static void Setup( mysSymbolSpace global ) {
 			functionGroup = new mysFunctionGroup();
+			mysBuiltin f;
 
-			mysBuiltin f = new mysBuiltin();
+			// actual cons version
+
+			f = new mysBuiltin();
 
 			f.Signature.Add( mysTypes.ANY );
 			f.Signature.Add( mysTypes.ANY );
@@ -68,6 +71,20 @@ namespace mysharp.Builtins.ListHandling
 				second.InternalValues.InsertRange( 0, first.InternalValues );
 
 				return second.Quote();
+			};
+
+			functionGroup.Variants.Add( f );
+
+			// make-list version
+
+			f = new mysBuiltin();
+
+			f.Signature.Add( mysTypes.ANY );
+
+			f.Function = (args, state, sss) => {
+				mysList first = mysToken.PromoteToList( args[ 0 ] );
+
+				return first.Quote();
 			};
 
 			functionGroup.Variants.Add( f );

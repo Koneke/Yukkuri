@@ -18,7 +18,8 @@ namespace mysharp
 		Function,
 		FunctionGroup,
 		mysType,
-		clrObject
+		clrObject,
+		clrType
 	}
 
 	public class mysToken
@@ -236,6 +237,24 @@ namespace mysharp
 
 		public clrObject( object value )
 			: base ( value, mysTypes.clrObject )
+		{
+			;
+		}
+
+		public override string ToString()
+		{
+			return $"(clr: {Value})";
+		}
+	}
+
+	public class clrType : mysToken
+	{
+		public Type Value {
+			get { return (Type)InternalValue; }
+		}
+
+		public clrType( Type value )
+			: base ( value, mysTypes.clrType )
 		{
 			;
 		}

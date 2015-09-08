@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Collections.Generic;
 
 namespace mysharp.Builtins.Clr
 {
@@ -25,13 +25,17 @@ namespace mysharp.Builtins.Clr
 		public static mysToken ConvertClrObject(
 			object obj
 		) {
+			if ( obj == null ) {
+				return null;
+			}
+
 			Type t = obj.GetType();
 
 			if ( t == typeof(int) ) {
 				return new mysIntegral( (int)obj );
 			}
 
-			throw new NotImplementedException();
+			return new clrObject( obj );
 		}
 	}
 
@@ -44,24 +48,14 @@ namespace mysharp.Builtins.Clr
 
 			mysBuiltin f = new mysBuiltin();
 
-			f.Signature.Add( mysTypes.Symbol );
+			f.Signature.Add( mysTypes.clrType );
 
 			f.Function = (args, state, sss) => {
-				string name = (args[ 0 ] as mysSymbol ).StringRepresentation;
+				Type type = (args[ 0 ] as clrType).Value;
 
-				foreach( Assembly a in state.exposedAssemblies ) {
-					if ( a.GetExportedTypes()
-						.Any( t => t.FullName == name )
-					) {
-						return new clrObject(
-							Activator.CreateInstance(
-								ClrTools.GetType( state, name )
-							)
-						);
-					}
-				}
-
-				throw new Exception( "Type not imported." );
+				return new clrObject(
+					Activator.CreateInstance( type )
+				);
 			};
 
 			functionGroup.Variants.Add( f );
@@ -113,6 +107,76 @@ namespace mysharp.Builtins.Clr
 			functionGroup.Variants.Add( f );
 
 			mysBuiltin.DefineInGlobal( ".", functionGroup, global );
+		}
+	}
+
+	public static class ClrType
+	{
+		static mysFunctionGroup functionGroup;
+
+		public static void Setup( mysSymbolSpace global ) {
+			functionGroup = new mysFunctionGroup();
+
+			mysBuiltin f = new mysBuiltin();
+
+			f.Signature.Add( mysTypes.Symbol );
+
+			f.Function = (args, state, sss) => {
+				mysSymbol symbol = args[ 0 ] as mysSymbol;
+
+				return new clrType(
+					ClrTools.GetType( state, symbol.StringRepresentation )
+				);
+			};
+
+			functionGroup.Variants.Add( f );
+
+			mysBuiltin.DefineInGlobal( "#type", functionGroup, global );
+		}
+	}
+
+	public static class Call
+	{
+		static mysFunctionGroup functionGroup;
+
+		public static void Setup( mysSymbolSpace global ) {
+			functionGroup = new mysFunctionGroup();
+
+			mysBuiltin f = new mysBuiltin();
+
+			f.Signature.Add( mysTypes.Symbol );
+			f.Signature.Add( mysTypes.clrType );
+			f.Signature.Add( mysTypes.List );
+
+			f.Function = (args, state, sss) => {
+				mysSymbol symbol = args[ 0 ] as mysSymbol;
+				clrType type = args[ 1 ] as clrType;
+				mysList argsList = args[ 2 ] as mysList;
+
+				Type[] argumentTypes = argsList.InternalValues
+					.Select( t => t.InternalValue.GetType() )
+					.ToArray();
+
+				object[] arguments = argsList.InternalValues
+					.Select( t => t.InternalValue )
+					.ToArray();
+
+				MethodInfo mi = type.Value.GetMethod(
+					symbol.StringRepresentation,
+					argumentTypes
+				);
+
+				object result = mi.Invoke(
+					null,
+					arguments
+				);
+
+				return ClrTools.ConvertClrObject( result );
+			};
+
+			functionGroup.Variants.Add( f );
+
+			mysBuiltin.DefineInGlobal( "#call", functionGroup, global );
 		}
 	}
 }

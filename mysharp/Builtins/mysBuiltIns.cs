@@ -27,8 +27,10 @@
 			Builtins.Looping.For.Setup( global );
 			Builtins.Looping.While.Setup( global );
 
+			Builtins.Clr.ClrType.Setup( global );
 			Builtins.Clr.NewClrObject.Setup( global );
 			Builtins.Clr.ClrDot.Setup( global );
+			Builtins.Clr.Call.Setup( global );
 		}
 	}
 }

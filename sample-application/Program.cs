@@ -34,6 +34,8 @@ namespace sample_application
 			mysharp.mysREPL REPL = new mysharp.mysREPL();
 			REPL.ExposeTo( Assembly.GetExecutingAssembly() );
 
+			REPL.ExposeTo( Assembly.GetAssembly( typeof( System.Console ) ) );
+
 			//REPL.Evaluate( "(#new \"sample_application.SampleClass\")" );
 
 			REPL.REPLloop();
