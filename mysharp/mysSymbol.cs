@@ -5,12 +5,12 @@ namespace mysharp
 {
 	public class mysSymbol : mysToken
 	{
-		private string stringRepresentation;
+		public string StringRepresentation;
 
 		public mysSymbol( string symbolString )
 			: base ( null, mysTypes.Symbol )
 		{
-			stringRepresentation = symbolString;
+			StringRepresentation = symbolString;
 		}
 
 		public override bool Equals(object obj)
@@ -20,19 +20,19 @@ namespace mysharp
 
 			mysSymbol s = (mysSymbol)obj;
 
-			return s.stringRepresentation == stringRepresentation;
+			return s.StringRepresentation == StringRepresentation;
 		}
 
 		public override int GetHashCode()
 		{
-			return stringRepresentation.GetHashCode();
+			return StringRepresentation.GetHashCode();
 		}
 
 		public override string ToString()
 		{
 			return string.Format(
 				"({1}sym: {0})",
-				stringRepresentation,
+				StringRepresentation,
 				Quoted ? "q " : ""
 			);
 		}

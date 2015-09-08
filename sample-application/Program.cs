@@ -6,12 +6,24 @@ namespace sample_application
 	{
 		public int AField;
 
-		public int AMethod() {
-			return AField;
-		}
+		public Foo Foo;
 
 		public SampleClass() {
 			AField = 5;
+			Foo = new Foo();
+		}
+
+		public int AMethod() {
+			return AField;
+		}
+	}
+
+	public class Foo
+	{
+		public int BField;
+
+		public Foo() {
+			BField = 10;
 		}
 	}
 
@@ -22,9 +34,11 @@ namespace sample_application
 			mysharp.mysREPL REPL = new mysharp.mysREPL();
 			REPL.ExposeTo( Assembly.GetExecutingAssembly() );
 
-			REPL.Evaluate( "(#new \"sample_application.SampleClass\")" );
+			//REPL.Evaluate( "(#new \"sample_application.SampleClass\")" );
 
-			System.Console.ReadLine();
+			REPL.REPLloop();
+
+			//System.Console.ReadLine();
 		}
 	}
 }
