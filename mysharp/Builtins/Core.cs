@@ -189,5 +189,49 @@ namespace mysharp.Builtins.Core {
 			mysBuiltin.DefineInGlobal( "=>", lambda, global );
 		}
 	}
-}
 
+	public static class InNamespace  {
+		public static mysFunctionGroup functionGroup;
+		public static void Setup( mysSymbolSpace global )
+		{
+			functionGroup = new mysFunctionGroup();
+			mysBuiltin f = new mysBuiltin();
+
+			f = new mysBuiltin();
+			f.Signature.Add( mysTypes.Symbol );
+			f.Signature.Add( mysTypes.List );
+
+			f.Function = (args, state, sss) => {
+				mysSymbol symbol = args[ 0 ] as mysSymbol;
+				string ssName = symbol.StringRepresentation.ToLower();
+				mysList body = args[ 1 ] as mysList;
+
+				if ( !state.nameSpaces.ContainsKey( ssName ) ) {
+					state.nameSpaces.Add(
+						ssName,
+						new mysSymbolSpace()
+					);
+				}
+
+				sss.Push( state.nameSpaces[ ssName ] );
+
+				EvaluationMachine em = new EvaluationMachine(
+					body.InternalValues,
+					state,
+					sss
+				);
+
+				// really needs to be fixed
+				mysToken result = em.Evaluate().Car();
+
+				sss.Pop();
+
+				return result;
+			};
+
+			functionGroup.Variants.Add( f );
+
+			mysBuiltin.DefineInGlobal( "in", functionGroup, global );
+		}
+	}
+}

@@ -6,6 +6,7 @@
 		) {
 			Builtins.Core.Lambda.Setup( global );
 			Builtins.Core.Assign.Setup( global );
+			Builtins.Core.InNamespace.Setup( global );
 
 			Builtins.Arithmetic.Addition.Setup( global );
 			Builtins.Arithmetic.Subtraction.Setup( global );
