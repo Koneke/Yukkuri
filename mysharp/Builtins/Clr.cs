@@ -53,9 +53,9 @@ namespace mysharp.Builtins.Clr
 			f.Function = (args, state, sss) => {
 				Type type = (args[ 0 ] as clrType).Value;
 
-				return new clrObject(
-					Activator.CreateInstance( type )
-				);
+				return new List<mysToken>() {
+					new clrObject( Activator.CreateInstance( type ) )
+				};
 			};
 
 			functionGroup.Variants.Add( f );
@@ -101,7 +101,9 @@ namespace mysharp.Builtins.Clr
 					;
 				}
 
-				return ClrTools.ConvertClrObject( current );
+				return new List<mysToken>() {
+					ClrTools.ConvertClrObject( current )
+				};
 			};
 
 			functionGroup.Variants.Add( f );
@@ -124,9 +126,12 @@ namespace mysharp.Builtins.Clr
 			f.Function = (args, state, sss) => {
 				mysSymbol symbol = args[ 0 ] as mysSymbol;
 
-				return new clrType(
-					ClrTools.GetType( state, symbol.StringRepresentation )
-				);
+				return new List<mysToken>() {
+					new clrType( ClrTools.GetType(
+						state,
+						symbol.StringRepresentation
+					) )
+				};
 			};
 
 			functionGroup.Variants.Add( f );
@@ -175,7 +180,9 @@ namespace mysharp.Builtins.Clr
 					arguments
 				);
 
-				return ClrTools.ConvertClrObject( result );
+				return new List<mysToken>() {
+					ClrTools.ConvertClrObject( result )
+				};
 			};
 
 			functionGroup.Variants.Add( f );
@@ -211,7 +218,9 @@ namespace mysharp.Builtins.Clr
 					arguments
 				);
 
-				return ClrTools.ConvertClrObject( result );
+				return new List<mysToken>() {
+				 ClrTools.ConvertClrObject( result )
+				};
 			};
 
 			functionGroup.Variants.Add( f );

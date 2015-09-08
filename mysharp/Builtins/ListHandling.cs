@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
+using System.Collections.Generic;
 
 namespace mysharp.Builtins.ListHandling
 {
@@ -16,9 +16,11 @@ namespace mysharp.Builtins.ListHandling
 			f.Signature.Add( mysTypes.List );
 
 			f.Function = (args, state, sss) =>
-				( args[ 0 ] as mysList ).InternalValues
-					.FirstOrDefault()
-			;
+				new List<mysToken>() {
+					( args[ 0 ] as mysList )
+						.InternalValues
+						.FirstOrDefault()
+				};
 
 			functionGroup.Variants.Add( f );
 
@@ -37,12 +39,13 @@ namespace mysharp.Builtins.ListHandling
 			f.Signature.Add( mysTypes.List );
 
 			f.Function = (args, state, sss) =>
-				new mysList(
-					( args[ 0 ] as mysList ).InternalValues
-						.Skip( 1 )
-						.ToList()
-				).Quote( args[ 0 ].Quoted )
-			;
+				new List<mysToken>() {
+					new mysList(
+						( args[ 0 ] as mysList ).InternalValues
+							.Skip( 1 )
+							.ToList()
+					).Quote( args[ 0 ].Quoted )
+				};
 
 			functionGroup.Variants.Add( f );
 
@@ -70,7 +73,9 @@ namespace mysharp.Builtins.ListHandling
 
 				second.InternalValues.InsertRange( 0, first.InternalValues );
 
-				return second.Quote();
+				return new List<mysToken>() {
+					second.Quote()
+				};
 			};
 
 			functionGroup.Variants.Add( f );
@@ -84,7 +89,9 @@ namespace mysharp.Builtins.ListHandling
 			f.Function = (args, state, sss) => {
 				mysList first = mysToken.PromoteToList( args[ 0 ] );
 
-				return first.Quote();
+				return new List<mysToken>() {
+					first.Quote()
+				};
 			};
 
 			functionGroup.Variants.Add( f );

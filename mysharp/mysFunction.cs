@@ -40,7 +40,7 @@ namespace mysharp
 			Function = new mysList();
 		}
 
-		public virtual mysToken Call(
+		public virtual List<mysToken> Call(
 			List<mysToken> arguments,
 			mysState state,
 			Stack<mysSymbolSpace> spaceStack
@@ -70,12 +70,7 @@ namespace mysharp
 
 			spaceStack.Pop();
 
-			if ( result.Count < 2 ) {
-				return result.FirstOrDefault();
-			} else {
-				// maybe quoted..? unsure atm
-				return new mysList( result );
-			}
+			return result;
 		}
 	}
 }

@@ -37,11 +37,7 @@ namespace mysharp.Builtins.Flow
 
 				List<mysToken> result = em.Evaluate();
 
-				if ( result.Count == 1 ) {
-					return result.Car();
-				} else {
-					return new mysList( result );
-				}
+				return result;
 			};
 
 			functionGroup.Variants.Add( f );
@@ -79,11 +75,7 @@ namespace mysharp.Builtins.Flow
 
 				List<mysToken> result = em.Evaluate();
 
-				if ( result.Count == 1 ) {
-					return result.Car();
-				} else {
-					return new mysList( result );
-				}
+				return result;
 			};
 
 			functionGroup.Variants.Add( f );

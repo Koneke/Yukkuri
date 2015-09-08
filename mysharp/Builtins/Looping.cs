@@ -18,7 +18,7 @@ namespace mysharp.Builtins.Looping
 			f.Function = (args, state, sss) => {
 				mysList conditional = args[ 0 ] as mysList;
 
-				mysToken finalReturn = null;
+				List<mysToken> finalReturn = null;
 
 				while ( true ) {
 					// might want to move this outside somehow, and/or make
@@ -48,7 +48,7 @@ namespace mysharp.Builtins.Looping
 						sss
 					);
 
-					finalReturn = em.Evaluate().Car();
+					finalReturn = em.Evaluate();
 				}
 
 				// do we actually need this, or should it be null..?

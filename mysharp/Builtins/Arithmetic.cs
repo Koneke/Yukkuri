@@ -1,4 +1,6 @@
-﻿namespace mysharp.Builtins.Arithmetic
+﻿using System.Collections.Generic;
+
+namespace mysharp.Builtins.Arithmetic
 {
 	// might want to move this stuff to its own project?
 	// and ref to that?
@@ -16,10 +18,12 @@
 			variant.Signature.Add( mysTypes.Integral );
 
 			variant.Function = (args, state, sss) =>
-				new mysIntegral(
-					(args[ 0 ] as mysIntegral).Value +
-					(args[ 1 ] as mysIntegral).Value
-				);
+				new List<mysToken>() {
+					new mysIntegral(
+						(args[ 0 ] as mysIntegral).Value +
+						(args[ 1 ] as mysIntegral).Value
+					)
+				};
 
 			functionGroup.Variants.Add( variant );
 		}
@@ -45,10 +49,12 @@
 			variant.Signature.Add( mysTypes.Integral );
 
 			variant.Function = (args, state, sss) =>
-				new mysIntegral(
-					(args[ 0 ] as mysIntegral).Value -
-					(args[ 1 ] as mysIntegral).Value
-				);
+				new List<mysToken>() {
+					new mysIntegral(
+						(args[ 0 ] as mysIntegral).Value -
+						(args[ 1 ] as mysIntegral).Value
+					)
+				};
 
 			functionGroup.Variants.Add( variant );
 		}
@@ -74,10 +80,12 @@
 			variant.Signature.Add( mysTypes.Integral );
 
 			variant.Function = (args, state, sss) =>
-				new mysIntegral(
-					(args[ 0 ] as mysIntegral).Value *
-					(args[ 1 ] as mysIntegral).Value
-				);
+				new List<mysToken>() {
+					new mysIntegral(
+						(args[ 0 ] as mysIntegral).Value *
+						(args[ 1 ] as mysIntegral).Value
+					)
+				};
 
 			functionGroup.Variants.Add( variant );
 		}
@@ -103,10 +111,12 @@
 			variant.Signature.Add( mysTypes.Integral );
 
 			variant.Function = (args, state, sss) =>
-				new mysIntegral(
-					(args[ 0 ] as mysIntegral).Value /
-					(args[ 1 ] as mysIntegral).Value
-				);
+				new List<mysToken>() {
+					new mysIntegral(
+						(args[ 0 ] as mysIntegral).Value /
+						(args[ 1 ] as mysIntegral).Value
+					)
+				};
 
 			functionGroup.Variants.Add( variant );
 		}

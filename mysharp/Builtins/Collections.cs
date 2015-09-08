@@ -21,7 +21,7 @@ namespace mysharp.Builtins.Collections
 					range.Add( new mysIntegral( i ) );
 				}
 
-				return new mysList( range, true );
+				return range;
 			};
 
 			functionGroup.Variants.Add( f );
@@ -42,7 +42,7 @@ namespace mysharp.Builtins.Collections
 					range.Add( new mysIntegral( i ) );
 				}
 
-				return new mysList( range, true );
+				return range;
 			};
 
 			functionGroup.Variants.Add( f );

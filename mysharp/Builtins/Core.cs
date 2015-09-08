@@ -105,7 +105,9 @@ namespace mysharp.Builtins.Core {
 				mysSymbol assignsymbol = args[ 0 ] as mysSymbol;
 				mysToken value = args[ 1 ];
 
-				return Evaluate( assignsymbol, value, sss );
+				return new List<mysToken>() {
+					Evaluate( assignsymbol, value, sss )
+				};
 			};
 
 			assign.Variants.Add( assignVariant );
@@ -181,7 +183,9 @@ namespace mysharp.Builtins.Core {
 				mysList sig = args[ 0 ] as mysList;
 				mysList body = args[ 1 ] as mysList;
 
-				return Evaluate( sig, body, sss );
+				return new List<mysToken>() {
+					Evaluate( sig, body, sss )
+				};
 			};
 
 			lambda.Variants.Add( lambdaVariant );
@@ -222,7 +226,7 @@ namespace mysharp.Builtins.Core {
 				);
 
 				// really needs to be fixed
-				mysToken result = em.Evaluate().Car();
+				List<mysToken> result = em.Evaluate();
 
 				sss.Pop();
 

@@ -1,4 +1,6 @@
-﻿namespace mysharp.Builtins.Comparison
+﻿using System.Collections.Generic;
+
+namespace mysharp.Builtins.Comparison
 {
 	public static class Equals
 	{
@@ -30,14 +32,19 @@
 						args[ 1 ].Type
 					)
 				) {
-					return new mysBoolean(
-						CompareNumbers( args[ 0 ], args[ 1 ] )
-					);
+					return new List<mysToken>() {
+						new mysBoolean(
+							CompareNumbers( args[ 0 ], args[ 1 ] )
+						)
+					};
 				}
 
-				return new mysBoolean(
-					args[ 0 ].InternalValue.Equals( args[ 1 ].InternalValue )
-				);
+				return new List<mysToken>() {
+					new mysBoolean(
+						args[ 0 ].InternalValue
+						.Equals( args[ 1 ].InternalValue )
+					)
+				};
 			};
 
 			functionGroup.Variants.Add( f );
@@ -65,9 +72,9 @@
 				mysFloating first = mysToken.PromoteToFloat( args[ 0 ] );
 				mysFloating second = mysToken.PromoteToFloat( args[ 1 ] );
 
-				return new mysBoolean(
-					first.Value > second.Value
-				);
+				return new List<mysToken>() {
+					new mysBoolean( first.Value > second.Value )
+				};
 			};
 
 			functionGroup.Variants.Add( f );

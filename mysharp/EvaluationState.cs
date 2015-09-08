@@ -57,9 +57,13 @@ namespace mysharp
 					spaceStack
 				);
 
+				List<mysToken> result = em.Evaluate();
+
+				result.RemoveAll( t => t == null );
+
 				tokens.InsertRange(
 					index,
-					em.Evaluate()
+					result
 				);
 			}
 		}
@@ -117,7 +121,8 @@ namespace mysharp
 		void handleFunction() {
 			mysFunction f = tokens[ current ] as mysFunction;
 
-			mysToken t = f.Call(
+			//mysToken t = f.Call(
+			List<mysToken> t = f.Call(
 				tokens
 					.Skip( current + 1 )
 					.Take( f.SignatureLength )
@@ -129,7 +134,7 @@ namespace mysharp
 			tokens.RemoveRange( current, f.SignatureLength + 1 );
 
 			if ( t != null ) {
-				tokens.Insert( current, t );
+				tokens.InsertRange( current, t );
 			}
 		}
 
