@@ -94,6 +94,10 @@ namespace mysharp
 		}
 
 		void handleInput( string input ) {
+			if ( input == "" ) {
+				return;
+			}
+
 			if ( input.Last() == '\\') {
 				input = input.Substring( 0, input.Length - 1);
 				accumulatedInput += input;

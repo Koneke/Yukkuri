@@ -142,7 +142,11 @@ namespace mysharp.Builtins.Clr
 		public static void Setup( mysSymbolSpace global ) {
 			functionGroup = new mysFunctionGroup();
 
-			mysBuiltin f = new mysBuiltin();
+			mysBuiltin f;
+
+			// static
+
+			f = new mysBuiltin();
 
 			f.Signature.Add( mysTypes.Symbol );
 			f.Signature.Add( mysTypes.clrType );
@@ -168,6 +172,42 @@ namespace mysharp.Builtins.Clr
 
 				object result = mi.Invoke(
 					null,
+					arguments
+				);
+
+				return ClrTools.ConvertClrObject( result );
+			};
+
+			functionGroup.Variants.Add( f );
+
+			// instance
+
+			f = new mysBuiltin();
+
+			f.Signature.Add( mysTypes.Symbol );
+			f.Signature.Add( mysTypes.clrObject );
+			f.Signature.Add( mysTypes.List );
+
+			f.Function = (args, state, sss) => {
+				mysSymbol symbol = args[ 0 ] as mysSymbol;
+				clrObject obj = args[ 1 ] as clrObject;
+				mysList argsList = args[ 2 ] as mysList;
+
+				Type[] argumentTypes = argsList.InternalValues
+					.Select( t => t.InternalValue.GetType() )
+					.ToArray();
+
+				object[] arguments = argsList.InternalValues
+					.Select( t => t.InternalValue )
+					.ToArray();
+
+				MethodInfo mi = obj.Value.GetType().GetMethod(
+					symbol.StringRepresentation,
+					argumentTypes
+				);
+
+				object result = mi.Invoke(
+					obj.Value,
 					arguments
 				);
 
