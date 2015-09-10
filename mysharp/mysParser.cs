@@ -94,6 +94,8 @@ namespace mysharp
 			string prepare( string expression ) {
 				return
 					( new StringParser( expression, stringQueue ) ).Parse()
+					.Replace( "\r", " " )
+					.Replace( "\n", " " )
 					.Replace( "(", " ( " )
 					.Replace( ")", " ) " )
 					.Replace( "[", " [ " )

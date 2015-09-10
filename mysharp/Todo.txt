@@ -1,0 +1,2 @@
+﻿RL parser
+replace current type tokens with generic, clr types

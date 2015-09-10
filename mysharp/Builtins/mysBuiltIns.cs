@@ -4,6 +4,7 @@
 		public static void Setup(
 			mysSymbolSpace global
 		) {
+			Builtins.Core.Load.Setup( global );
 			Builtins.Core.Lambda.Setup( global );
 			Builtins.Core.Assign.Setup( global );
 			Builtins.Core.Eval.Setup( global );

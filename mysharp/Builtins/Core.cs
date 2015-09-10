@@ -288,4 +288,39 @@ namespace mysharp.Builtins.Core {
 			mysBuiltin.DefineInGlobal( "string", functionGroup, global );
 		}
 	}
+
+	public static class Load {
+		public static mysFunctionGroup functionGroup;
+		public static void Setup( mysSymbolSpace global )
+		{
+			functionGroup = new mysFunctionGroup();
+			mysBuiltin f = new mysBuiltin();
+
+			f = new mysBuiltin();
+			f.Signature.Add( mysTypes.String );
+
+			f.Function = (args, state, sss) => {
+				mysParser parser = new mysParser();
+
+				string path = (args[ 0 ] as mysString).Value;
+
+				string source = System.IO.File.ReadAllText(
+					System.IO.Path.Combine(
+						System.IO.Directory.GetCurrentDirectory(),
+						path
+					)
+				);
+
+				List<mysToken> tokens = parser.Parse( source );
+
+				state.Evaluate( tokens );
+
+				return null;
+			};
+
+			functionGroup.Variants.Add( f );
+
+			mysBuiltin.DefineInGlobal( "load", functionGroup, global );
+		}
+	}
 }

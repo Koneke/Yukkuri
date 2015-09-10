@@ -1,0 +1,8 @@
+﻿(def '@ (=> [fl :list body :list] [
+  (while [> (len fl) 0] [
+    (def 'body (eval (cons (car fl) body)))
+    (def 'fl (cdr fl))])
+  body]))
+
+(def 'print (=> [a :any]
+  [#call 'WriteLine (#type 'System.Console) (cons a)]))
