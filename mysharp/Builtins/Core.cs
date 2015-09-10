@@ -116,7 +116,7 @@ namespace mysharp.Builtins.Core {
 		}
 	}
 
-	public static class Lambda  {
+	public static class Lambda {
 		static void Argumentcheck(
 			mysList sig,
 			mysList body
@@ -194,7 +194,7 @@ namespace mysharp.Builtins.Core {
 		}
 	}
 
-	public static class InNamespace  {
+	public static class InNamespace {
 		public static mysFunctionGroup functionGroup;
 		public static void Setup( mysSymbolSpace global )
 		{
@@ -236,6 +236,56 @@ namespace mysharp.Builtins.Core {
 			functionGroup.Variants.Add( f );
 
 			mysBuiltin.DefineInGlobal( "in", functionGroup, global );
+		}
+	}
+
+	public static class Eval {
+		public static mysFunctionGroup functionGroup;
+		public static void Setup( mysSymbolSpace global )
+		{
+			functionGroup = new mysFunctionGroup();
+			mysBuiltin f = new mysBuiltin();
+
+			f = new mysBuiltin();
+			f.Signature.Add( mysTypes.List );
+
+			f.Function = (args, state, sss) => {
+				mysList expression = args[ 0 ] as mysList;
+
+				EvaluationMachine em = new EvaluationMachine(
+					expression.InternalValues,
+					state,
+					sss
+				);
+
+				return em.Evaluate();
+			};
+
+			functionGroup.Variants.Add( f );
+
+			mysBuiltin.DefineInGlobal( "eval", functionGroup, global );
+		}
+	}
+
+	public static class ToString {
+		public static mysFunctionGroup functionGroup;
+		public static void Setup( mysSymbolSpace global )
+		{
+			functionGroup = new mysFunctionGroup();
+			mysBuiltin f = new mysBuiltin();
+
+			f = new mysBuiltin();
+			f.Signature.Add( mysTypes.ANY );
+
+			f.Function = (args, state, sss) => {
+				return new List<mysToken>() {
+					new mysString( args[ 0 ].ToString() )
+				};
+			};
+
+			functionGroup.Variants.Add( f );
+
+			mysBuiltin.DefineInGlobal( "string", functionGroup, global );
 		}
 	}
 }

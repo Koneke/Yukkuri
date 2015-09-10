@@ -71,10 +71,14 @@ namespace mysharp.Builtins.ListHandling
 				mysList first = mysToken.PromoteToList( args[ 0 ] );
 				mysList second = mysToken.PromoteToList( args[ 1 ] );
 
-				second.InternalValues.InsertRange( 0, first.InternalValues );
+				List<mysToken> outList = new List<mysToken>();
+				outList.AddRange( first.InternalValues );
+				outList.AddRange( second.InternalValues );
+
+				mysList newList = new mysList( outList, true );
 
 				return new List<mysToken>() {
-					second.Quote()
+					newList
 				};
 			};
 
@@ -97,6 +101,33 @@ namespace mysharp.Builtins.ListHandling
 			functionGroup.Variants.Add( f );
 
 			mysBuiltin.DefineInGlobal( "cons", functionGroup, global );
+		}
+	}
+
+	public static class Len {
+		static mysFunctionGroup functionGroup;
+
+		public static void Setup( mysSymbolSpace global ) {
+			functionGroup = new mysFunctionGroup();
+			mysBuiltin f;
+
+			f = new mysBuiltin();
+
+			f.Signature.Add( mysTypes.List );
+
+			f.Function = (args, state, sss) => {
+				mysList first = mysToken.PromoteToList( args[ 0 ] );
+
+				return new List<mysToken>() {
+					new mysIntegral(
+						(args[ 0 ] as mysList).InternalValues.Count()
+					)
+				};
+			};
+
+			functionGroup.Variants.Add( f );
+
+			mysBuiltin.DefineInGlobal( "len", functionGroup, global );
 		}
 	}
 }

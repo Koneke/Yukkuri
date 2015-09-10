@@ -38,7 +38,7 @@ namespace mysharp
 		void EvaluateLists() {
 			// while any list
 			// eval list
-			while ( true ) {
+			while ( true && tokens.Count > 0 ) {
 				mysList list = tokens.FirstOrDefault( t =>
 					t.Type == mysTypes.List &&
 					!t.Quoted

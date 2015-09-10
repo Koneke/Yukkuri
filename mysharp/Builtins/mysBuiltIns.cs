@@ -6,6 +6,8 @@
 		) {
 			Builtins.Core.Lambda.Setup( global );
 			Builtins.Core.Assign.Setup( global );
+			Builtins.Core.Eval.Setup( global );
+			Builtins.Core.ToString.Setup( global );
 			Builtins.Core.InNamespace.Setup( global );
 
 			Builtins.Arithmetic.Addition.Setup( global );
@@ -18,6 +20,7 @@
 			Builtins.ListHandling.Car.Setup( global );
 			Builtins.ListHandling.Cdr.Setup( global );
 			Builtins.ListHandling.Cons.Setup( global );
+			Builtins.ListHandling.Len.Setup( global );
 
 			Builtins.Flow.If.Setup( global );
 			Builtins.Flow.When.Setup( global );

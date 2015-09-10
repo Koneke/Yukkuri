@@ -87,7 +87,12 @@ namespace mysharp.Builtins.Looping
 				EvaluationMachine em;
 
 				symbol = head.InternalValues[ 0 ] as mysSymbol;
-				collection = head.InternalValues[ 1 ] as mysList;
+				if ( head.InternalValues[ 1 ].Type == mysTypes.Symbol ) {
+					collection = ( head.InternalValues[ 1 ] as mysSymbol )
+						.Value( sss ) as mysList;
+				} else {
+					collection = head.InternalValues[ 1 ] as mysList;
+				}
 
 				em = new EvaluationMachine(
 					new List<mysToken>() { collection },
