@@ -9,7 +9,9 @@ namespace mysharp
 		//     parseblock when the function is called upon, making sure to
 		//     substitute in our passed values.
 
+		// not used right now, but should be later
 		public mysTypes ReturnType;
+
 		public List<mysTypes> Signature;
 		public List<mysSymbol> Symbols;
 

@@ -66,9 +66,6 @@ namespace mysharp.Builtins.Comparison
 			f.Signature.Add( mysTypes.NUMBER );
 
 			f.Function = (args, state, sss) => {
-				mysToken.PromoteToFloat( args[ 0 ] );
-				mysToken.PromoteToFloat( args[ 1 ] );
-
 				mysFloating first = mysToken.PromoteToFloat( args[ 0 ] );
 				mysFloating second = mysToken.PromoteToFloat( args[ 1 ] );
 

@@ -5,15 +5,6 @@ using System.Collections.Generic;
 
 namespace mysharp
 {
-	class Program
-	{
-		static void Main(string[] args)
-		{
-			mysREPL repl = new mysREPL();
-			repl.REPLloop();
-		}
-	}
-
 	public class mysREPL
 	{
 		public mysState State;
