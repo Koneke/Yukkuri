@@ -18,6 +18,7 @@
 
 			Builtins.Collections.Range.Setup( global );
 
+			Builtins.ListHandling.Reverse.Setup( global );
 			Builtins.ListHandling.Car.Setup( global );
 			Builtins.ListHandling.Cdr.Setup( global );
 			Builtins.ListHandling.Cons.Setup( global );

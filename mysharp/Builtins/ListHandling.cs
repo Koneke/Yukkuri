@@ -3,6 +3,35 @@ using System.Collections.Generic;
 
 namespace mysharp.Builtins.ListHandling
 {
+	public static class Reverse {
+		static mysFunctionGroup functionGroup;
+
+		public static void Setup( mysSymbolSpace global ) {
+			functionGroup = new mysFunctionGroup();
+
+			mysBuiltin f = new mysBuiltin();
+
+			//f.returnType
+
+			f.Signature.Add( mysTypes.List );
+
+			f.Function = (args, state, sss) => {
+				mysList l = new mysList(
+					( args[ 0 ] as mysList ).InternalValues,
+					true
+				);
+
+				l.InternalValues.Reverse();
+
+				return new List<mysToken>() { l };
+			};
+
+			functionGroup.Variants.Add( f );
+
+			mysBuiltin.DefineInGlobal( "reverse", functionGroup, global );
+		}
+	}
+
 	public static class Car {
 		static mysFunctionGroup functionGroup;
 

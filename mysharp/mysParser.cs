@@ -38,6 +38,21 @@ namespace mysharp
 			);
 		}
 
+		static bool IsValidIdentifier( string lex ) {
+			List<char> allowed = new List<char>();
+			allowed.AddRange(
+				"abcdefghijklmnopqrstuvwxyz".ToCharArray()
+			);
+			allowed.AddRange(
+				"ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray()
+			);
+			allowed.AddRange(
+				"+-*/><=?!-_".ToCharArray()
+			);
+
+			return lex.All( c => allowed.Contains( c ) );
+		}
+
 		// parses SIMPLE VALUES, NOT LISTS
 		public static mysToken ParseLex( string lex ) {
 			mysToken token = null;
@@ -54,7 +69,12 @@ namespace mysharp
 				token = new mysFloating( double.Parse( lex ) );
 
 			} else {
-				token = new mysSymbol( lex );
+				if ( IsValidIdentifier( lex ) ) {
+					token = new mysSymbol( lex );
+				}
+				else {
+					throw new FormatException();
+				}
 			}
 
 			return token;
