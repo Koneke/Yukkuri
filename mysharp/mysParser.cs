@@ -47,10 +47,31 @@ namespace mysharp
 				"ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray()
 			);
 			allowed.AddRange(
-				"+-*/><=?!-_".ToCharArray()
+				"+-*/><=?!-_#.".ToCharArray()
 			);
 
 			return lex.All( c => allowed.Contains( c ) );
+		}
+
+		static bool IsValidAccessor( string lex ) {
+			if ( lex[ 0 ] != '.' ) {
+				return false;
+			}
+
+			string name = string.Concat( lex.Cdr() );
+
+			return IsValidIdentifier( name );
+		}
+
+		static bool IsValidTypeName( string lex ) {
+			if ( lex[ 0 ] != '#' ) {
+				return false;
+			}
+
+			string name = string.Concat( lex.Cdr() );
+
+			// todo!: make actually comply with .NET names
+			return IsValidIdentifier( name );
 		}
 
 		// parses SIMPLE VALUES, NOT LISTS
@@ -67,6 +88,10 @@ namespace mysharp
 			} else if ( IsFloating( lex ) ) {
 				lex = lex.Replace( '.', ',' );
 				token = new mysFloating( double.Parse( lex ) );
+
+			} else if ( IsValidAccessor( lex ) ) {
+				string name = string.Concat( lex.Cdr() );
+				token = new clrFunctionGroup( name );
 
 			} else {
 				if ( IsValidIdentifier( lex ) ) {

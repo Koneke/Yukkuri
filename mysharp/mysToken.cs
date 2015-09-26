@@ -18,8 +18,11 @@ namespace mysharp
 		Function,
 		FunctionGroup,
 		mysType,
+
 		clrObject,
-		clrType
+		clrType,
+		clrFunction,
+		clrFunctionGroup
 	}
 
 	public class mysToken
@@ -261,7 +264,7 @@ namespace mysharp
 
 		public override string ToString()
 		{
-			return $"(clr: {Value})";
+			return $"(clr-type: {Value})";
 		}
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using System.Collections.Generic;
 
 namespace mysharp
@@ -118,10 +119,63 @@ namespace mysharp
 			tokens.Insert( current, f );
 		}
 
+		void resolveClrFunctionGroup() {
+			clrFunctionGroup fg = tokens[ current ] as clrFunctionGroup;
+
+			mysToken target = tokens[ current + 1 ];
+
+			Type targetType;
+
+			if ( target.Type == mysTypes.clrType ) {
+				targetType = (target as clrType).Value;
+			} else {
+				targetType = (target as clrObject).Value.GetType();
+			}
+
+			List<MethodInfo> variants = targetType
+				.GetMethods()
+				.Where( m => m.Name == fg.GroupName )
+				.ToList()
+			;
+
+			int signatureLength = variants
+				.Max( v => v.GetParameters().Length );
+
+			clrFunction f = null;
+			for ( int j = signatureLength; j >= 0; j-- ) {
+				List<mysToken> args = tokens
+					.Skip( current + 2 )
+					.Take( j )
+					.ToList()
+				;
+
+				f = clrFunctionGroup.Judge( variants, args, spaceStack );
+
+				if ( f != null ) {
+					// escape early if we have a positive match
+					break;
+				}
+			}
+
+			if ( f == null ) {
+				throw new NoSuchSignatureException(
+					string.Format(
+						"Can't evaluate clrfunctiongroup {0}: " +
+						"No such signature exists.",
+						symbolic != null
+							? symbolic.ToString()
+							: "(unknown symbol)"
+					)
+				);
+			}
+
+			tokens.RemoveAt( current );
+			tokens.Insert( current, f );
+		}
+
 		void handleFunction() {
 			mysFunction f = tokens[ current ] as mysFunction;
 
-			//mysToken t = f.Call(
 			List<mysToken> t = f.Call(
 				tokens
 					.Skip( current + 1 )
@@ -132,6 +186,26 @@ namespace mysharp
 			);
 
 			tokens.RemoveRange( current, f.SignatureLength + 1 );
+
+			if ( t != null ) {
+				tokens.InsertRange( current, t );
+			}
+		}
+
+		void handleClrFunction() {
+			clrFunction f = tokens[ current ] as clrFunction;
+
+			List<mysToken> t = f.Call(
+				tokens[ current + 1],
+				tokens
+					.Skip( current + 2 )
+					.Take( f.SignatureLength )
+					.ToList(),
+				state,
+				spaceStack
+			);
+
+			tokens.RemoveRange( current, f.SignatureLength + 2 );
 
 			if ( t != null ) {
 				tokens.InsertRange( current, t );
@@ -157,7 +231,18 @@ namespace mysharp
 				resolveFunctionGroup();
 			}
 
+			if (
+				tokens[ current ].Type == mysTypes.clrFunctionGroup &&
+				!tokens[ current ].Quoted
+			) {
+				resolveClrFunctionGroup();
+			}
+
 			switch ( tokens[ current ].Type ) {
+				case mysTypes.clrFunction:
+					handleClrFunction();
+					break;
+
 				case mysTypes.Function:
 					handleFunction();
 					break;

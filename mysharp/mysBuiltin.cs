@@ -53,26 +53,4 @@ namespace mysharp
 			return result;
 		}
 	}
-
-	public class clrFunction : mysFunction {
-		//# Print System.Console
-		//# Print (#. System Console)
-		//# WriteLine (. [System Console]) "hi!"
-
-		public new string Function;
-
-		// arg 1 function
-		// arg 2 instance (with . operator)
-		// arg 3+ arguments
-		public override List<mysToken> Call(
-			List<mysToken> arguments,
-			mysState state,
-			Stack<mysSymbolSpace> spaceStack
-		) {
-			mysSymbol symbol = arguments[ 0 ] as mysSymbol;
-			clrObject obj = arguments[ 1 ] as clrObject;
-
-			return base.Call(arguments, state, spaceStack);
-		}
-	}
 }

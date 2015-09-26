@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Reflection;
 using System.Collections.Generic;
 
 namespace mysharp
@@ -73,6 +75,57 @@ namespace mysharp
 			spaceStack.Pop();
 
 			return result;
+		}
+	}
+
+	//(.WriteLine #System.Console "test")
+
+	public class clrFunction : mysToken {
+		MethodInfo method;
+
+		public int SignatureLength {
+			get {
+				return method.GetParameters().Length;
+			}
+		}
+
+		public clrFunction( MethodInfo mi )
+			: base( null, mysTypes.clrFunction )
+		{
+			method = mi;
+		}
+
+		// arg 1 function
+		// arg 2 instance (with . operator)
+		// arg 3+ arguments
+		public List<mysToken> Call(
+			mysToken target,
+			List<mysToken> arguments,
+			mysState state,
+			Stack<mysSymbolSpace> spaceStack
+		) {
+			mysSymbol symbol = arguments[ 0 ] as mysSymbol;
+
+			object targetObject = null;
+
+			if ( arguments[ 0 ].Type == mysTypes.clrObject ) {
+				targetObject = arguments[ 0 ].InternalValue;
+			}
+
+			object result = method.Invoke(
+				targetObject,
+				arguments
+					.Select( a => a.InternalValue )
+					.ToArray()
+			);
+
+			if ( result == null ) {
+				return null;
+			}
+
+			return new List<mysToken>() {
+				Builtins.Clr.ClrTools.ConvertClrObject( result )
+			};
 		}
 	}
 }

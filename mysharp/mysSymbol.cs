@@ -82,5 +82,4 @@ namespace mysharp
 			return temp.Type;
 		} 
 	}
-
 }

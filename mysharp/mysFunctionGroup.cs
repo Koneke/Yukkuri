@@ -1,5 +1,7 @@
 ﻿using System.Linq;
+using System.Reflection;
 using System.Collections.Generic;
+using System;
 
 namespace mysharp
 {
@@ -86,6 +88,69 @@ namespace mysharp
 					?? mysTypes.NULLTYPE
 				)
 			;
+		}
+	}
+
+	public class clrFunctionGroup : mysToken {
+		public string GroupName;
+
+		public clrFunctionGroup( string name )
+			: base( null, mysTypes.clrFunctionGroup )
+		{
+			GroupName = name;
+		}
+
+		public static clrFunction Judge(
+			List<MethodInfo> Variants,
+			List<mysToken> arguments,
+			Stack<mysSymbolSpace> spaceStack
+		) {
+			List<MethodInfo> variants = new List<MethodInfo>( Variants );
+
+			variants.RemoveAll(
+				v => !judgeVariant( v, arguments, spaceStack )
+			);
+
+			if ( variants.Count == 0 ) {
+				return null;
+			} else if ( variants.Count != 1 ) {
+				throw new SignatureAmbiguityException();
+			}
+
+			return new clrFunction( variants[ 0 ] );
+		}
+
+		static bool judgeVariant(
+			MethodInfo variant,
+			List<mysToken> arguments,
+			Stack<mysSymbolSpace> spaceStack
+		) {
+			int signatureLength = variant.GetParameters().Length;
+			// lh: make this a bit cleverer later to handle variadics.
+			if ( signatureLength != arguments.Count ) {
+				return false;
+			}
+
+			// issues with symbol?
+			for ( int i = 0; i < signatureLength; i++ ) {
+				ParameterInfo pi = variant.GetParameters()[ i ];
+
+				Type t;
+
+				mysSymbol symbol = arguments[ i ] as mysSymbol;
+
+				if ( symbol != null ) {
+					t = symbol.DeepType( spaceStack ).GetType();
+				} else {
+					t = arguments[ i ].InternalValue.GetType();
+				}
+
+				if ( t != pi.ParameterType ) {
+					return false;
+				}
+			}
+
+			return true;
 		}
 	}
 }
