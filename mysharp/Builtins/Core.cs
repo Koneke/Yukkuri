@@ -199,7 +199,11 @@ namespace mysharp.Builtins.Core {
 		public static void Setup( mysSymbolSpace global )
 		{
 			functionGroup = new mysFunctionGroup();
-			mysBuiltin f = new mysBuiltin();
+			mysBuiltin f;
+
+			// single value version
+
+			f = new mysBuiltin();
 
 			f = new mysBuiltin();
 			f.Signature.Add( mysTypes.Symbol );
@@ -218,6 +222,53 @@ namespace mysharp.Builtins.Core {
 				}
 
 				sss.Push( state.nameSpaces[ ssName ] );
+
+				EvaluationMachine em = new EvaluationMachine(
+					body.InternalValues,
+					state,
+					sss
+				);
+
+				// really needs to be fixed
+				List<mysToken> result = em.Evaluate();
+
+				sss.Pop();
+
+				return result;
+			};
+
+			functionGroup.Variants.Add( f );
+
+			// list version
+
+			f = new mysBuiltin();
+
+			f = new mysBuiltin();
+			f.Signature.Add( mysTypes.List );
+			f.Signature.Add( mysTypes.List );
+
+			f.Function = (args, state, sss) => {
+				mysList spaceList = args[ 0 ] as mysList;
+				mysList body = args[ 1 ] as mysList;
+
+				if ( !spaceList.InternalValues.All(
+					v => v.Type == mysTypes.Symbol
+				) ) {
+					throw new FormatException();
+				}
+
+				foreach( mysSymbol symbol in spaceList.InternalValues ) {
+					string ssName = symbol.StringRepresentation.ToLower();
+
+					if ( !state.nameSpaces.ContainsKey( ssName ) ) {
+						state.nameSpaces.Add(
+							ssName,
+							new mysSymbolSpace()
+						);
+					}
+
+					sss.Push( state.nameSpaces[ ssName ] );
+				}
 
 				EvaluationMachine em = new EvaluationMachine(
 					body.InternalValues,
