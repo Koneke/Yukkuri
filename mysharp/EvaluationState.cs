@@ -124,6 +124,10 @@ namespace mysharp
 
 			mysToken target = tokens[ current + 1 ];
 
+			while ( target.Type == mysTypes.Symbol ) {
+				target = (target as mysSymbol).Value( spaceStack );
+			}
+
 			Type targetType;
 
 			if ( target.Type == mysTypes.clrType ) {
@@ -195,8 +199,14 @@ namespace mysharp
 		void handleClrFunction() {
 			clrFunction f = tokens[ current ] as clrFunction;
 
+			mysToken target = tokens[ current + 1 ];
+
+			while ( target.Type == mysTypes.Symbol ) {
+				target = (target as mysSymbol).Value( spaceStack );
+			}
+
 			List<mysToken> t = f.Call(
-				tokens[ current + 1],
+				target,
 				tokens
 					.Skip( current + 2 )
 					.Take( f.SignatureLength )

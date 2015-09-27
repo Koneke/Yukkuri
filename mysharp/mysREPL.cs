@@ -74,7 +74,7 @@ namespace mysharp
 
 		public List<mysToken> Evaluate( string expression ) {
 			try {
-				List<mysToken> parsed = parser.Parse( expression );
+				List<mysToken> parsed = parser.Parse( State, expression );
 				return State.Evaluate( parsed );
 
 			} catch (Exception e) when ( !strict ) {

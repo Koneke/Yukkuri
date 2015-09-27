@@ -79,15 +79,21 @@ namespace mysharp
 			// etc., less likely for bugs to occur because of an accidental sig
 			// match).
 
-			return
-				AssignableFrom( type, token.Type ) ||
-				AssignableFrom(
-					type,
-					( token as mysSymbol )
-					?.DeepType( spaceStack )
-					?? mysTypes.NULLTYPE
-				)
-			;
+			bool plainAssignable = AssignableFrom( type, token.Type );
+
+			bool complexAssignable = false;
+
+			if ( token.Type == mysTypes.Symbol && !token.Quoted ) {
+				complexAssignable = 
+					AssignableFrom(
+						type,
+						( token as mysSymbol )
+						?.DeepType( spaceStack )
+						?? mysTypes.NULLTYPE
+					);
+			}
+
+			return plainAssignable || complexAssignable;
 		}
 	}
 

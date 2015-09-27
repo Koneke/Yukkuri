@@ -60,7 +60,7 @@ namespace mysharp.Builtins.Clr
 
 			functionGroup.Variants.Add( f );
 
-			mysBuiltin.DefineInGlobal( "#new", functionGroup, global );
+			mysBuiltin.DefineInGlobal( "new", functionGroup, global );
 		}
 	}
 
@@ -71,7 +71,34 @@ namespace mysharp.Builtins.Clr
 		public static void Setup( mysSymbolSpace global ) {
 			functionGroup = new mysFunctionGroup();
 
-			mysBuiltin f = new mysBuiltin();
+			mysBuiltin f;
+
+			// simple variant
+
+			f = new mysBuiltin();
+
+			f.Signature.Add( mysTypes.clrObject );
+			f.Signature.Add( mysTypes.Symbol );
+
+			f.Function = (args, state, sss) => {
+				clrObject instance = args[ 0 ] as clrObject;
+				mysSymbol symbol = args[ 1 ] as mysSymbol;
+
+				return new List<mysToken>() {
+					ClrTools.ConvertClrObject(
+						instance.Value
+							.GetType()
+							.GetField( symbol.StringRepresentation )
+							.GetValue( instance.Value )
+					)
+				};
+			};
+
+			functionGroup.Variants.Add( f );
+
+			// list variant
+
+			f = new mysBuiltin();
 
 			f.Signature.Add( mysTypes.clrObject );
 			f.Signature.Add( mysTypes.List );
@@ -112,6 +139,8 @@ namespace mysharp.Builtins.Clr
 		}
 	}
 
+	// should probably be remade to get type by string, if it is to be kept at
+	// all, since we have the direct #<typename> syntax now.
 	public static class ClrType
 	{
 		static mysFunctionGroup functionGroup;

@@ -104,12 +104,10 @@ namespace mysharp
 			mysState state,
 			Stack<mysSymbolSpace> spaceStack
 		) {
-			mysSymbol symbol = arguments[ 0 ] as mysSymbol;
-
 			object targetObject = null;
 
-			if ( arguments[ 0 ].Type == mysTypes.clrObject ) {
-				targetObject = arguments[ 0 ].InternalValue;
+			if ( target.Type == mysTypes.clrObject ) {
+				targetObject = target.InternalValue;
 			}
 
 			object result = method.Invoke(

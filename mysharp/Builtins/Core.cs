@@ -311,7 +311,7 @@ namespace mysharp.Builtins.Core {
 					)
 				);
 
-				List<mysToken> tokens = parser.Parse( source );
+				List<mysToken> tokens = parser.Parse( state, source );
 
 				state.Evaluate( tokens );
 

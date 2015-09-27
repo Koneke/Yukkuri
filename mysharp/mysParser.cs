@@ -54,6 +54,10 @@ namespace mysharp
 		}
 
 		static bool IsValidAccessor( string lex ) {
+			if ( lex.Length < 2 ) {
+				return false;
+			}
+
 			if ( lex[ 0 ] != '.' ) {
 				return false;
 			}
@@ -64,6 +68,10 @@ namespace mysharp
 		}
 
 		static bool IsValidTypeName( string lex ) {
+			if ( lex.Length < 2 ) {
+				return false;
+			}
+
 			if ( lex[ 0 ] != '#' ) {
 				return false;
 			}
@@ -75,7 +83,7 @@ namespace mysharp
 		}
 
 		// parses SIMPLE VALUES, NOT LISTS
-		public static mysToken ParseLex( string lex ) {
+		public static mysToken ParseLex( mysState state, string lex ) {
 			mysToken token = null;
 
 			if ( lex[ 0 ] == ':' ) {
@@ -92,6 +100,17 @@ namespace mysharp
 			} else if ( IsValidAccessor( lex ) ) {
 				string name = string.Concat( lex.Cdr() );
 				token = new clrFunctionGroup( name );
+
+			} else if ( IsValidTypeName( lex ) ) {
+				string name = string.Concat( lex.Cdr() );
+				token = new clrFunctionGroup( name );
+
+				token = new clrType(
+					Builtins.Clr.ClrTools.GetType(
+						state,
+						name
+					)
+				);
 
 			} else {
 				if ( IsValidIdentifier( lex ) ) {
@@ -111,7 +130,11 @@ namespace mysharp
 		// this is a nested class, with another nested class inside..
 		class ParseMachine
 		{
+			// passed in so we have access to exposed assemblies
+			mysState state;
+
 			public List<mysToken> Tokens;
+
 			List<string> expression;
 			int current;
 			bool quote;
@@ -119,9 +142,12 @@ namespace mysharp
 			Queue<string> stringQueue;
 
 			public ParseMachine(
+				mysState state,
 				string expression,
 				Queue<string> inheritedStringQueue = null
 			) {
+				this.state = state;
+
 				stringQueue = inheritedStringQueue ?? new Queue<string>();
 
 				this.expression =
@@ -263,7 +289,7 @@ namespace mysharp
 
 					// simple value
 					default:
-						eat( ParseLex( expression[ current ] ) );
+						eat( ParseLex( state, expression[ current ] ) );
 						break;
 				}
 
@@ -305,7 +331,7 @@ namespace mysharp
 					" ", expression.Between( current + 1, length - 2)
 				);
 
-				ParseMachine pm = new ParseMachine( body, stringQueue );
+				ParseMachine pm = new ParseMachine( state, body, stringQueue );
 				while ( pm.CanStep() ) {
 					pm.Step();
 				}
@@ -330,8 +356,8 @@ namespace mysharp
 
 		}
 
-		public List<mysToken> Parse( string expression ) {
-			ParseMachine pm = new ParseMachine( expression );
+		public List<mysToken> Parse( mysState state, string expression ) {
+			ParseMachine pm = new ParseMachine( state, expression );
 
 			while ( pm.CanStep() ) {
 				pm.Step();
