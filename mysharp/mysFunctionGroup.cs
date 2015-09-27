@@ -146,7 +146,7 @@ namespace mysharp
 				mysSymbol symbol = arguments[ i ] as mysSymbol;
 
 				if ( symbol != null ) {
-					t = symbol.DeepType( spaceStack ).GetType();
+					t = symbol.Value( spaceStack ).InternalValue.GetType();
 				} else {
 					t = arguments[ i ].InternalValue.GetType();
 				}

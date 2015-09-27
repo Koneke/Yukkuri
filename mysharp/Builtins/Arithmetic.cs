@@ -9,7 +9,7 @@ namespace mysharp.Builtins.Arithmetic
 	public static class Addition {
 		static mysFunctionGroup functionGroup;
 
-		static void setupIntIntVariant() {
+		static void setupIntIntVariant( mysSymbolSpace global ) {
 			mysBuiltin variant = new mysBuiltin();
 
 			variant.ReturnType = mysTypes.Integral;
@@ -25,15 +25,11 @@ namespace mysharp.Builtins.Arithmetic
 					)
 				};
 
-			functionGroup.Variants.Add( variant );
+			mysBuiltin.AddVariant( "+", variant, global );
 		}
 
 		public static void Setup( mysSymbolSpace global ) {
-			functionGroup = new mysFunctionGroup();
-
-			setupIntIntVariant();
-
-			mysBuiltin.DefineInGlobal( "+", functionGroup, global );
+			setupIntIntVariant( global );
 		}
 	}
 

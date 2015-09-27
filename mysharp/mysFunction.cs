@@ -78,8 +78,6 @@ namespace mysharp
 		}
 	}
 
-	//(.WriteLine #System.Console "test")
-
 	public class clrFunction : mysToken {
 		MethodInfo method;
 
@@ -110,11 +108,21 @@ namespace mysharp
 				targetObject = target.InternalValue;
 			}
 
+			List<object> realArguments = new List<object>();
+
+			foreach ( mysToken t in arguments ) {
+				mysToken current = t;
+
+				while ( current.Type == mysTypes.Symbol ) {
+					current = (current as mysSymbol).Value( spaceStack );
+				}
+
+				realArguments.Add( current.InternalValue );
+			}
+
 			object result = method.Invoke(
 				targetObject,
-				arguments
-					.Select( a => a.InternalValue )
-					.ToArray()
+				realArguments.ToArray()
 			);
 
 			if ( result == null ) {

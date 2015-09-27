@@ -82,6 +82,18 @@ namespace mysharp
 				return null;
 			}
 		}
+		
+		public void Print( List<mysToken> output ) {
+			if ( output != null ) {
+				string outputstring = string.Join( ", ", output );
+
+				if ( outputstring != "" ) {
+					Console.WriteLine( outputstring );
+				}
+			}
+
+			Console.WriteLine( "Ok.\n" );
+		}
 
 		void handleInput( string input ) {
 			if ( input == "" ) {
@@ -102,15 +114,7 @@ namespace mysharp
 
 			List<mysToken> output = Evaluate( accumulatedInput );
 
-			if ( output != null ) {
-				string outputstring = string.Join( ", ", output );
-
-				if ( outputstring != "" ) {
-					Console.WriteLine( outputstring );
-				}
-
-				Console.WriteLine( "Ok.\n" );
-			}
+			Print( output );
 
 			accumulatedInput = "";
 		}
