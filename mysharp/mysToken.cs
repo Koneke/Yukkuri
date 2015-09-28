@@ -3,6 +3,20 @@ using System.Collections.Generic;
 
 namespace mysharp
 {
+	// this should more or less all be redone
+	// we should probably do something like just have the mystoken class
+	// and have it have one variable for its type, and one for the value,
+	// really, instead of having all these different classes.
+	// unsure if a generic class would work, thinking not (we need to be able
+	// to keep these tokens in a single collection still, so they shouldn't
+	// really be different types; atleast they need a shared base type or an
+	// interface or something).
+	// this'll be a bit of a hassle, but it needs to be done at some point
+	// to make the clr interactions less awkward.
+	// unsure how to handle special types, like symbol and function groups and
+	// stuff?
+	// might have to/want to keep them as their own typ still, might work well.
+
 	public enum mysTypes {
 		// capitals are, for future reference, the more "meta" types
 		// probably to change at some point
@@ -21,6 +35,7 @@ namespace mysharp
 
 		clrObject,
 		clrType,
+		CLR,
 		clrFunction,
 		clrFunctionGroup
 	}
@@ -56,12 +71,25 @@ namespace mysharp
 			mysTypes a,
 			mysTypes b
 		) {
+			bool plainAssignable = a == b;
+
+			bool anyAssignable = a == mysTypes.ANY;
+
+			bool numberAssignable = (
+				a == mysTypes.NUMBER &&
+				( b == mysTypes.Integral || b == mysTypes.Floating )
+			);
+
+			bool clrAssignable = (
+				a == mysTypes.CLR &&
+				( b == mysTypes.clrObject || b == mysTypes.clrType )
+			);
+
 			return
-				a == b ||
-				a == mysTypes.ANY ||
-				( a == mysTypes.NUMBER &&
-					( b == mysTypes.Integral || b == mysTypes.Floating )
-				)
+				plainAssignable ||
+				anyAssignable ||
+				numberAssignable ||
+				clrAssignable
 			;
 		}
 

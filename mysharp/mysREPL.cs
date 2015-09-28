@@ -38,38 +38,38 @@ namespace mysharp
 					: " . "
 				);
 
-				string input = Console.ReadLine();
-
-				switch ( input ) {
-					case "(clear)":
-						Console.Clear();
-						break;
-
-					case "(nuke!)":
-						State = new mysState();
-
-						REPLstart();
-
-						Console.WriteLine(
-							">> Cleared execution state, REPL status, "+
-							"parser status. All to new. <<\n"
-						);
-						break;
-
-					case "(quit)":
-						quit = true;
-						break;
-
-					case "(strict)":
-						strict = !strict;
-						Console.WriteLine( "Strict is now {0}.\n", strict );
-						break;
-
-					default:
-						handleInput( input );
-						break;
-				}
+				handleInput( Console.ReadLine() );
 			}
+		}
+
+		bool handleSpecialInput( string expression ) {
+			switch ( expression ) {
+				case "(clear)":
+					Console.Clear();
+					return true;
+
+				case "(nuke!)":
+					State = new mysState();
+
+					REPLstart();
+
+					Console.WriteLine(
+						">> Cleared execution state, REPL status, "+
+						"parser status. All to new. <<\n"
+					);
+					return true;
+
+				case "(quit)":
+					quit = true;
+					return true;
+
+				case "(strict)":
+					strict = !strict;
+					Console.WriteLine( "Strict is now {0}.\n", strict );
+					return true;
+			}
+
+			return false;
 		}
 
 		public List<mysToken> Evaluate( string expression ) {
@@ -97,6 +97,12 @@ namespace mysharp
 
 		void handleInput( string input ) {
 			if ( input == "" ) {
+				return;
+			}
+
+			bool hadSpecialInput = handleSpecialInput( input );
+
+			if ( hadSpecialInput ) {
 				return;
 			}
 

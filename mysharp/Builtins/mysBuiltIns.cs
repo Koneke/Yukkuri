@@ -37,6 +37,7 @@
 			Builtins.Clr.NewClrObject.Setup( global );
 			Builtins.Clr.ClrDot.Setup( global );
 			Builtins.Clr.Call.Setup( global );
+			Builtins.Clr.Set.Setup( global );
 		}
 	}
 }

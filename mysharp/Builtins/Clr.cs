@@ -31,8 +31,23 @@ namespace mysharp.Builtins.Clr
 
 			Type t = obj.GetType();
 
-			if ( t == typeof(int) ) {
+			if (
+				t == typeof(int) ||
+				t == typeof(long)
+			) {
 				return new mysIntegral( (int)obj );
+			}
+
+			if (
+				t == typeof(string)
+			) {
+				return new mysString( (string)obj );
+			}
+
+			if (
+				t == typeof(bool)
+			) {
+				return new mysBoolean( (bool)obj );
 			}
 
 			return new clrObject( obj );
@@ -255,6 +270,53 @@ namespace mysharp.Builtins.Clr
 			functionGroup.Variants.Add( f );
 
 			mysBuiltin.DefineInGlobal( "#call", functionGroup, global );
+		}
+	}
+
+	public static class Set
+	{
+		public static void Setup( mysSymbolSpace global ) {
+			mysBuiltin f;
+
+			f = new mysBuiltin();
+
+			f.Signature.Add( mysTypes.CLR );
+			// we don't *actually* want this as a symbol though,
+			// it's just the field name really
+			f.Signature.Add( mysTypes.Symbol );
+			f.Signature.Add( mysTypes.ANY );
+
+			f.Function = (args, state, sss) => {
+				mysToken clrThing = args[ 0 ];
+				mysSymbol field = args[ 1 ] as mysSymbol;
+				mysToken newValue = args[ 2 ];
+
+				string fieldName = field.StringRepresentation;
+				object value = newValue.InternalValue;
+
+				Type targetType;
+				object targetObject = null;
+
+				if ( clrThing.Type == mysTypes.clrObject ) {
+					targetObject = clrThing.InternalValue;
+					targetType = targetObject.GetType();
+				} else {
+					targetType = (clrThing as clrType).Value;
+				}
+
+				FieldInfo fi = targetType.GetField( fieldName );
+
+				value = Convert.ChangeType( value, fi.FieldType );
+
+				targetType
+					.GetField( fieldName )
+					.SetValue( targetObject, value )
+				;
+
+				return null;
+			};
+
+			mysBuiltin.AddVariant( "set", f, global );
 		}
 	}
 }
