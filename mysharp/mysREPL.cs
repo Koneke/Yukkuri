@@ -25,6 +25,10 @@ namespace mysharp
 			accumulatedInput = "";
 		}
 
+		public void Quit() {
+			quit = true;
+		}
+
 		// loop loop, I know...
 		public void REPLloop() {
 			REPLstart();
@@ -60,7 +64,7 @@ namespace mysharp
 					return true;
 
 				case "(quit)":
-					quit = true;
+					Quit();
 					return true;
 
 				case "(strict)":
