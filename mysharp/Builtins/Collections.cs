@@ -12,13 +12,13 @@ namespace mysharp.Builtins.Collections
 
 			f = new mysBuiltin();
 
-			f.Signature.Add( mysTypes.Integral );
+			f.Signature.Add( typeof(int) );
 
 			f.Function = (args, state, sss) => {
 				List<mysToken> range = new List<mysToken>();
 
 				for ( long i = 1; i <= (long)args[ 0 ].InternalValue; i++ ) {
-					range.Add( new mysIntegral( i ) );
+					range.Add( new mysToken( (int)i ) );
 				}
 
 				return range;
@@ -28,8 +28,8 @@ namespace mysharp.Builtins.Collections
 
 			f = new mysBuiltin();
 
-			f.Signature.Add( mysTypes.Integral );
-			f.Signature.Add( mysTypes.Integral );
+			f.Signature.Add( typeof(int) );
+			f.Signature.Add( typeof(int) );
 
 			f.Function = (args, state, sss) => {
 				List<mysToken> range = new List<mysToken>();
@@ -39,7 +39,7 @@ namespace mysharp.Builtins.Collections
 					i <= (long)args[ 1 ].InternalValue;
 					i++
 				) {
-					range.Add( new mysIntegral( i ) );
+					range.Add( new mysToken( (int)i ) );
 				}
 
 				return range;

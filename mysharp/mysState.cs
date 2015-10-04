@@ -23,12 +23,12 @@ namespace mysharp
 
 			Global.Define(
 				Global.Create( "true" ),
-				new mysBoolean( true )
+				new mysToken( true )
 			);
 
 			Global.Define(
 				Global.Create( "false" ),
-				new mysBoolean( false )
+				new mysToken( false )
 			);
 
 			nameSpaces.Add( "global" , Global );

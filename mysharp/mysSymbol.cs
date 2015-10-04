@@ -69,7 +69,7 @@ namespace mysharp
 			);
 		}
 
-		public mysTypes DeepType(
+		public Type DeepType(
 			Stack<mysSymbolSpace> spaceStack
 		) {
 			mysToken temp = new mysSymbol( ToString() );
@@ -79,7 +79,7 @@ namespace mysharp
 				temp = Value( spaceStack );
 			}
 
-			return temp.Type;
+			return temp.RealType;
 		} 
 	}
 }

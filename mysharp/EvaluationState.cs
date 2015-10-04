@@ -131,9 +131,10 @@ namespace mysharp
 			Type targetType;
 
 			if ( target.Type == mysTypes.clrType ) {
-				targetType = (target as clrType).Value;
+				//targetType = (target as clrType).Value;
+				targetType = (Type)target.InternalValue;
 			} else {
-				targetType = (target as clrObject).Value.GetType();
+				targetType = target.InternalValue.GetType();
 			}
 
 			List<MethodInfo> variants = targetType

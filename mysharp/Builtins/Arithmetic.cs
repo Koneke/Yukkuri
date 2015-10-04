@@ -7,21 +7,19 @@ namespace mysharp.Builtins.Arithmetic
 	// makes sense to keep the sort of "standard library" separate.
 
 	public static class Addition {
-		static mysFunctionGroup functionGroup;
-
 		static void setupIntIntVariant( mysSymbolSpace global ) {
 			mysBuiltin variant = new mysBuiltin();
 
 			variant.ReturnType = mysTypes.Integral;
 
-			variant.Signature.Add( mysTypes.Integral );
-			variant.Signature.Add( mysTypes.Integral );
+			variant.Signature.Add( typeof(int) );
+			variant.Signature.Add( typeof(int) );
 
 			variant.Function = (args, state, sss) =>
 				new List<mysToken>() {
-					new mysIntegral(
-						(args[ 0 ] as mysIntegral).Value +
-						(args[ 1 ] as mysIntegral).Value
+					new mysToken(
+						(int)args[ 0 ].InternalValue +
+						(int)args[ 1 ].InternalValue
 					)
 				};
 
@@ -41,14 +39,14 @@ namespace mysharp.Builtins.Arithmetic
 
 			variant.ReturnType = mysTypes.Integral;
 
-			variant.Signature.Add( mysTypes.Integral );
-			variant.Signature.Add( mysTypes.Integral );
+			variant.Signature.Add( typeof(int) );
+			variant.Signature.Add( typeof(int) );
 
 			variant.Function = (args, state, sss) =>
 				new List<mysToken>() {
-					new mysIntegral(
-						(args[ 0 ] as mysIntegral).Value -
-						(args[ 1 ] as mysIntegral).Value
+					new mysToken(
+						(int)args[ 0 ].InternalValue -
+						(int)args[ 1 ].InternalValue
 					)
 				};
 
@@ -72,14 +70,14 @@ namespace mysharp.Builtins.Arithmetic
 
 			variant.ReturnType = mysTypes.Integral;
 
-			variant.Signature.Add( mysTypes.Integral );
-			variant.Signature.Add( mysTypes.Integral );
+			variant.Signature.Add( typeof(int) );
+			variant.Signature.Add( typeof(int) );
 
 			variant.Function = (args, state, sss) =>
 				new List<mysToken>() {
-					new mysIntegral(
-						(args[ 0 ] as mysIntegral).Value *
-						(args[ 1 ] as mysIntegral).Value
+					new mysToken(
+						(int)args[ 0 ].InternalValue *
+						(int)args[ 1 ].InternalValue
 					)
 				};
 
@@ -103,14 +101,14 @@ namespace mysharp.Builtins.Arithmetic
 
 			variant.ReturnType = mysTypes.Integral;
 
-			variant.Signature.Add( mysTypes.Integral );
-			variant.Signature.Add( mysTypes.Integral );
+			variant.Signature.Add( typeof(int) );
+			variant.Signature.Add( typeof(int) );
 
 			variant.Function = (args, state, sss) =>
 				new List<mysToken>() {
-					new mysIntegral(
-						(args[ 0 ] as mysIntegral).Value /
-						(args[ 1 ] as mysIntegral).Value
+					new mysToken(
+						(int)args[ 0 ].InternalValue /
+						(int)args[ 1 ].InternalValue
 					)
 				};
 

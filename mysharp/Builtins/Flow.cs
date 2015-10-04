@@ -11,17 +11,17 @@ namespace mysharp.Builtins.Flow
 
 			mysBuiltin f = new mysBuiltin();
 
-			f.Signature.Add( mysTypes.Boolean );
-			f.Signature.Add( mysTypes.List );
-			f.Signature.Add( mysTypes.List );
+			f.Signature.Add( typeof(bool) );
+			f.Signature.Add( typeof(mysList) );
+			f.Signature.Add( typeof(mysList) );
 
 			f.Function = (args, state, sss) => {
-				mysBoolean condition = args[ 0 ] as mysBoolean;
+				mysToken condition = args[ 0 ];
 				mysList positive = args[ 1 ] as mysList;
 				mysList negative = args[ 2 ] as mysList;
 
 				EvaluationMachine em;
-				if ( condition.Value ) {
+				if ( (bool)condition.InternalValue ) {
 					em = new EvaluationMachine(
 						positive.InternalValues,
 						state,
@@ -55,15 +55,15 @@ namespace mysharp.Builtins.Flow
 
 			mysBuiltin f = new mysBuiltin();
 
-			f.Signature.Add( mysTypes.Boolean );
-			f.Signature.Add( mysTypes.List );
+			f.Signature.Add( typeof(bool) );
+			f.Signature.Add( typeof(mysList) );
 
 			f.Function = (args, state, sss) => {
-				mysBoolean condition = args[ 0 ] as mysBoolean;
+				mysToken condition = args[ 0 ];
 				mysList positive = args[ 1 ] as mysList;
 
 				EvaluationMachine em;
-				if ( condition.Value ) {
+				if ( (bool)condition.InternalValue ) {
 					em = new EvaluationMachine(
 						positive.InternalValues,
 						state,

@@ -88,14 +88,14 @@ namespace mysharp
 
 			if ( lex[ 0 ] == ':' ) {
 				string type = lex.Substring( 1, lex.Length - 1);
-				token = new mysTypeToken( typeNameDictionary[ type ] );
+				token = new mysToken( typeNameDictionary[ type ] );
 
 			} else if ( IsInteger( lex ) ) {
-				token = new mysIntegral( long.Parse( lex ) );
+				token = new mysToken( int.Parse( lex ) );
 
 			} else if ( IsFloating( lex ) ) {
 				lex = lex.Replace( '.', ',' );
-				token = new mysFloating( double.Parse( lex ) );
+				token = new mysToken( float.Parse( lex ) );
 
 			} else if ( IsValidAccessor( lex ) ) {
 				string name = string.Concat( lex.Cdr() );
@@ -105,7 +105,7 @@ namespace mysharp
 				string name = string.Concat( lex.Cdr() );
 				token = new clrFunctionGroup( name );
 
-				token = new clrType(
+				token = new mysToken(
 					Builtins.Clr.ClrTools.GetType(
 						state,
 						name
@@ -284,7 +284,7 @@ namespace mysharp
 						break;
 
 					case "STR_LEX":
-						eat( new mysString( stringQueue.Dequeue() ) );
+						eat( new mysToken( stringQueue.Dequeue() ) );
 						break;
 
 					// simple value

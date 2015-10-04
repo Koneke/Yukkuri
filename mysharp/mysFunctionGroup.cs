@@ -69,7 +69,8 @@ namespace mysharp
 		// given a type from our sig, and the token supplied as a potential
 		// argument, see if they match
 		bool typeCheck(
-			mysTypes type,
+			//mysTypes type,
+			Type type,
 			mysToken token,
 			Stack<mysSymbolSpace> spaceStack
 		) {
@@ -79,18 +80,17 @@ namespace mysharp
 			// etc., less likely for bugs to occur because of an accidental sig
 			// match).
 
-			bool plainAssignable = AssignableFrom( type, token.Type );
+			bool plainAssignable = AssignableFrom( type, token.RealType );
 
 			bool complexAssignable = false;
 
 			if ( token.Type == mysTypes.Symbol && !token.Quoted ) {
-				complexAssignable = 
-					AssignableFrom(
-						type,
-						( token as mysSymbol )
-						?.DeepType( spaceStack )
-						?? mysTypes.NULLTYPE
-					);
+				mysSymbol s = ( token as mysSymbol );
+				Type t = s.DeepType( spaceStack );
+
+				if ( t != null ) {
+					complexAssignable = AssignableFrom( type, t );
+				}
 			}
 
 			return plainAssignable || complexAssignable;

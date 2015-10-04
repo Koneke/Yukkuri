@@ -12,8 +12,8 @@ namespace mysharp.Builtins.Looping
 
 			mysBuiltin f = new mysBuiltin();
 
-			f.Signature.Add( mysTypes.List );
-			f.Signature.Add( mysTypes.List );
+			f.Signature.Add( typeof(mysList) );
+			f.Signature.Add( typeof(mysList) );
 
 			f.Function = (args, state, sss) => {
 				mysList conditional = args[ 0 ] as mysList;
@@ -32,13 +32,13 @@ namespace mysharp.Builtins.Looping
 						sss
 					);
 
-					mysBoolean condition = em.Evaluate().Car() as mysBoolean;
+					mysToken condition = em.Evaluate().Car();
 
 					if ( condition == null ) {
 						throw new ArgumentException();
 					}
 
-					if ( !condition.Value ) {
+					if ( !(bool)condition.InternalValue ) {
 						break;
 					}
 
@@ -70,8 +70,8 @@ namespace mysharp.Builtins.Looping
 
 			mysBuiltin f = new mysBuiltin();
 
-			f.Signature.Add( mysTypes.List );
-			f.Signature.Add( mysTypes.List );
+			f.Signature.Add( typeof(mysList) );
+			f.Signature.Add( typeof(mysList) );
 
 			f.Function = (args, state, sss) => {
 				mysList head = args[ 0 ] as mysList;

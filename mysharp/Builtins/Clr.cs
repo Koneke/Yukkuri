@@ -35,22 +35,22 @@ namespace mysharp.Builtins.Clr
 				t == typeof(int) ||
 				t == typeof(long)
 			) {
-				return new mysIntegral( (int)obj );
+				return new mysToken( (int)obj );
 			}
 
 			if (
 				t == typeof(string)
 			) {
-				return new mysString( (string)obj );
+				return new mysToken( (string)obj );
 			}
 
 			if (
 				t == typeof(bool)
 			) {
-				return new mysBoolean( (bool)obj );
+				return new mysToken( (bool)obj );
 			}
 
-			return new clrObject( obj );
+			return new mysToken( obj );
 		}
 	}
 
@@ -63,13 +63,15 @@ namespace mysharp.Builtins.Clr
 
 			mysBuiltin f = new mysBuiltin();
 
-			f.Signature.Add( mysTypes.clrType );
+			f.Signature.Add( typeof(Type) );
 
 			f.Function = (args, state, sss) => {
-				Type type = (args[ 0 ] as clrType).Value;
+				object result = Activator.CreateInstance(
+					(Type)args[ 0 ].InternalValue
+				);
 
 				return new List<mysToken>() {
-					new clrObject( Activator.CreateInstance( type ) )
+					new mysToken( result )
 				};
 			};
 
@@ -95,12 +97,11 @@ namespace mysharp.Builtins.Clr
 
 			if ( token != null ) {
 				if ( token.Type == mysTypes.clrObject ) {
-					clrObject co = obj as clrObject;
-					target = co.Value;
+					target = token.InternalValue;
 					targetType = target.GetType();
 				} else if ( token.Type == mysTypes.clrType ) {
 					target = null;
-					targetType = (obj as clrType).Value;
+					targetType = (Type)token.InternalValue;
 				}
 			} else {
 				// if it's neither clrObject or clrType, it's just an
@@ -125,8 +126,8 @@ namespace mysharp.Builtins.Clr
 
 			f = new mysBuiltin();
 
-			f.Signature.Add( mysTypes.CLR );
-			f.Signature.Add( mysTypes.Symbol );
+			f.Signature.Add( typeof(CLR) );
+			f.Signature.Add( typeof(mysSymbol) );
 
 			f.Function = (args, state, sss) => {
 				return new List<mysToken>() {
@@ -142,11 +143,10 @@ namespace mysharp.Builtins.Clr
 
 			f = new mysBuiltin();
 
-			f.Signature.Add( mysTypes.CLR );
-			f.Signature.Add( mysTypes.List );
+			f.Signature.Add( typeof(CLR) );
+			f.Signature.Add( typeof(mysList) );
 
 			f.Function = (args, state, sss) => {
-				clrObject instance = args[ 0 ] as clrObject;
 				mysList list = args[ 1 ] as mysList;
 
 				if (
@@ -187,16 +187,15 @@ namespace mysharp.Builtins.Clr
 
 			mysBuiltin f = new mysBuiltin();
 
-			f.Signature.Add( mysTypes.Symbol );
+			f.Signature.Add( typeof(mysSymbol) );
 
 			f.Function = (args, state, sss) => {
 				mysSymbol symbol = args[ 0 ] as mysSymbol;
 
 				return new List<mysToken>() {
-					new clrType( ClrTools.GetType(
-						state,
-						symbol.StringRepresentation
-					) )
+					new mysToken(
+						ClrTools.GetType( state, symbol.StringRepresentation )
+					)
 				};
 			};
 
@@ -219,13 +218,13 @@ namespace mysharp.Builtins.Clr
 
 			f = new mysBuiltin();
 
-			f.Signature.Add( mysTypes.Symbol );
-			f.Signature.Add( mysTypes.clrType );
-			f.Signature.Add( mysTypes.List );
+			f.Signature.Add( typeof(mysSymbol) );
+			f.Signature.Add( typeof(Type) );
+			f.Signature.Add( typeof(mysList) );
 
 			f.Function = (args, state, sss) => {
 				mysSymbol symbol = args[ 0 ] as mysSymbol;
-				clrType type = args[ 1 ] as clrType;
+				mysToken type = args[ 1 ];
 				mysList argsList = args[ 2 ] as mysList;
 
 				Type[] argumentTypes = argsList.InternalValues
@@ -236,7 +235,7 @@ namespace mysharp.Builtins.Clr
 					.Select( t => t.InternalValue )
 					.ToArray();
 
-				MethodInfo mi = type.Value.GetMethod(
+				MethodInfo mi = ((Type)type.InternalValue).GetMethod(
 					symbol.StringRepresentation,
 					argumentTypes
 				);
@@ -257,13 +256,13 @@ namespace mysharp.Builtins.Clr
 
 			f = new mysBuiltin();
 
-			f.Signature.Add( mysTypes.Symbol );
-			f.Signature.Add( mysTypes.clrObject );
-			f.Signature.Add( mysTypes.List );
+			f.Signature.Add( typeof(mysSymbol) );
+			f.Signature.Add( typeof(object) );
+			f.Signature.Add( typeof(mysList) );
 
 			f.Function = (args, state, sss) => {
 				mysSymbol symbol = args[ 0 ] as mysSymbol;
-				clrObject obj = args[ 1 ] as clrObject;
+				mysToken obj = args[ 1 ];
 				mysList argsList = args[ 2 ] as mysList;
 
 				Type[] argumentTypes = argsList.InternalValues
@@ -274,13 +273,13 @@ namespace mysharp.Builtins.Clr
 					.Select( t => t.InternalValue )
 					.ToArray();
 
-				MethodInfo mi = obj.Value.GetType().GetMethod(
+				MethodInfo mi = obj.InternalValue.GetType().GetMethod(
 					symbol.StringRepresentation,
 					argumentTypes
 				);
 
 				object result = mi.Invoke(
-					obj.Value,
+					obj.InternalValue,
 					arguments
 				);
 
@@ -302,11 +301,11 @@ namespace mysharp.Builtins.Clr
 
 			f = new mysBuiltin();
 
-			f.Signature.Add( mysTypes.CLR );
+			f.Signature.Add( typeof(CLR) );
 			// we don't *actually* want this as a symbol though,
 			// it's just the field name really
-			f.Signature.Add( mysTypes.Symbol );
-			f.Signature.Add( mysTypes.ANY );
+			f.Signature.Add( typeof(mysSymbol) );
+			f.Signature.Add( typeof(ANY) );
 
 			f.Function = (args, state, sss) => {
 				mysToken clrThing = args[ 0 ];
@@ -319,11 +318,12 @@ namespace mysharp.Builtins.Clr
 				Type targetType;
 				object targetObject = null;
 
-				if ( clrThing.Type == mysTypes.clrObject ) {
+				if ( clrThing.RealType == typeof(Type) ) {
+					targetObject = null;
+					targetType = (Type)clrThing.InternalValue;
+				} else {
 					targetObject = clrThing.InternalValue;
 					targetType = targetObject.GetType();
-				} else {
-					targetType = (clrThing as clrType).Value;
 				}
 
 				FieldInfo fi = targetType.GetField( fieldName );

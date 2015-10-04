@@ -13,7 +13,7 @@ namespace mysharp.Builtins.ListHandling
 
 			//f.returnType
 
-			f.Signature.Add( mysTypes.List );
+			f.Signature.Add( typeof(mysList) );
 
 			f.Function = (args, state, sss) => {
 				mysList l = new mysList(
@@ -42,7 +42,7 @@ namespace mysharp.Builtins.ListHandling
 
 			//f.returnType
 
-			f.Signature.Add( mysTypes.List );
+			f.Signature.Add( typeof(mysList) );
 
 			f.Function = (args, state, sss) =>
 				new List<mysToken>() {
@@ -65,7 +65,7 @@ namespace mysharp.Builtins.ListHandling
 
 			mysBuiltin f = new mysBuiltin();
 
-			f.Signature.Add( mysTypes.List );
+			f.Signature.Add( typeof(mysList) );
 
 			f.Function = (args, state, sss) =>
 				new List<mysToken>() {
@@ -93,8 +93,8 @@ namespace mysharp.Builtins.ListHandling
 
 			f = new mysBuiltin();
 
-			f.Signature.Add( mysTypes.ANY );
-			f.Signature.Add( mysTypes.ANY );
+			f.Signature.Add( typeof(ANY) );
+			f.Signature.Add( typeof(ANY) );
 
 			f.Function = (args, state, sss) => {
 				mysList first = mysToken.PromoteToList( args[ 0 ] );
@@ -117,7 +117,7 @@ namespace mysharp.Builtins.ListHandling
 
 			f = new mysBuiltin();
 
-			f.Signature.Add( mysTypes.ANY );
+			f.Signature.Add( typeof(ANY) );
 
 			f.Function = (args, state, sss) => {
 				mysList first = mysToken.PromoteToList( args[ 0 ] );
@@ -142,13 +142,13 @@ namespace mysharp.Builtins.ListHandling
 
 			f = new mysBuiltin();
 
-			f.Signature.Add( mysTypes.List );
+			f.Signature.Add( typeof(mysList) );
 
 			f.Function = (args, state, sss) => {
 				mysList first = mysToken.PromoteToList( args[ 0 ] );
 
 				return new List<mysToken>() {
-					new mysIntegral(
+					new mysToken(
 						(args[ 0 ] as mysList).InternalValues.Count()
 					)
 				};

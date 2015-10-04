@@ -40,20 +40,51 @@ namespace mysharp
 		clrFunctionGroup
 	}
 
+	// TYPE DUMMIES!
+	public class CLR { }
+	public class NUMBER { }
+	public class ANY { }
+
 	public class mysToken
 	{
+		static Dictionary<Type, mysTypes> autoTypes =
+			new Dictionary<System.Type, mysTypes>() {
+			{ typeof(int), mysTypes.Integral },
+			{ typeof(float), mysTypes.Floating },
+			{ typeof(bool), mysTypes.Boolean },
+			{ typeof(string), mysTypes.String },
+			{ typeof(object), mysTypes.clrObject },
+			{ typeof(Type), mysTypes.clrType }
+		};
+
 		public mysTypes Type;
 		public bool Quoted;
 
+		public Type RealType;
 		public object InternalValue;
+
+		public mysToken(
+			Type realType,
+			object value,
+			mysTypes type
+		) {
+			RealType = realType;
+			InternalValue = value;
+			Type = type;
+		}
 
 		public mysToken(
 			object value,
 			mysTypes type
-		) {
-			InternalValue = value;
-			Type = type;
-		}
+		) : this( typeof(ValueType), value, type ) { }
+
+		public mysToken(
+			object value
+		) : this(
+			value.GetType(),
+			value,
+			autoTypes[ value.GetType() ]
+		) { }
 
 		public mysToken Quote() {
 			Quoted = true;
@@ -68,21 +99,21 @@ namespace mysharp
 
 		// whether or not a is assignable from b
 		public static bool AssignableFrom(
-			mysTypes a,
-			mysTypes b
+			Type a,
+			Type b
 		) {
 			bool plainAssignable = a == b;
 
-			bool anyAssignable = a == mysTypes.ANY;
+			bool anyAssignable = a == typeof(ANY);
 
 			bool numberAssignable = (
-				a == mysTypes.NUMBER &&
-				( b == mysTypes.Integral || b == mysTypes.Floating )
+				a == typeof(NUMBER) &&
+				( b == typeof(int) || b == typeof(float) )
 			);
 
 			bool clrAssignable = (
-				a == mysTypes.CLR &&
-				( b == mysTypes.clrObject || b == mysTypes.clrType )
+				a == typeof(CLR) &&
+				( b == typeof(object) || b == typeof(Type) )
 			);
 
 			return
@@ -109,10 +140,10 @@ namespace mysharp
 		public static bool IsNumber(
 			mysToken token
 		) {
-			return AssignableFrom( mysTypes.NUMBER, token.Type );
+			return AssignableFrom( typeof(NUMBER), token.RealType );
 		}
 
-		public static mysFloating PromoteToFloat(
+		public static mysToken PromoteToFloat(
 			mysToken number
 		) {
 			if (
@@ -123,16 +154,21 @@ namespace mysharp
 			}
 
 			if ( number.Type == mysTypes.Integral ) {
-				return new mysFloating( (number as mysIntegral).Value );
+				return new mysToken( (float)number.InternalValue );
 			}
 
-			return (mysFloating)number;
+			return number;
 		}
 
 		public static bool CanSafelyDemoteNumber(
 			mysToken number
 		) {
-			if ( !AssignableFrom( mysTypes.NULLTYPE, number.Type ) ) {
+			// wtf did this do anyways?
+			/*if ( !AssignableFrom( mysTypes.NULLTYPE, number.Type ) ) {
+				return false;
+			}*/
+
+			if ( !AssignableFrom( typeof(NUMBER), number.RealType ) ) {
 				return false;
 			}
 
@@ -140,14 +176,14 @@ namespace mysharp
 				return true;
 			}
 
-			if ( (number as mysFloating).Value % 1 == 0 ) {
+			if ( (float)number.InternalValue % 1 == 0 ) {
 				return true;
 			}
 
 			return false;
 		}
 
-		public static mysIntegral DemoteNumber(
+		public static mysToken DemoteNumber(
 			mysToken number
 		) {
 			if ( !CanSafelyDemoteNumber( number ) ) {
@@ -155,144 +191,14 @@ namespace mysharp
 			}
 
 			if ( number.Type == mysTypes.Integral ) {
-				return number as mysIntegral;
+				return number;
 			}
 
-			return new mysIntegral( (int)(number as mysFloating).Value );
-		}
-	}
-
-	public class mysTypeToken : mysToken
-	{
-		public mysTypes Value {
-			get {
-				return (mysTypes)InternalValue;
-			}
+			return new mysToken( (int)number.InternalValue, mysTypes.Integral );
 		}
 
-		public mysTypeToken( mysTypes typeValue )
-			: base ( typeValue, mysTypes.mysType )
-		{
-		}
-
-		public override string ToString()
-		{
-			return $"(typetoken: {Value})";
-		}
-	}
-
-	public class mysIntegral : mysToken
-	{
-		public long Value {
-			get { return (long)InternalValue; }
-		}
-
-		public mysIntegral( long value )
-			: base ( value, mysTypes.Integral )
-		{
-		}
-
-		public override string ToString()
-		{
-			return $"(int: {Value})";
-		}
-	}
-
-	public class mysFloating : mysToken
-	{
-		public double Value {
-			get { return (double)InternalValue; }
-		}
-
-		public mysFloating( double value )
-			: base ( value, mysTypes.Floating )
-		{
-		}
-
-		// UNTESTED, UNSURE ABOUT EXACT BEHAVIOUR
-		public bool CanSafelyBeDemoted() {
-			return Value % 1 == 0;
-		}
-
-		public mysIntegral Demote() {
-			return new mysIntegral(
-				(int)Math.Round( Value )
-			);
-		}
-
-		public override string ToString()
-		{
-			return $"(fl: {Value})";
-		}
-	}
-
-	public class mysBoolean : mysToken
-	{
-		public bool Value {
-			get { return (bool)InternalValue; }
-		}
-
-		public mysBoolean( bool value )
-			: base ( value, mysTypes.Boolean )
-		{
-		}
-
-		public override string ToString()
-		{
-			return $"(bool: {Value})";
-		}
-	}
-
-	public class mysString : mysToken
-	{
-		public string Value {
-			get { return (string)InternalValue; }
-		}
-
-		public mysString( string value )
-			: base ( value, mysTypes.String )
-		{
-		}
-
-		public override string ToString()
-		{
-			return $"(str: {Value})";
-		}
-	}
-
-	public class clrObject : mysToken
-	{
-		public object Value {
-			get { return InternalValue; }
-		}
-
-		public clrObject( object value )
-			: base ( value, mysTypes.clrObject )
-		{
-			;
-		}
-
-		public override string ToString()
-		{
-			return $"(clr: {Value})";
-		}
-	}
-
-	public class clrType : mysToken
-	{
-		public Type Value {
-			get { return (Type)InternalValue; }
-		}
-
-		public clrType( Type value )
-			: base ( value, mysTypes.clrType )
-		{
-			;
-		}
-
-		public override string ToString()
-		{
-			return $"(clr-type: {Value})";
+		public override string ToString() {
+			return InternalValue.ToString();
 		}
 	}
 }

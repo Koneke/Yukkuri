@@ -38,19 +38,19 @@ namespace mysharp_tests
 
 			Debug.Assert(
 				result.Type == mysTypes.Integral &&
-				( result as mysIntegral ).Value == expected,
+				(int)result.InternalValue == expected,
 				$"Failing at {expression}."
 			);
 		}
 
 		[Test]
 		public void IntegralTests() {
-			long testValue = 10;
+			int testValue = 10;
 
 			mysSymbol x = new mysSymbol( "x" );
 
 			mysharp.mysREPL REPL = new mysREPL();
-			REPL.State.Global.Define( x, new mysIntegral( testValue ) );
+			REPL.State.Global.Define( x, new mysToken( testValue ) );
 
 			mysSymbol x2 = new mysSymbol( "x" );
 
@@ -64,7 +64,7 @@ namespace mysharp_tests
 				"\"x\" not reported as integral-type."
 			);
 
-			mysIntegral i = REPL.State.Global.GetValue( x ) as mysIntegral;
+			mysToken i = REPL.State.Global.GetValue( x );
 			
 			Debug.Assert(
 				i != null,
@@ -72,7 +72,7 @@ namespace mysharp_tests
 			);
 
 			Debug.Assert(
-				i.Value == testValue,
+				(int)i.InternalValue == testValue,
 				"Value of \"x\" doesn't match testValue."
 			);
 		}
@@ -91,7 +91,7 @@ namespace mysharp_tests
 			);
 
 			Debug.Assert(
-				( result as mysIntegral ).Value == 5,
+				(int)result.InternalValue == 5,
 				"f not returning correct value."
 			);
 
@@ -104,7 +104,7 @@ namespace mysharp_tests
 			);
 
 			Debug.Assert(
-				( result as mysIntegral ).Value == 7,
+				(int)result.InternalValue == 7,
 				"g not returning correct value."
 			);
 		}
@@ -135,12 +135,12 @@ namespace mysharp_tests
 
 			(new mysREPL()).Test(
 				quote + "foo" + quote,
-				t => (t as mysString).Value == "foo"
+				t => (string)t.InternalValue == "foo"
 			);
 
 			(new mysREPL()).Test(
 				quote + escapedQuote + "foo" + quote,
-				t => (t as mysString).Value == ( "\"" + "foo" )
+				t => (string)t.InternalValue == ( "\"" + "foo" )
 			);
 		}
 	}
@@ -152,7 +152,7 @@ namespace mysharp_tests
 		public void Equality_EqualIntegers_True() {
 			(new mysREPL()).Test(
 				"(= 1 1)",
-				t => (t as mysBoolean).Value == true
+				t => (bool)t.InternalValue == true
 			);
 		}
 
@@ -160,7 +160,7 @@ namespace mysharp_tests
 		public void Equality_NonEqualIntegers_False() {
 			(new mysREPL()).Test(
 				"(= 0 1)",
-				t => (t as mysBoolean).Value == false
+				t => (bool)t.InternalValue == false
 			);
 		}
 
@@ -168,7 +168,7 @@ namespace mysharp_tests
 		public void Equality_EqualIntegerAFloatB_True() {
 			(new mysREPL()).Test(
 				"(= 1. 1)",
-				t => (t as mysBoolean).Value == true
+				t => (bool)t.InternalValue == true
 			);
 		}
 
@@ -176,7 +176,7 @@ namespace mysharp_tests
 		public void Equality_NonEqualIntegerAFloatB_False() {
 			(new mysREPL()).Test(
 				"(= 1. 2)",
-				t => (t as mysBoolean).Value == false 
+				t => (bool)t.InternalValue == false
 			);
 		}
 
@@ -184,7 +184,7 @@ namespace mysharp_tests
 		public void Equality_NonEqualIntegerANonRoundFloatB_False() {
 			(new mysREPL()).Test(
 				"(= 1.1 1)",
-				t => (t as mysBoolean).Value == false 
+				t => (bool)t.InternalValue == false
 			);
 		}
 
@@ -192,7 +192,7 @@ namespace mysharp_tests
 		public void Equality_EqualFloats_True() {
 			(new mysREPL()).Test(
 				"(= 1.1 1.1)",
-				t => (t as mysBoolean).Value == true
+				t => (bool)t.InternalValue == true
 			);
 		}
 
@@ -200,7 +200,7 @@ namespace mysharp_tests
 		public void Equality_NonEqualFloats_False() {
 			(new mysREPL()).Test(
 				"(= 1.1 1.2)",
-				t => (t as mysBoolean).Value == false
+				t => (bool)t.InternalValue == false
 			);
 		}
 
@@ -210,7 +210,7 @@ namespace mysharp_tests
 		public void GreaterThan_ALargerThanB_True() {
 			(new mysREPL()).Test(
 				"(> 1 0)",
-				t => (t as mysBoolean).Value == true
+				t => (bool)t.InternalValue == true
 			);
 		}
 
@@ -218,7 +218,7 @@ namespace mysharp_tests
 		public void GreaterThan_ALargerThanNegativeB_True() {
 			(new mysREPL()).Test(
 				"(> 1 -1)",
-				t => (t as mysBoolean).Value == true
+				t => (bool)t.InternalValue == true
 			);
 		}
 
@@ -226,7 +226,7 @@ namespace mysharp_tests
 		public void GreaterThan_NegativeALargerThanNegativeB_True() {
 			(new mysREPL()).Test(
 				"(> -1 -2)",
-				t => (t as mysBoolean).Value == true
+				t => (bool)t.InternalValue == true
 			);
 		}
 
@@ -234,7 +234,7 @@ namespace mysharp_tests
 		public void GreaterThan_NegativeASmallerThanNegativeB_False() {
 			(new mysREPL()).Test(
 				"(> -2 -1)",
-				t => (t as mysBoolean).Value == false
+				t => (bool)t.InternalValue == false
 			);
 		}
 
@@ -242,7 +242,7 @@ namespace mysharp_tests
 		public void GreaterThan_EqualIntegers_False() {
 			(new mysREPL()).Test(
 				"(> 1 1)",
-				t => (t as mysBoolean).Value == false 
+				t => (bool)t.InternalValue == false
 			);
 		}
 	}

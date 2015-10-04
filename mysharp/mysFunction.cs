@@ -14,7 +14,7 @@ namespace mysharp
 		// not used right now, but should be later
 		public mysTypes ReturnType;
 
-		public List<mysTypes> Signature;
+		public List<Type> Signature;
 		public List<mysSymbol> Symbols;
 
 		public int SignatureLength {
@@ -37,7 +37,7 @@ namespace mysharp
 		public mysFunction()
 			: base ( null, mysTypes.Function )
 		{
-			Signature = new List<mysTypes>();
+			Signature = new List<Type>();
 			Symbols = new List<mysSymbol>();
 
 			// consider making this the "main value" of the token

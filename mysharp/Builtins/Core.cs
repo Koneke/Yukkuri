@@ -98,8 +98,8 @@ namespace mysharp.Builtins.Core {
 			mysBuiltin assignVariant = new mysBuiltin();
 
 			assignVariant = new mysBuiltin();
-			assignVariant.Signature.Add( mysTypes.Symbol );
-			assignVariant.Signature.Add( mysTypes.ANY );
+			assignVariant.Signature.Add( typeof(mysSymbol) );
+			assignVariant.Signature.Add( typeof(ANY) );
 
 			assignVariant.Function = (args, state, sss) => {
 				mysSymbol assignsymbol = args[ 0 ] as mysSymbol;
@@ -150,15 +150,13 @@ namespace mysharp.Builtins.Core {
 
 			// these two should probably be joined at some point
 			for ( int i = 0; i < sig.InternalValues.Count; i++ ) {
-				if ( sig.InternalValues[ i ].Type == mysTypes.Symbol ) {
+				if ( sig.InternalValues[ i ].RealType == typeof(mysSymbol) ) {
 					f.Symbols.Add(
 						sig.InternalValues[ i ] as mysSymbol
 					);
 				} else {
-					f.Signature.Add(
-						( sig.InternalValues[ i ] as mysTypeToken )
-							.Value
-					);
+					Type t = sig.InternalValues[ i ].RealType;
+					f.Signature.Add( t );
 				}
 			}
 
@@ -174,8 +172,8 @@ namespace mysharp.Builtins.Core {
 			mysBuiltin lambdaVariant = new mysBuiltin();
 
 			lambdaVariant = new mysBuiltin();
-			lambdaVariant.Signature.Add( mysTypes.List );
-			lambdaVariant.Signature.Add( mysTypes.List );
+			lambdaVariant.Signature.Add( typeof(mysList) );
+			lambdaVariant.Signature.Add( typeof(mysList) );
 
 			lambdaVariant.Function = (args, state, sss) => {
 				mysSymbolSpace ss = sss.Peek();
@@ -206,8 +204,8 @@ namespace mysharp.Builtins.Core {
 			f = new mysBuiltin();
 
 			f = new mysBuiltin();
-			f.Signature.Add( mysTypes.Symbol );
-			f.Signature.Add( mysTypes.List );
+			f.Signature.Add( typeof(mysSymbol) );
+			f.Signature.Add( typeof(mysList) );
 
 			f.Function = (args, state, sss) => {
 				mysSymbol symbol = args[ 0 ] as mysSymbol;
@@ -244,8 +242,8 @@ namespace mysharp.Builtins.Core {
 			f = new mysBuiltin();
 
 			f = new mysBuiltin();
-			f.Signature.Add( mysTypes.List );
-			f.Signature.Add( mysTypes.List );
+			f.Signature.Add( typeof(mysList) );
+			f.Signature.Add( typeof(mysList) );
 
 			f.Function = (args, state, sss) => {
 				mysList spaceList = args[ 0 ] as mysList;
@@ -298,7 +296,7 @@ namespace mysharp.Builtins.Core {
 			mysBuiltin f = new mysBuiltin();
 
 			f = new mysBuiltin();
-			f.Signature.Add( mysTypes.List );
+			f.Signature.Add( typeof(mysList) );
 
 			f.Function = (args, state, sss) => {
 				mysList expression = args[ 0 ] as mysList;
@@ -326,11 +324,11 @@ namespace mysharp.Builtins.Core {
 			mysBuiltin f = new mysBuiltin();
 
 			f = new mysBuiltin();
-			f.Signature.Add( mysTypes.ANY );
+			f.Signature.Add( typeof(ANY) );
 
 			f.Function = (args, state, sss) => {
 				return new List<mysToken>() {
-					new mysString( args[ 0 ].ToString() )
+					new mysToken( args[ 0 ].ToString() )
 				};
 			};
 
@@ -348,12 +346,12 @@ namespace mysharp.Builtins.Core {
 			mysBuiltin f = new mysBuiltin();
 
 			f = new mysBuiltin();
-			f.Signature.Add( mysTypes.String );
+			f.Signature.Add( typeof(string) );
 
 			f.Function = (args, state, sss) => {
 				mysParser parser = new mysParser();
 
-				string path = (args[ 0 ] as mysString).Value;
+				string path = (string)args[ 0 ].InternalValue;
 
 				string source = System.IO.File.ReadAllText(
 					System.IO.Path.Combine(
