@@ -13,9 +13,9 @@ namespace mysharp
 		public List<mysFunction> Variants;
 
 		public mysFunctionGroup()
-			: base ( typeof(mysFunctionGroup), (object)null )
 		{
 			Variants = new List<mysFunction>();
+			InternalValue = this;
 		}
 
 		// lh: returns a matching function, or null if we didn't like the input.
@@ -101,9 +101,9 @@ namespace mysharp
 		public string GroupName;
 
 		public clrFunctionGroup( string name )
-			: base( typeof(clrFunctionGroup), (object)null )
 		{
 			GroupName = name;
+			InternalValue = this;
 		}
 
 		public static clrFunction Judge(

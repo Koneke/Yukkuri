@@ -7,14 +7,16 @@ namespace mysharp
 		public List<mysToken> InternalValues;
 
 		public mysList( bool quoted = false )
-			: this( new List<mysToken>(), quoted ) {
+			: this( new List<mysToken>(), quoted )
+		{
+			InternalValue = this;
 		}
 
 		public mysList( List<mysToken> list, bool quoted = false )
-			: base ( typeof(mysList), (object)null )
 		{
 			Quoted = quoted;
 			InternalValues = new List<mysToken>( list );
+			InternalValue = this;
 		}
 
 		public override string ToString()

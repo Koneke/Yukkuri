@@ -11,9 +11,6 @@ namespace mysharp
 		//     parseblock when the function is called upon, making sure to
 		//     substitute in our passed values.
 
-		// not used right now, but should be later
-		//public Type ReturnType;
-
 		public List<Type> Signature;
 		public List<mysSymbol> Symbols;
 
@@ -35,13 +32,13 @@ namespace mysharp
 		public mysList Function;
 
 		public mysFunction()
-			: base ( typeof(mysFunction), (object)null )
 		{
 			Signature = new List<Type>();
 			Symbols = new List<mysSymbol>();
 
 			// consider making this the "main value" of the token
 			Function = new mysList();
+			InternalValue = this;
 		}
 
 		public virtual List<mysToken> Call(
@@ -88,9 +85,9 @@ namespace mysharp
 		}
 
 		public clrFunction( MethodInfo mi )
-			: base( typeof(clrFunction), (object)null )
 		{
 			method = mi;
+			InternalValue = this;
 		}
 
 		// arg 1 function

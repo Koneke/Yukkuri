@@ -106,13 +106,14 @@ namespace mysharp.Builtins.Clr
 			mysToken token = obj as mysToken;
 
 			if ( token != null ) {
-				if ( token.Type == typeof(object) ) {
+				if ( token.Type == typeof(Type) ) {
+					target = null;
+					targetType = (Type)token.InternalValue;
+
+				} else {
 					target = token.InternalValue;
 					targetType = target.GetType();
 
-				} else if ( token.Type == typeof(Type) ) {
-					target = null;
-					targetType = (Type)token.InternalValue;
 				}
 			} else {
 				// if it's neither clrObject or clrType, it's just an

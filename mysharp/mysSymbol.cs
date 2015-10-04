@@ -7,11 +7,11 @@ namespace mysharp
 	{
 		public string StringRepresentation;
 
+		// start using the internal value as thing pointed to?
 		public mysSymbol( string symbolString )
-			// start using the internal value as thing pointed to?
-			: base ( typeof(mysSymbol), (object)null )
 		{
 			StringRepresentation = symbolString;
+			InternalValue = this;
 		}
 
 		public override bool Equals(object obj)
@@ -58,6 +58,7 @@ namespace mysharp
 			Stack<mysSymbolSpace> spaceStack
 		) {
 			mysSymbolSpace space = DefinedIn( spaceStack );
+
 			if ( space != null ) {
 				return space.GetValue( this );
 			}

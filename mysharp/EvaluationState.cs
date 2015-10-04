@@ -248,7 +248,10 @@ namespace mysharp
 				resolveClrFunctionGroup();
 			}
 
-			if ( tokens[ current ].Type == typeof(mysFunction) ) {
+			if (
+				tokens[ current ].Type == typeof(mysFunction) ||
+				tokens[ current ].Type == typeof(mysBuiltin)
+			) {
 				handleFunction();
 			}
 			else if ( tokens[ current ].Type == typeof(clrFunction ) ) {

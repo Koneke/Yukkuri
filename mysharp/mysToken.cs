@@ -26,20 +26,35 @@ namespace mysharp
 	{
 		public bool Quoted;
 
-		public Type Type;
+		public Type Type {
+			get {
+				if ( InternalValue as mysSymbol != null ) {
+					return typeof(mysSymbol);
+				}
+
+				Type t = InternalValue.GetType();
+
+				// hahah xd lets make the type of Type not be Type
+				// ty m$
+				// in reality, that *might* be a good thing? maybe?
+				// for now though we'll just do this hack
+				if ( t.FullName == "System.RuntimeType" ) {
+					return typeof(Type);
+				}
+
+				return InternalValue.GetType();
+			}
+		}
 		public object InternalValue;
 
-		public mysToken(
-			Type realType,
-			object value
-		) {
-			Type = realType;
-			InternalValue = value;
+		protected mysToken() {
 		}
 
 		public mysToken(
 			object value
-		) : this( value.GetType(), value ) { }
+		) {
+			InternalValue = value;
+		}
 
 		public mysToken Quote() {
 			Quoted = true;
@@ -70,6 +85,8 @@ namespace mysharp
 				a == typeof(CLR) &&
 				( b == typeof(object) || b == typeof(Type) )
 			);
+
+			clrAssignable = a == typeof(CLR);
 
 			return
 				plainAssignable ||
@@ -150,14 +167,17 @@ namespace mysharp
 		}
 
 		public override string ToString() {
-			return InternalValue.ToString();
+			mysSymbol s = InternalValue as mysSymbol;
+			if ( s != null ) return "s";
+
+			//return InternalValue.ToString();
 
 			// verboser
-			/*return string.Format(
+			return string.Format(
 				"{0}:{1}",
-				RealType.ToString(),
+				Type.ToString(),
 				InternalValue.ToString()
-			);*/
+			);
 		}
 	}
 }

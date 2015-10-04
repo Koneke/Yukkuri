@@ -89,7 +89,6 @@ namespace mysharp
 			if ( lex[ 0 ] == ':' ) {
 				string type = lex.Substring( 1, lex.Length - 1);
 				token = new mysToken(
-					typeof(Type),
 					typeNameDictionary[ type ]
 				);
 
@@ -108,7 +107,6 @@ namespace mysharp
 				string name = string.Concat( lex.Cdr() );
 
 				token = new mysToken(
-					typeof(Type),
 					Builtins.Clr.ClrTools.GetType(
 						state,
 						name
