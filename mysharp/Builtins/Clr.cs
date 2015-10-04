@@ -83,6 +83,39 @@ namespace mysharp.Builtins.Clr
 	{
 		static mysFunctionGroup functionGroup;
 
+		static object get( object obj, mysToken field ) {
+			if ( field.Type != mysTypes.Symbol ) {
+				throw new ArgumentException();
+			}
+
+			object target = null;
+			Type targetType = null;
+
+			mysToken token = obj as mysToken;
+
+			if ( token != null ) {
+				if ( token.Type == mysTypes.clrObject ) {
+					clrObject co = obj as clrObject;
+					target = co.Value;
+					targetType = target.GetType();
+				} else if ( token.Type == mysTypes.clrType ) {
+					target = null;
+					targetType = (obj as clrType).Value;
+				}
+			} else {
+				// if it's neither clrObject or clrType, it's just an
+				// object, straight up, sent internally
+
+				target = obj;
+				targetType = target.GetType();
+			}
+
+			return targetType
+				.GetField( (field as mysSymbol).StringRepresentation )
+				.GetValue( target )
+			;
+		}
+
 		public static void Setup( mysSymbolSpace global ) {
 			functionGroup = new mysFunctionGroup();
 
@@ -92,19 +125,13 @@ namespace mysharp.Builtins.Clr
 
 			f = new mysBuiltin();
 
-			f.Signature.Add( mysTypes.clrObject );
+			f.Signature.Add( mysTypes.CLR );
 			f.Signature.Add( mysTypes.Symbol );
 
 			f.Function = (args, state, sss) => {
-				clrObject instance = args[ 0 ] as clrObject;
-				mysSymbol symbol = args[ 1 ] as mysSymbol;
-
 				return new List<mysToken>() {
 					ClrTools.ConvertClrObject(
-						instance.Value
-							.GetType()
-							.GetField( symbol.StringRepresentation )
-							.GetValue( instance.Value )
+						get( args[ 0 ], args[ 1 ] )
 					)
 				};
 			};
@@ -115,7 +142,7 @@ namespace mysharp.Builtins.Clr
 
 			f = new mysBuiltin();
 
-			f.Signature.Add( mysTypes.clrObject );
+			f.Signature.Add( mysTypes.CLR );
 			f.Signature.Add( mysTypes.List );
 
 			f.Function = (args, state, sss) => {
@@ -133,18 +160,13 @@ namespace mysharp.Builtins.Clr
 					.Select( t => t as mysSymbol)
 					.ToList();
 
-				object current = instance.Value;
-
+				object c = args[ 0 ];
 				for ( int i = 0; i < chain.Count; i++ ) {
-					current = current
-						.GetType()
-						.GetField( chain[ i ].StringRepresentation )
-						.GetValue( current )
-					;
+					c = get( c, chain[ i ] );
 				}
 
 				return new List<mysToken>() {
-					ClrTools.ConvertClrObject( current )
+					ClrTools.ConvertClrObject( c )
 				};
 			};
 

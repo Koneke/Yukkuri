@@ -4,6 +4,8 @@ namespace sample_application
 {
 	public class SampleClass
 	{
+		public static int Bar = 13;
+
 		public int AField;
 
 		public Foo Foo;
