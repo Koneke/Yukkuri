@@ -11,11 +11,21 @@ namespace mysharp.Builtins.Clr
 			mysState state,
 			string type
 		) {
+			// add fallback stack of some kind here.
+			// like, say our fallback stack is [System, Mentonauts].
+			// then, if our normal lookup fails, we check if the top
+			// of the stack has such a type (e.g. Mentonauts.Test),
+			// then go to the next (System.Test), etc.
+			// lets us be a bit less Java.
+
 			foreach( Assembly a in state.exposedAssemblies ) {
-				if ( a.GetExportedTypes()
-					.Any( t => t.FullName == type )
-				) {
-					return a.GetType( type );
+				Type foundType = a
+					.GetExportedTypes()
+					.FirstOrDefault( t => t.FullName == type )
+				;
+
+				if ( foundType != null ) {
+					return foundType;
 				}
 			}
 
@@ -86,7 +96,7 @@ namespace mysharp.Builtins.Clr
 		static mysFunctionGroup functionGroup;
 
 		static object get( object obj, mysToken field ) {
-			if ( field.RealType != typeof(mysSymbol) ) {
+			if ( field.Type != typeof(mysSymbol) ) {
 				throw new ArgumentException();
 			}
 
@@ -96,11 +106,11 @@ namespace mysharp.Builtins.Clr
 			mysToken token = obj as mysToken;
 
 			if ( token != null ) {
-				if ( token.RealType == typeof(object) ) {
+				if ( token.Type == typeof(object) ) {
 					target = token.InternalValue;
 					targetType = target.GetType();
 
-				} else if ( token.RealType == typeof(Type) ) {
+				} else if ( token.Type == typeof(Type) ) {
 					target = null;
 					targetType = (Type)token.InternalValue;
 				}
@@ -152,7 +162,7 @@ namespace mysharp.Builtins.Clr
 
 				if (
 					list == null || !list.InternalValues.All(
-						t => t.RealType == typeof(mysSymbol)
+						t => t.Type == typeof(mysSymbol)
 					)
 				) {
 					throw new ArgumentException();
@@ -320,7 +330,7 @@ namespace mysharp.Builtins.Clr
 				Type targetType;
 				object targetObject = null;
 
-				if ( clrThing.RealType == typeof(Type) ) {
+				if ( clrThing.Type == typeof(Type) ) {
 					targetObject = null;
 					targetType = (Type)clrThing.InternalValue;
 				} else {

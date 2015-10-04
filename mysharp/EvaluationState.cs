@@ -41,7 +41,7 @@ namespace mysharp
 			// eval list
 			while ( true && tokens.Count > 0 ) {
 				mysList list = tokens.FirstOrDefault( t =>
-					t.RealType == typeof(mysList) &&
+					t.Type == typeof(mysList) &&
 					!t.Quoted
 				) as mysList;
 
@@ -124,14 +124,13 @@ namespace mysharp
 
 			mysToken target = tokens[ current + 1 ];
 
-			while ( target.RealType == typeof(mysSymbol) ) {
+			while ( target.Type == typeof(mysSymbol) ) {
 				target = (target as mysSymbol).Value( spaceStack );
 			}
 
 			Type targetType;
 
-			if ( target.RealType == typeof(Type) ) {
-				//targetType = (target as clrType).Value;
+			if ( target.Type == typeof(Type) ) {
 				targetType = (Type)target.InternalValue;
 			} else {
 				targetType = target.InternalValue.GetType();
@@ -202,7 +201,7 @@ namespace mysharp
 
 			mysToken target = tokens[ current + 1 ];
 
-			while ( target.RealType == typeof(mysSymbol) ) {
+			while ( target.Type == typeof(mysSymbol) ) {
 				target = (target as mysSymbol).Value( spaceStack );
 			}
 
@@ -231,29 +230,29 @@ namespace mysharp
 
 			// where is our quote check right now..?
 
-			if ( tokens[ current ].RealType == typeof(mysSymbol) ) {
+			if ( tokens[ current ].Type == typeof(mysSymbol) ) {
 				preprocessSymbol();
 			}
 
 			if (
-				tokens[ current ].RealType == typeof(mysFunctionGroup) &&
+				tokens[ current ].Type == typeof(mysFunctionGroup) &&
 				!tokens[ current ].Quoted
 			) {
 				resolveFunctionGroup();
 			}
 
 			if (
-				tokens[ current ].RealType == typeof(clrFunctionGroup) &&
+				tokens[ current ].Type == typeof(clrFunctionGroup) &&
 				!tokens[ current ].Quoted
 			) {
 				resolveClrFunctionGroup();
 			}
 
-			if ( tokens[ current ].RealType == typeof(clrFunction ) ) {
-				handleClrFunction();
-			}
-			else if ( tokens[ current ].RealType == typeof(mysFunction) ) {
+			if ( tokens[ current ].Type == typeof(mysFunction) ) {
 				handleFunction();
+			}
+			else if ( tokens[ current ].Type == typeof(clrFunction ) ) {
+				handleClrFunction();
 			}
 
 			current++;

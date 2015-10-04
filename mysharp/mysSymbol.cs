@@ -7,8 +7,6 @@ namespace mysharp
 	{
 		public string StringRepresentation;
 
-		public Type Type;
-
 		public mysSymbol( string symbolString )
 			// start using the internal value as thing pointed to?
 			: base ( typeof(mysSymbol), (object)null )
@@ -77,12 +75,12 @@ namespace mysharp
 		) {
 			mysToken temp = new mysSymbol( ToString() );
 
-			while ( temp.RealType == typeof(mysSymbol) ) {
+			while ( temp.Type == typeof(mysSymbol) ) {
 				// EvaluateSymbol clones the stack by itself
 				temp = Value( spaceStack );
 			}
 
-			return temp.RealType;
+			return temp.Type;
 		} 
 	}
 }

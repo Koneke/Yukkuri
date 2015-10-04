@@ -37,7 +37,7 @@ namespace mysharp_tests
 			mysToken result = REPL.Evaluate( expression ).Car();
 
 			Debug.Assert(
-				result.RealType == typeof(int) &&
+				result.Type == typeof(int) &&
 				(int)result.InternalValue == expected,
 				$"Failing at {expression}."
 			);
@@ -60,7 +60,7 @@ namespace mysharp_tests
 			);
 
 			Debug.Assert(
-				REPL.State.Global.GetValue( x ).RealType == typeof(int),
+				REPL.State.Global.GetValue( x ).Type == typeof(int),
 				"\"x\" not reported as integral-type."
 			);
 
@@ -86,7 +86,7 @@ namespace mysharp_tests
 			result = REPL.Evaluate( "(f 2)" ).Car();
 
 			Debug.Assert(
-				result.RealType == typeof(int),
+				result.Type == typeof(int),
 				"f not returning :int."
 			);
 
@@ -99,7 +99,7 @@ namespace mysharp_tests
 			result = REPL.Evaluate( "(g 2)" ).Car();
 
 			Debug.Assert(
-				result.RealType == typeof(int),
+				result.Type == typeof(int),
 				"g not returning :int."
 			);
 
@@ -226,7 +226,7 @@ namespace mysharp_tests
 		public void GreaterThan_NegativeALargerThanNegativeB_True() {
 			(new mysREPL()).Test(
 				"(> -1 -2)",
-				t => (bool)t.InternalValue == true
+				t => ((bool)t.InternalValue) == true
 			);
 		}
 

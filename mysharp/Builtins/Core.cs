@@ -14,7 +14,7 @@ namespace mysharp.Builtins.Core {
 			// if symbol defined and of wrong type, undef it
 			if (
 				ss.Defined( symbol ) &&
-				ss.GetValue( symbol ).RealType != typeof(mysFunctionGroup)
+				ss.GetValue( symbol ).Type != typeof(mysFunctionGroup)
 			) {
 				// we could just overwrite it with define,
 				// but I'd rather be entirely sure that we delete
@@ -64,7 +64,7 @@ namespace mysharp.Builtins.Core {
 			mysSymbolSpace top = spaceStack.Pop();
 			mysSymbolSpace ss = spaceStack.Peek();
 
-			if ( value.RealType == typeof(mysFunction) ) {
+			if ( value.Type == typeof(mysFunction) ) {
 				defineFunction(
 					symbol,
 					value as mysFunction,
@@ -117,7 +117,7 @@ namespace mysharp.Builtins.Core {
 			}
 
 			for ( int i = 0; i < sig.InternalValues.Count; i++ ) {
-				if ( sig.InternalValues[ i ].RealType !=
+				if ( sig.InternalValues[ i ].Type !=
 					( i % 2 == 0
 						? typeof(mysSymbol)
 						: typeof(Type) )
@@ -136,23 +136,21 @@ namespace mysharp.Builtins.Core {
 
 			Argumentcheck( sig, body );
 
-			// define function variant
 			mysFunction f = new mysFunction();
 
 			// these two should probably be joined at some point
 			for ( int i = 0; i < sig.InternalValues.Count; i++ ) {
-				if ( sig.InternalValues[ i ].RealType == typeof(mysSymbol) ) {
+				if ( sig.InternalValues[ i ].Type == typeof(mysSymbol) ) {
 					f.Symbols.Add(
 						sig.InternalValues[ i ] as mysSymbol
 					);
 				} else {
-					Type t = sig.InternalValues[ i ].RealType;
+					Type t = (Type)sig.InternalValues[ i ].InternalValue;
 					f.Signature.Add( t );
 				}
 			}
 
 			f.Function = body;
-			// end define function variant
 
 			return f;
 		}
@@ -241,7 +239,7 @@ namespace mysharp.Builtins.Core {
 				mysList body = args[ 1 ] as mysList;
 
 				if ( !spaceList.InternalValues.All(
-					v => v.RealType == typeof(mysSymbol)
+					v => v.Type == typeof(mysSymbol)
 				) ) {
 					throw new FormatException();
 				}

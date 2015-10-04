@@ -80,11 +80,11 @@ namespace mysharp
 			// etc., less likely for bugs to occur because of an accidental sig
 			// match).
 
-			bool plainAssignable = AssignableFrom( type, token.RealType );
+			bool plainAssignable = AssignableFrom( type, token.Type );
 
 			bool complexAssignable = false;
 
-			if ( token.RealType == typeof(mysSymbol) && !token.Quoted ) {
+			if ( token.Type == typeof(mysSymbol) && !token.Quoted ) {
 				mysSymbol s = ( token as mysSymbol );
 				Type t = s.DeepType( spaceStack );
 

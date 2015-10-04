@@ -35,7 +35,7 @@ namespace mysharp
 		public mysList Function;
 
 		public mysFunction()
-			: base ( null, typeof(mysFunction) )
+			: base ( typeof(mysFunction), (object)null )
 		{
 			Signature = new List<Type>();
 			Symbols = new List<mysSymbol>();
@@ -50,7 +50,7 @@ namespace mysharp
 			Stack<mysSymbolSpace> spaceStack
 		) {
 			arguments = arguments.Select( t =>
-				t.RealType == typeof(mysSymbol) && !t.Quoted
+				t.Type == typeof(mysSymbol) && !t.Quoted
 				? ( t as mysSymbol ).Value( spaceStack )
 				: t
 			).ToList();
@@ -88,7 +88,7 @@ namespace mysharp
 		}
 
 		public clrFunction( MethodInfo mi )
-			: base( null, typeof(clrFunction) )
+			: base( typeof(clrFunction), (object)null )
 		{
 			method = mi;
 		}
@@ -104,7 +104,7 @@ namespace mysharp
 		) {
 			object targetObject = null;
 
-			if ( target.RealType == typeof(object) ) {
+			if ( target.Type == typeof(object) ) {
 				targetObject = target.InternalValue;
 			}
 
@@ -113,7 +113,7 @@ namespace mysharp
 			foreach ( mysToken t in arguments ) {
 				mysToken current = t;
 
-				while ( current.RealType == typeof(mysSymbol) ) {
+				while ( current.Type == typeof(mysSymbol) ) {
 					current = (current as mysSymbol).Value( spaceStack );
 				}
 

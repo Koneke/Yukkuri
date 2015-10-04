@@ -27,11 +27,11 @@ namespace mysharp.Builtins.Comparison
 				if (
 					mysToken.AssignableFrom(
 						typeof(NUMBER),
-						args[ 0 ].RealType
+						args[ 0 ].Type
 					) &&
 					mysToken.AssignableFrom(
 						typeof(NUMBER),
-						args[ 1 ].RealType
+						args[ 1 ].Type
 					)
 				) {
 					return new List<mysToken>() {

@@ -17,29 +17,6 @@ namespace mysharp
 	// stuff?
 	// might have to/want to keep them as their own typ still, might work well.
 
-	/*public enum mysTypes {
-		// capitals are, for future reference, the more "meta" types
-		// probably to change at some point
-		NULLTYPE,
-		ANY,
-		Symbol,
-		Integral,
-		Floating,
-		NUMBER,
-		Boolean,
-		List,
-		String,
-		Function,
-		FunctionGroup,
-		mysType,
-
-		clrObject,
-		clrType,
-		CLR,
-		clrFunction,
-		clrFunctionGroup
-	}*/
-
 	// TYPE DUMMIES!
 	public class CLR { }
 	public class NUMBER { }
@@ -49,14 +26,14 @@ namespace mysharp
 	{
 		public bool Quoted;
 
-		public Type RealType;
+		public Type Type;
 		public object InternalValue;
 
 		public mysToken(
 			Type realType,
 			object value
 		) {
-			RealType = realType;
+			Type = realType;
 			InternalValue = value;
 		}
 
@@ -105,7 +82,7 @@ namespace mysharp
 		public static mysList PromoteToList(
 			mysToken item
 		) {
-			if ( item.RealType == typeof(mysList) ) {
+			if ( item.Type == typeof(mysList) ) {
 				return item as mysList;
 			}
 
@@ -118,21 +95,23 @@ namespace mysharp
 		public static bool IsNumber(
 			mysToken token
 		) {
-			return AssignableFrom( typeof(NUMBER), token.RealType );
+			return AssignableFrom( typeof(NUMBER), token.Type );
 		}
 
 		public static mysToken PromoteToFloat(
 			mysToken number
 		) {
 			if (
-				number.RealType != typeof(int) &&
-				number.RealType != typeof(float)
+				number.Type != typeof(int) &&
+				number.Type != typeof(float)
 			) {
 				throw new ArgumentException();
 			}
 
-			if ( number.RealType == typeof(int) ) {
-				return new mysToken( (float)number.InternalValue );
+			if ( number.Type == typeof(int) ) {
+				return new mysToken(
+					(float)(int)number.InternalValue
+				);
 			}
 
 			return number;
@@ -141,11 +120,11 @@ namespace mysharp
 		public static bool CanSafelyDemoteNumber(
 			mysToken number
 		) {
-			if ( !AssignableFrom( typeof(NUMBER), number.RealType ) ) {
+			if ( !AssignableFrom( typeof(NUMBER), number.Type ) ) {
 				return false;
 			}
 
-			if ( number.RealType == typeof(int) ) {
+			if ( number.Type == typeof(int) ) {
 				return true;
 			}
 
@@ -163,7 +142,7 @@ namespace mysharp
 				throw new ArgumentException();
 			}
 
-			if ( number.RealType == typeof(int) ) {
+			if ( number.Type == typeof(int) ) {
 				return number;
 			}
 
@@ -172,6 +151,13 @@ namespace mysharp
 
 		public override string ToString() {
 			return InternalValue.ToString();
+
+			// verboser
+			/*return string.Format(
+				"{0}:{1}",
+				RealType.ToString(),
+				InternalValue.ToString()
+			);*/
 		}
 	}
 }
