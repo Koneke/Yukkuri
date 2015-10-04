@@ -12,7 +12,7 @@ namespace mysharp
 		//     substitute in our passed values.
 
 		// not used right now, but should be later
-		public mysTypes ReturnType;
+		//public Type ReturnType;
 
 		public List<Type> Signature;
 		public List<mysSymbol> Symbols;
@@ -35,7 +35,7 @@ namespace mysharp
 		public mysList Function;
 
 		public mysFunction()
-			: base ( null, mysTypes.Function )
+			: base ( null, typeof(mysFunction) )
 		{
 			Signature = new List<Type>();
 			Symbols = new List<mysSymbol>();
@@ -50,7 +50,7 @@ namespace mysharp
 			Stack<mysSymbolSpace> spaceStack
 		) {
 			arguments = arguments.Select( t =>
-				t.Type == mysTypes.Symbol && !t.Quoted
+				t.RealType == typeof(mysSymbol) && !t.Quoted
 				? ( t as mysSymbol ).Value( spaceStack )
 				: t
 			).ToList();
@@ -88,7 +88,7 @@ namespace mysharp
 		}
 
 		public clrFunction( MethodInfo mi )
-			: base( null, mysTypes.clrFunction )
+			: base( null, typeof(clrFunction) )
 		{
 			method = mi;
 		}
@@ -104,7 +104,7 @@ namespace mysharp
 		) {
 			object targetObject = null;
 
-			if ( target.Type == mysTypes.clrObject ) {
+			if ( target.RealType == typeof(object) ) {
 				targetObject = target.InternalValue;
 			}
 
@@ -113,7 +113,7 @@ namespace mysharp
 			foreach ( mysToken t in arguments ) {
 				mysToken current = t;
 
-				while ( current.Type == mysTypes.Symbol ) {
+				while ( current.RealType == typeof(mysSymbol) ) {
 					current = (current as mysSymbol).Value( spaceStack );
 				}
 

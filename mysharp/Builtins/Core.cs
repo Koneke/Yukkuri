@@ -14,7 +14,7 @@ namespace mysharp.Builtins.Core {
 			// if symbol defined and of wrong type, undef it
 			if (
 				ss.Defined( symbol ) &&
-				ss.GetValue( symbol ).Type != mysTypes.FunctionGroup
+				ss.GetValue( symbol ).RealType != typeof(mysFunctionGroup)
 			) {
 				// we could just overwrite it with define,
 				// but I'd rather be entirely sure that we delete
@@ -28,10 +28,9 @@ namespace mysharp.Builtins.Core {
 			} else {
 				// create 
 				fg = new mysFunctionGroup();
-				fg.Type = mysTypes.FunctionGroup;
 
 				ss.Define( symbol, fg );
-				symbol.Type = mysTypes.FunctionGroup;
+				//symbol.Type = mysTypes.FunctionGroup;
 			}
 
 			mysFunction collision = fg.Variants.FirstOrDefault(
@@ -65,31 +64,23 @@ namespace mysharp.Builtins.Core {
 			mysSymbolSpace top = spaceStack.Pop();
 			mysSymbolSpace ss = spaceStack.Peek();
 
-			switch ( value.Type ) {
-				case mysTypes.Function:
-					defineFunction(
-						symbol,
-						value as mysFunction,
-						spaceStack.Peek()
-					);
-					break;
-
-				default:
-					mysSymbolSpace space = symbol.DefinedIn( spaceStack );
-					if ( space != null ) {
-						space.Define( symbol, value );
-					} else {
-						//spaceStack.Peek().Define( symbol, value );
-						ss.Define( symbol, value );
-					}
-
-					//spaceStack.Peek().Define( symbol, value );
-					break;
+			if ( value.RealType == typeof(mysFunction) ) {
+				defineFunction(
+					symbol,
+					value as mysFunction,
+					spaceStack.Peek()
+				);
+			} else {
+				mysSymbolSpace space = symbol.DefinedIn( spaceStack );
+				if ( space != null ) {
+					space.Define( symbol, value );
+				} else {
+					ss.Define( symbol, value );
+				}
 			}
 
 			spaceStack.Push( top );
 			return null;
-			//return value;
 		}
 
 		public static void Setup( mysSymbolSpace global )
@@ -126,10 +117,10 @@ namespace mysharp.Builtins.Core {
 			}
 
 			for ( int i = 0; i < sig.InternalValues.Count; i++ ) {
-				if ( sig.InternalValues[ i ].Type !=
+				if ( sig.InternalValues[ i ].RealType !=
 					( i % 2 == 0
-						? mysTypes.Symbol
-						: mysTypes.mysType )
+						? typeof(mysSymbol)
+						: typeof(Type) )
 				) {
 					throw new ArgumentException();
 				}
@@ -250,7 +241,7 @@ namespace mysharp.Builtins.Core {
 				mysList body = args[ 1 ] as mysList;
 
 				if ( !spaceList.InternalValues.All(
-					v => v.Type == mysTypes.Symbol
+					v => v.RealType == typeof(mysSymbol)
 				) ) {
 					throw new FormatException();
 				}

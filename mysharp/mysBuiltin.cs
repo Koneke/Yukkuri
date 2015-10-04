@@ -33,8 +33,7 @@ namespace mysharp
 			mysSymbolSpace global
 		) {
 			mysSymbol symbol = global.Create( name );
-			symbol.Type = mysTypes.FunctionGroup;
-			fg.Type = mysTypes.FunctionGroup;
+			symbol.Type = typeof(mysFunctionGroup);
 			
 			global.Define( symbol, fg );
 		}
@@ -53,7 +52,7 @@ namespace mysharp
 			Stack<mysSymbolSpace> spaceStack
 		) {
 			arguments = arguments.Select( t =>
-				t.Type == mysTypes.Symbol && !t.Quoted
+				t.RealType == typeof(mysSymbol) && !t.Quoted
 				? ( t as mysSymbol ).Value( spaceStack )
 				: t
 			).ToList();

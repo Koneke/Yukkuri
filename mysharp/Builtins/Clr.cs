@@ -86,7 +86,7 @@ namespace mysharp.Builtins.Clr
 		static mysFunctionGroup functionGroup;
 
 		static object get( object obj, mysToken field ) {
-			if ( field.Type != mysTypes.Symbol ) {
+			if ( field.RealType != typeof(mysSymbol) ) {
 				throw new ArgumentException();
 			}
 
@@ -96,10 +96,11 @@ namespace mysharp.Builtins.Clr
 			mysToken token = obj as mysToken;
 
 			if ( token != null ) {
-				if ( token.Type == mysTypes.clrObject ) {
+				if ( token.RealType == typeof(object) ) {
 					target = token.InternalValue;
 					targetType = target.GetType();
-				} else if ( token.Type == mysTypes.clrType ) {
+
+				} else if ( token.RealType == typeof(Type) ) {
 					target = null;
 					targetType = (Type)token.InternalValue;
 				}
@@ -150,8 +151,9 @@ namespace mysharp.Builtins.Clr
 				mysList list = args[ 1 ] as mysList;
 
 				if (
-					list == null ||
-					!list.InternalValues.All( t => t.Type == mysTypes.Symbol )
+					list == null || !list.InternalValues.All(
+						t => t.RealType == typeof(mysSymbol)
+					)
 				) {
 					throw new ArgumentException();
 				}

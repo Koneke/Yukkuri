@@ -6,22 +6,22 @@ namespace mysharp
 {
 	public class mysParser
 	{
-		static Dictionary<string, mysTypes> typeNameDictionary =
-			new Dictionary<string, mysTypes>() {
-				{ "int", mysTypes.Integral },
-				{ "float", mysTypes.Floating },
-				{ "bool", mysTypes.Boolean },
+		static Dictionary<string, Type> typeNameDictionary =
+			new Dictionary<string, Type>() {
+				{ "int", typeof(int) },
+				{ "float", typeof(float) },
+				{ "bool", typeof(bool) },
 
-				{ "fn", mysTypes.Function },
-				{ "fng", mysTypes.FunctionGroup },
+				{ "fn", typeof(mysFunction) },
+				{ "fng", typeof(mysFunctionGroup) },
 
-				{ "list", mysTypes.List },
-				{ "str", mysTypes.String },
+				{ "list", typeof(mysList) },
+				{ "str", typeof(string) },
 
-				{ "sym", mysTypes.Symbol },
+				{ "sym", typeof(mysSymbol) },
 
-				{ "type", mysTypes.mysType },
-				{ "any", mysTypes.ANY },
+				{ "type", typeof(Type) },
+				{ "any", typeof(ANY) },
 			};
 
 		static bool IsInteger( string lex ) {

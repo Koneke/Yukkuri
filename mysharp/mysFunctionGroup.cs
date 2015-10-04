@@ -13,7 +13,7 @@ namespace mysharp
 		public List<mysFunction> Variants;
 
 		public mysFunctionGroup()
-			: base ( null, mysTypes.FunctionGroup )
+			: base ( typeof(mysFunctionGroup), (object)null )
 		{
 			Variants = new List<mysFunction>();
 		}
@@ -84,7 +84,7 @@ namespace mysharp
 
 			bool complexAssignable = false;
 
-			if ( token.Type == mysTypes.Symbol && !token.Quoted ) {
+			if ( token.RealType == typeof(mysSymbol) && !token.Quoted ) {
 				mysSymbol s = ( token as mysSymbol );
 				Type t = s.DeepType( spaceStack );
 
@@ -101,7 +101,7 @@ namespace mysharp
 		public string GroupName;
 
 		public clrFunctionGroup( string name )
-			: base( null, mysTypes.clrFunctionGroup )
+			: base( typeof(clrFunctionGroup), (object)null )
 		{
 			GroupName = name;
 		}

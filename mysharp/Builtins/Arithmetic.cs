@@ -10,8 +10,6 @@ namespace mysharp.Builtins.Arithmetic
 		static void setupIntIntVariant( mysSymbolSpace global ) {
 			mysBuiltin variant = new mysBuiltin();
 
-			variant.ReturnType = mysTypes.Integral;
-
 			variant.Signature.Add( typeof(int) );
 			variant.Signature.Add( typeof(int) );
 
@@ -36,8 +34,6 @@ namespace mysharp.Builtins.Arithmetic
 
 		static void setupIntIntVariant() {
 			mysBuiltin variant = new mysBuiltin();
-
-			variant.ReturnType = mysTypes.Integral;
 
 			variant.Signature.Add( typeof(int) );
 			variant.Signature.Add( typeof(int) );
@@ -68,8 +64,6 @@ namespace mysharp.Builtins.Arithmetic
 		static void setupIntIntVariant() {
 			mysBuiltin variant = new mysBuiltin();
 
-			variant.ReturnType = mysTypes.Integral;
-
 			variant.Signature.Add( typeof(int) );
 			variant.Signature.Add( typeof(int) );
 
@@ -98,8 +92,6 @@ namespace mysharp.Builtins.Arithmetic
 
 		static void setupIntIntVariant() {
 			mysBuiltin variant = new mysBuiltin();
-
-			variant.ReturnType = mysTypes.Integral;
 
 			variant.Signature.Add( typeof(int) );
 			variant.Signature.Add( typeof(int) );

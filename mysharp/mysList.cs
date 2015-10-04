@@ -11,7 +11,7 @@ namespace mysharp
 		}
 
 		public mysList( List<mysToken> list, bool quoted = false )
-			: base ( null, mysTypes.List )
+			: base ( null, typeof(mysList) )
 		{
 			Quoted = quoted;
 			InternalValues = new List<mysToken>( list );

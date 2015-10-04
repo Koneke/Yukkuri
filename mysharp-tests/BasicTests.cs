@@ -37,7 +37,7 @@ namespace mysharp_tests
 			mysToken result = REPL.Evaluate( expression ).Car();
 
 			Debug.Assert(
-				result.Type == mysTypes.Integral &&
+				result.RealType == typeof(int) &&
 				(int)result.InternalValue == expected,
 				$"Failing at {expression}."
 			);
@@ -60,7 +60,7 @@ namespace mysharp_tests
 			);
 
 			Debug.Assert(
-				REPL.State.Global.GetValue( x ).Type == mysTypes.Integral,
+				REPL.State.Global.GetValue( x ).RealType == typeof(int),
 				"\"x\" not reported as integral-type."
 			);
 
@@ -86,7 +86,7 @@ namespace mysharp_tests
 			result = REPL.Evaluate( "(f 2)" ).Car();
 
 			Debug.Assert(
-				result.Type == mysTypes.Integral,
+				result.RealType == typeof(int),
 				"f not returning :int."
 			);
 
@@ -99,7 +99,7 @@ namespace mysharp_tests
 			result = REPL.Evaluate( "(g 2)" ).Car();
 
 			Debug.Assert(
-				result.Type == mysTypes.Integral,
+				result.RealType == typeof(int),
 				"g not returning :int."
 			);
 

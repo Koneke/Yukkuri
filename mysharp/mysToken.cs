@@ -17,7 +17,7 @@ namespace mysharp
 	// stuff?
 	// might have to/want to keep them as their own typ still, might work well.
 
-	public enum mysTypes {
+	/*public enum mysTypes {
 		// capitals are, for future reference, the more "meta" types
 		// probably to change at some point
 		NULLTYPE,
@@ -38,7 +38,7 @@ namespace mysharp
 		CLR,
 		clrFunction,
 		clrFunctionGroup
-	}
+	}*/
 
 	// TYPE DUMMIES!
 	public class CLR { }
@@ -47,17 +47,6 @@ namespace mysharp
 
 	public class mysToken
 	{
-		static Dictionary<Type, mysTypes> autoTypes =
-			new Dictionary<System.Type, mysTypes>() {
-			{ typeof(int), mysTypes.Integral },
-			{ typeof(float), mysTypes.Floating },
-			{ typeof(bool), mysTypes.Boolean },
-			{ typeof(string), mysTypes.String },
-			{ typeof(object), mysTypes.clrObject },
-			{ typeof(Type), mysTypes.clrType }
-		};
-
-		public mysTypes Type;
 		public bool Quoted;
 
 		public Type RealType;
@@ -65,26 +54,15 @@ namespace mysharp
 
 		public mysToken(
 			Type realType,
-			object value,
-			mysTypes type
+			object value
 		) {
 			RealType = realType;
 			InternalValue = value;
-			Type = type;
 		}
 
 		public mysToken(
-			object value,
-			mysTypes type
-		) : this( typeof(ValueType), value, type ) { }
-
-		public mysToken(
 			object value
-		) : this(
-			value.GetType(),
-			value,
-			autoTypes[ value.GetType() ]
-		) { }
+		) : this( value.GetType(), value ) { }
 
 		public mysToken Quote() {
 			Quoted = true;
@@ -127,7 +105,7 @@ namespace mysharp
 		public static mysList PromoteToList(
 			mysToken item
 		) {
-			if ( item.Type == mysTypes.List ) {
+			if ( item.RealType == typeof(mysList) ) {
 				return item as mysList;
 			}
 
@@ -147,13 +125,13 @@ namespace mysharp
 			mysToken number
 		) {
 			if (
-				number.Type != mysTypes.Integral &&
-				number.Type != mysTypes.Floating )
-			{
+				number.RealType != typeof(int) &&
+				number.RealType != typeof(float)
+			) {
 				throw new ArgumentException();
 			}
 
-			if ( number.Type == mysTypes.Integral ) {
+			if ( number.RealType == typeof(int) ) {
 				return new mysToken( (float)number.InternalValue );
 			}
 
@@ -163,16 +141,11 @@ namespace mysharp
 		public static bool CanSafelyDemoteNumber(
 			mysToken number
 		) {
-			// wtf did this do anyways?
-			/*if ( !AssignableFrom( mysTypes.NULLTYPE, number.Type ) ) {
-				return false;
-			}*/
-
 			if ( !AssignableFrom( typeof(NUMBER), number.RealType ) ) {
 				return false;
 			}
 
-			if ( number.Type == mysTypes.Integral ) {
+			if ( number.RealType == typeof(int) ) {
 				return true;
 			}
 
@@ -190,11 +163,11 @@ namespace mysharp
 				throw new ArgumentException();
 			}
 
-			if ( number.Type == mysTypes.Integral ) {
+			if ( number.RealType == typeof(int) ) {
 				return number;
 			}
 
-			return new mysToken( (int)number.InternalValue, mysTypes.Integral );
+			return new mysToken( (int)number.InternalValue );
 		}
 
 		public override string ToString() {

@@ -41,7 +41,7 @@ namespace mysharp
 			// eval list
 			while ( true && tokens.Count > 0 ) {
 				mysList list = tokens.FirstOrDefault( t =>
-					t.Type == mysTypes.List &&
+					t.RealType == typeof(mysList) &&
 					!t.Quoted
 				) as mysList;
 
@@ -124,13 +124,13 @@ namespace mysharp
 
 			mysToken target = tokens[ current + 1 ];
 
-			while ( target.Type == mysTypes.Symbol ) {
+			while ( target.RealType == typeof(mysSymbol) ) {
 				target = (target as mysSymbol).Value( spaceStack );
 			}
 
 			Type targetType;
 
-			if ( target.Type == mysTypes.clrType ) {
+			if ( target.RealType == typeof(Type) ) {
 				//targetType = (target as clrType).Value;
 				targetType = (Type)target.InternalValue;
 			} else {
@@ -202,7 +202,7 @@ namespace mysharp
 
 			mysToken target = tokens[ current + 1 ];
 
-			while ( target.Type == mysTypes.Symbol ) {
+			while ( target.RealType == typeof(mysSymbol) ) {
 				target = (target as mysSymbol).Value( spaceStack );
 			}
 
@@ -231,52 +231,29 @@ namespace mysharp
 
 			// where is our quote check right now..?
 
-			if ( tokens[ current ].Type == mysTypes.Symbol ) {
+			if ( tokens[ current ].RealType == typeof(mysSymbol) ) {
 				preprocessSymbol();
 			}
 
 			if (
-				tokens[ current ].Type == mysTypes.FunctionGroup &&
+				tokens[ current ].RealType == typeof(mysFunctionGroup) &&
 				!tokens[ current ].Quoted
 			) {
 				resolveFunctionGroup();
 			}
 
 			if (
-				tokens[ current ].Type == mysTypes.clrFunctionGroup &&
+				tokens[ current ].RealType == typeof(clrFunctionGroup) &&
 				!tokens[ current ].Quoted
 			) {
 				resolveClrFunctionGroup();
 			}
 
-			switch ( tokens[ current ].Type ) {
-				case mysTypes.clrFunction:
-					handleClrFunction();
-					break;
-
-				case mysTypes.Function:
-					handleFunction();
-					break;
-
-				// do we really need this list here..?
-
-				// only quoted symbols end up here, so we ok
-				case mysTypes.Symbol:
-				// same here, should only be quoted ones
-				// (we have already processed nonquoted lists)
-				// (although I guess a function could return a nonquoted..?)
-				// (we'll have to look into that)
-				case mysTypes.List:
-				case mysTypes.String:
-				case mysTypes.Integral:
-				case mysTypes.Floating:
-				case mysTypes.Boolean:
-				case mysTypes.mysType:
-				case mysTypes.clrObject:
-				case mysTypes.clrType:
-					break;
-				default:
-					throw new ArgumentException();
+			if ( tokens[ current ].RealType == typeof(clrFunction ) ) {
+				handleClrFunction();
+			}
+			else if ( tokens[ current ].RealType == typeof(mysFunction) ) {
+				handleFunction();
 			}
 
 			current++;
