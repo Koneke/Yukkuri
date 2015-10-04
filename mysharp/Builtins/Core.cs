@@ -349,6 +349,15 @@ namespace mysharp.Builtins.Core {
 					)
 				);
 
+				// a bit clutzy atm, but I guess it does the trick for
+				// the time being
+				source = source.Replace( "@this-file", path );
+
+				source = source.Replace(
+					"@this-folder",
+					path.Substring( 0, path.LastIndexOf( '/' ) )
+				);
+
 				List<mysToken> tokens = parser.Parse( state, source );
 
 				state.Evaluate( tokens );

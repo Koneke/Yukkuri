@@ -73,6 +73,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Core\test.ykr">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Core\core.ykr">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

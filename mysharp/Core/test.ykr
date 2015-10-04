@@ -1,0 +1,2 @@
+﻿(def 'file "@this-file")
+(def 'folder "@this-folder")
