@@ -24,12 +24,12 @@ namespace mysharp.Builtins.Core {
 
 			// if we're defined at this point, we know it's a function group
 			if  ( ss.Defined( symbol ) ) {
-				fg = ss.GetValue( symbol ) as mysFunctionGroup;
+				fg = ss.GetValue( symbol ).InternalValue as mysFunctionGroup;
 			} else {
 				// create 
 				fg = new mysFunctionGroup();
 
-				ss.Define( symbol, fg );
+				ss.Define( symbol, new mysToken( fg ) );
 				//symbol.Type = mysTypes.FunctionGroup;
 			}
 

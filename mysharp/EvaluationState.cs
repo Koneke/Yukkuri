@@ -83,7 +83,10 @@ namespace mysharp
 		}
 
 		void resolveFunctionGroup() {
-			mysFunctionGroup fg = tokens[ current ] as mysFunctionGroup;
+			mysFunctionGroup fg =
+				tokens[ current ].InternalValue
+				as mysFunctionGroup
+			;
 
 			int signatureLength = fg.Variants.Max( v => v.SignatureLength );
 
@@ -120,7 +123,10 @@ namespace mysharp
 		}
 
 		void resolveClrFunctionGroup() {
-			clrFunctionGroup fg = tokens[ current ] as clrFunctionGroup;
+			clrFunctionGroup fg =
+				tokens[ current ].InternalValue
+				as clrFunctionGroup
+			;
 
 			mysToken target = tokens[ current + 1 ];
 
@@ -174,11 +180,14 @@ namespace mysharp
 			}
 
 			tokens.RemoveAt( current );
-			tokens.Insert( current, f );
+			tokens.Insert( current, new mysToken( f ) );
 		}
 
 		void handleFunction() {
-			mysFunction f = tokens[ current ].InternalValue as mysFunction;
+			mysFunction f =
+				tokens[ current ].InternalValue
+				as mysFunction
+			;
 
 			List<mysToken> t = f.Call(
 				tokens
@@ -197,7 +206,10 @@ namespace mysharp
 		}
 
 		void handleClrFunction() {
-			clrFunction f = tokens[ current ] as clrFunction;
+			clrFunction f =
+				tokens[ current ].InternalValue
+				as clrFunction
+			;
 
 			mysToken target = tokens[ current + 1 ];
 

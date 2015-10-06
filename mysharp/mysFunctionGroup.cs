@@ -5,7 +5,7 @@ using System;
 
 namespace mysharp
 {
-	public class mysFunctionGroup : mysToken
+	public class mysFunctionGroup
 	{
 		// lh: A function group is a collection of functions assigned the same
 		//     symbol, but with different signatures.
@@ -15,7 +15,6 @@ namespace mysharp
 		public mysFunctionGroup()
 		{
 			Variants = new List<mysFunction>();
-			InternalValue = this;
 		}
 
 		// lh: returns a matching function, or null if we didn't like the input.
@@ -80,7 +79,10 @@ namespace mysharp
 			// etc., less likely for bugs to occur because of an accidental sig
 			// match).
 
-			bool plainAssignable = AssignableFrom( type, token.Type );
+			bool plainAssignable = mysToken.AssignableFrom(
+				type,
+				token.Type
+			);
 
 			bool complexAssignable = false;
 
@@ -89,7 +91,7 @@ namespace mysharp
 				Type t = s.DeepType( spaceStack );
 
 				if ( t != null ) {
-					complexAssignable = AssignableFrom( type, t );
+					complexAssignable = mysToken.AssignableFrom( type, t );
 				}
 			}
 
@@ -97,13 +99,13 @@ namespace mysharp
 		}
 	}
 
-	public class clrFunctionGroup : mysToken {
+	public class clrFunctionGroup
+	{
 		public string GroupName;
 
 		public clrFunctionGroup( string name )
 		{
 			GroupName = name;
-			InternalValue = this;
 		}
 
 		public static clrFunction Judge(

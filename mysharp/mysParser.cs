@@ -101,7 +101,7 @@ namespace mysharp
 
 			} else if ( IsValidAccessor( lex ) ) {
 				string name = string.Concat( lex.Cdr() );
-				token = new clrFunctionGroup( name );
+				token = new mysToken( new clrFunctionGroup( name ) );
 
 			} else if ( IsValidTypeName( lex ) ) {
 				string name = string.Concat( lex.Cdr() );

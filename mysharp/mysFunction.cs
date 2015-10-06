@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace mysharp
 {
-	public class mysFunction// : mysToken
+	public class mysFunction
 	{
 		// lh: A function is in essence just a list that we interpret as a
 		//     parseblock when the function is called upon, making sure to
@@ -75,7 +75,8 @@ namespace mysharp
 		}
 	}
 
-	public class clrFunction : mysToken {
+	public class clrFunction
+	{
 		MethodInfo method;
 
 		public int SignatureLength {
@@ -87,7 +88,6 @@ namespace mysharp
 		public clrFunction( MethodInfo mi )
 		{
 			method = mi;
-			InternalValue = this;
 		}
 
 		// arg 1 function

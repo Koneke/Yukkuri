@@ -16,12 +16,13 @@ namespace mysharp
 			if ( !global.Defined( symbol ) ) {
 				global.Define(
 					symbol,
-					new mysFunctionGroup()
+					new mysToken( new mysFunctionGroup() )
 				);
 			}
 
 			fg = global
 				.GetValue( new mysSymbol( name ) )
+				.InternalValue
 				as mysFunctionGroup;
 
 			fg.Variants.Add( variant );
@@ -33,7 +34,7 @@ namespace mysharp
 			mysSymbolSpace global
 		) {
 			mysSymbol symbol = global.Create( name );
-			global.Define( symbol, fg );
+			global.Define( symbol, new mysToken( fg ) );
 		}
 		
 		public new Func<
