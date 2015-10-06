@@ -101,7 +101,7 @@ namespace mysharp
 		) {
 			object targetObject = null;
 
-			if ( target.Type == typeof(object) ) {
+			if ( target.Type != typeof(Type) ) {
 				targetObject = target.InternalValue;
 			}
 
