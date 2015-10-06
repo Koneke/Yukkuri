@@ -32,6 +32,7 @@ namespace mysharp.Builtins.Clr
 			throw new Exception( "Type not imported." );
 		}
 
+		// needs some heavy review/revision and looking over!
 		public static mysToken ConvertClrObject(
 			object obj
 		) {
@@ -95,11 +96,10 @@ namespace mysharp.Builtins.Clr
 	{
 		static mysFunctionGroup functionGroup;
 
-		static object get( object obj, mysToken field ) {
-			if ( field.Type != typeof(mysSymbol) ) {
-				throw new ArgumentException();
-			}
-
+		static object get(
+			object obj,
+			string field
+		) {
 			object target = null;
 			Type targetType = null;
 
@@ -124,7 +124,7 @@ namespace mysharp.Builtins.Clr
 			}
 
 			return targetType
-				.GetField( (field as mysSymbol).StringRepresentation )
+				.GetField( field )
 				.GetValue( target )
 			;
 		}
@@ -142,9 +142,14 @@ namespace mysharp.Builtins.Clr
 			f.Signature.Add( typeof(mysSymbol) );
 
 			f.Function = (args, state, sss) => {
+				string field = 
+					(args[ 1 ].InternalValue as mysSymbol)
+					.StringRepresentation
+				;
+
 				return new List<mysToken>() {
 					ClrTools.ConvertClrObject(
-						get( args[ 0 ], args[ 1 ] )
+						get( args[ 0 ], field )
 					)
 				};
 			};
@@ -170,12 +175,17 @@ namespace mysharp.Builtins.Clr
 				}
 
 				List<mysSymbol> chain = list.InternalValues
-					.Select( t => t as mysSymbol)
+					.Select( t => t.InternalValue as mysSymbol)
 					.ToList();
 
 				object c = args[ 0 ];
 				for ( int i = 0; i < chain.Count; i++ ) {
-					c = get( c, chain[ i ] );
+					string field =
+						(chain[ i ] as mysSymbol)
+						.StringRepresentation
+					;
+
+					c = get( c, field );
 				}
 
 				return new List<mysToken>() {
@@ -203,11 +213,14 @@ namespace mysharp.Builtins.Clr
 			f.Signature.Add( typeof(mysSymbol) );
 
 			f.Function = (args, state, sss) => {
-				mysSymbol symbol = args[ 0 ] as mysSymbol;
+				string field =
+					(args[ 0 ].InternalValue as mysSymbol)
+					.StringRepresentation
+				;
 
 				return new List<mysToken>() {
 					new mysToken(
-						ClrTools.GetType( state, symbol.StringRepresentation )
+						ClrTools.GetType( state, field )
 					)
 				};
 			};
@@ -233,10 +246,12 @@ namespace mysharp.Builtins.Clr
 
 			f.Function = (args, state, sss) => {
 				mysToken clrThing = args[ 0 ];
-				mysSymbol field = args[ 1 ] as mysSymbol;
+				string field =
+					(args[ 1 ].InternalValue as mysSymbol)
+					.StringRepresentation
+				;
 				mysToken newValue = args[ 2 ];
 
-				string fieldName = field.StringRepresentation;
 				object value = newValue.InternalValue;
 
 				Type targetType;
@@ -250,12 +265,12 @@ namespace mysharp.Builtins.Clr
 					targetType = targetObject.GetType();
 				}
 
-				FieldInfo fi = targetType.GetField( fieldName );
+				FieldInfo fi = targetType.GetField( field );
 
 				value = Convert.ChangeType( value, fi.FieldType );
 
 				targetType
-					.GetField( fieldName )
+					.GetField( field )
 					.SetValue( targetObject, value )
 				;
 

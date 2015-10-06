@@ -74,11 +74,13 @@ namespace mysharp
 		}
 
 		void preprocessSymbol() {
-			symbolic = tokens[ current ] as mysSymbol;
+			symbolic = tokens[ current ].InternalValue as mysSymbol;
 
 			if ( !tokens[ current ].Quoted ) {
-				tokens[ current ] = ( tokens[ current ] as mysSymbol )
-					.Value( spaceStack );
+				tokens[ current ] =
+					(tokens[ current ].InternalValue as mysSymbol)
+					.Value( spaceStack )
+				;
 			}
 		}
 
@@ -131,7 +133,10 @@ namespace mysharp
 			mysToken target = tokens[ current + 1 ];
 
 			while ( target.Type == typeof(mysSymbol) ) {
-				target = (target as mysSymbol).Value( spaceStack );
+				target =
+					(target.InternalValue as mysSymbol)
+					.Value( spaceStack )
+				;
 			}
 
 			Type targetType;
@@ -214,7 +219,10 @@ namespace mysharp
 			mysToken target = tokens[ current + 1 ];
 
 			while ( target.Type == typeof(mysSymbol) ) {
-				target = (target as mysSymbol).Value( spaceStack );
+				target =
+					(target.InternalValue as mysSymbol)
+					.Value( spaceStack )
+				;
 			}
 
 			List<mysToken> t = f.Call(

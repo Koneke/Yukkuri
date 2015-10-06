@@ -1,1 +1,3 @@
 ﻿RL parser
+centralise and standardise symbol evaluation...
+review convertclrobject

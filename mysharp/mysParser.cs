@@ -115,7 +115,7 @@ namespace mysharp
 
 			} else {
 				if ( IsValidIdentifier( lex ) ) {
-					token = new mysSymbol( lex );
+					token = new mysToken( new mysSymbol( lex ) );
 				}
 				else {
 					throw new FormatException();

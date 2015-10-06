@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace mysharp
 {
-	public class mysSymbol : mysToken
+	public class mysSymbol
 	{
 		public string StringRepresentation;
 
@@ -11,7 +11,6 @@ namespace mysharp
 		public mysSymbol( string symbolString )
 		{
 			StringRepresentation = symbolString;
-			InternalValue = this;
 		}
 
 		public override bool Equals(object obj)
@@ -31,11 +30,7 @@ namespace mysharp
 
 		public override string ToString()
 		{
-			return string.Format(
-				"({1}sym: {0})",
-				StringRepresentation,
-				Quoted ? "q " : ""
-			);
+			return StringRepresentation;
 		}
 
 		public mysSymbolSpace DefinedIn(
@@ -74,7 +69,7 @@ namespace mysharp
 		public Type DeepType(
 			Stack<mysSymbolSpace> spaceStack
 		) {
-			mysToken temp = new mysSymbol( ToString() );
+			mysToken temp = new mysToken( new mysSymbol( ToString() ) );
 
 			while ( temp.Type == typeof(mysSymbol) ) {
 				// EvaluateSymbol clones the stack by itself

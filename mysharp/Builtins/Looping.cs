@@ -86,9 +86,10 @@ namespace mysharp.Builtins.Looping
 
 				EvaluationMachine em;
 
-				symbol = head.InternalValues[ 0 ] as mysSymbol;
+				symbol = head.InternalValues[ 0 ].InternalValue as mysSymbol;
 				if ( head.InternalValues[ 1 ].Type == typeof(mysSymbol) ) {
-					collection = ( head.InternalValues[ 1 ] as mysSymbol )
+					collection =
+						(head.InternalValues[ 1 ].InternalValue as mysSymbol)
 						.Value( sss ) as mysList;
 
 				} else {

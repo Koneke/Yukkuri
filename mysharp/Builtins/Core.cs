@@ -93,7 +93,7 @@ namespace mysharp.Builtins.Core {
 			assignVariant.Signature.Add( typeof(ANY) );
 
 			assignVariant.Function = (args, state, sss) => {
-				mysSymbol assignsymbol = args[ 0 ] as mysSymbol;
+				mysSymbol assignsymbol = args[ 0 ].InternalValue as mysSymbol;
 				mysToken value = args[ 1 ];
 
 				return new List<mysToken>() {
@@ -142,7 +142,7 @@ namespace mysharp.Builtins.Core {
 			for ( int i = 0; i < sig.InternalValues.Count; i++ ) {
 				if ( sig.InternalValues[ i ].Type == typeof(mysSymbol) ) {
 					f.Symbols.Add(
-						sig.InternalValues[ i ] as mysSymbol
+						sig.InternalValues[ i ].InternalValue as mysSymbol
 					);
 				} else {
 					Type t = (Type)sig.InternalValues[ i ].InternalValue;
@@ -197,7 +197,7 @@ namespace mysharp.Builtins.Core {
 			f.Signature.Add( typeof(mysList) );
 
 			f.Function = (args, state, sss) => {
-				mysSymbol symbol = args[ 0 ] as mysSymbol;
+				mysSymbol symbol = args[ 0 ].InternalValue as mysSymbol;
 				string ssName = symbol.StringRepresentation.ToLower();
 				mysList body = args[ 1 ] as mysList;
 
@@ -244,7 +244,8 @@ namespace mysharp.Builtins.Core {
 					throw new FormatException();
 				}
 
-				foreach( mysSymbol symbol in spaceList.InternalValues ) {
+				foreach( mysToken t in spaceList.InternalValues ) {
+					mysSymbol symbol = t.InternalValue as mysSymbol;
 					string ssName = symbol.StringRepresentation.ToLower();
 
 					if ( !state.nameSpaces.ContainsKey( ssName ) ) {

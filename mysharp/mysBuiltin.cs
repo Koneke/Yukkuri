@@ -52,7 +52,7 @@ namespace mysharp
 		) {
 			arguments = arguments.Select( t =>
 				t.Type == typeof(mysSymbol) && !t.Quoted
-				? ( t as mysSymbol ).Value( spaceStack )
+				? ( t.InternalValue as mysSymbol ).Value( spaceStack )
 				: t
 			).ToList();
 

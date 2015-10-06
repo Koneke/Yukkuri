@@ -48,7 +48,7 @@ namespace mysharp
 		) {
 			arguments = arguments.Select( t =>
 				t.Type == typeof(mysSymbol) && !t.Quoted
-				? ( t as mysSymbol ).Value( spaceStack )
+				? ( t.InternalValue as mysSymbol ).Value( spaceStack )
 				: t
 			).ToList();
 
@@ -111,7 +111,9 @@ namespace mysharp
 				mysToken current = t;
 
 				while ( current.Type == typeof(mysSymbol) ) {
-					current = (current as mysSymbol).Value( spaceStack );
+					current =
+						(current.InternalValue as mysSymbol)
+						.Value( spaceStack );
 				}
 
 				realArguments.Add( current.InternalValue );
