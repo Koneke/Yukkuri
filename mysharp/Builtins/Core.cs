@@ -67,7 +67,7 @@ namespace mysharp.Builtins.Core {
 			if ( value.Type == typeof(mysFunction) ) {
 				defineFunction(
 					symbol,
-					value as mysFunction,
+					value.InternalValue as mysFunction,
 					spaceStack.Peek()
 				);
 			} else {
@@ -152,7 +152,7 @@ namespace mysharp.Builtins.Core {
 
 			f.Function = body;
 
-			return f;
+			return new mysToken( f );
 		}
 
 		public static void Setup( mysSymbolSpace global )

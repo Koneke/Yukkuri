@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace mysharp
 {
-	public class mysFunction : mysToken
+	public class mysFunction// : mysToken
 	{
 		// lh: A function is in essence just a list that we interpret as a
 		//     parseblock when the function is called upon, making sure to
@@ -38,7 +38,7 @@ namespace mysharp
 
 			// consider making this the "main value" of the token
 			Function = new mysList();
-			InternalValue = this;
+			//InternalValue = this;
 		}
 
 		public virtual List<mysToken> Call(

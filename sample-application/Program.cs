@@ -15,6 +15,11 @@ namespace sample_application
 			Foo = new Foo();
 		}
 
+		public SampleClass( int foop ) {
+			AField = foop;
+			Foo = new Foo();
+		}
+
 		public int AMethod() {
 			return AField;
 		}

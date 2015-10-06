@@ -116,7 +116,7 @@ namespace mysharp
 			}
 
 			tokens.RemoveAt( current );
-			tokens.Insert( current, f );
+			tokens.Insert( current, new mysToken( f ) );
 		}
 
 		void resolveClrFunctionGroup() {
@@ -178,7 +178,7 @@ namespace mysharp
 		}
 
 		void handleFunction() {
-			mysFunction f = tokens[ current ] as mysFunction;
+			mysFunction f = tokens[ current ].InternalValue as mysFunction;
 
 			List<mysToken> t = f.Call(
 				tokens

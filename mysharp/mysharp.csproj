@@ -55,6 +55,7 @@
     <Compile Include="Builtins\Flow.cs" />
     <Compile Include="Builtins\ListHandling.cs" />
     <Compile Include="Builtins\Looping.cs" />
+    <Compile Include="clrUtilities.cs" />
     <Compile Include="EvaluationState.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="Extensions.cs" />
@@ -73,9 +74,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Core\test.ykr">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="Core\core.ykr">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
