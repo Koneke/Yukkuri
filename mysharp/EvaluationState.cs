@@ -125,6 +125,81 @@ namespace mysharp
 			tokens.Insert( current, new mysToken( f ) );
 		}
 
+		mysToken resolveClrMethod( Type targetType, string methodName ) {
+			List<MethodInfo> variants = targetType
+				.GetMethods()
+				.Where( m => m.Name == methodName )
+				.ToList()
+			;
+
+			int signatureLength = variants
+				.Max( v => v.GetParameters().Length );
+
+			clrFunction f = null;
+			for ( int j = signatureLength; j >= 0; j-- ) {
+				List<mysToken> args = tokens
+					.Skip( current + 2 )
+					.Take( j )
+					.ToList()
+				;
+
+				f = clrFunctionGroup.Judge( variants, args, spaceStack );
+
+				if ( f != null ) {
+					mysToken t = new mysToken( f );
+
+					// replace clrfg token with clrf token
+					tokens.RemoveAt( current );
+					tokens.Insert( current, t );
+
+					return t;
+				}
+			}
+
+			// maybe actually evaluate the function here?? idk
+
+			return null;
+		}
+
+		mysToken resolveClrCtor( Type targetType ) {
+			List<ConstructorInfo> variants = targetType
+				.GetConstructors()
+				.ToList()
+			;
+
+			int signatureLength = variants
+				.Max( v => v.GetParameters().Length );
+
+			ConstructorInfo ci;
+			List<mysToken> args;
+
+			for ( int j = signatureLength; j >= 0; j-- ) {
+				args = tokens
+					.Skip( current + 2 )
+					.Take( j )
+					.ToList()
+				;
+
+				ci = clrFunctionGroup.Judge( variants, args, spaceStack );
+
+				if ( ci != null ) {
+					mysToken t = new mysToken(
+						ci.Invoke(
+							args.Select( a => a.InternalValue ).ToArray()
+						)
+					);
+
+					// rem new-token, type-token, and args
+					tokens.RemoveRange( current, args.Count + 2 );
+					tokens.Insert( current, t );
+
+					return t;
+				}
+			}
+
+			return null;
+		}
+
 		void resolveClrFunctionGroup() {
 			clrFunctionGroup fg =
 				tokens[ current ].InternalValue
@@ -148,45 +223,26 @@ namespace mysharp
 				targetType = target.InternalValue.GetType();
 			}
 
-			List<MethodInfo> variants = targetType
-				.GetMethods()
-				.Where( m => m.Name == fg.GroupName )
-				.ToList()
-			;
-
-			int signatureLength = variants
-				.Max( v => v.GetParameters().Length );
-
-			clrFunction f = null;
-			for ( int j = signatureLength; j >= 0; j-- ) {
-				List<mysToken> args = tokens
-					.Skip( current + 2 )
-					.Take( j )
-					.ToList()
-				;
-
-				f = clrFunctionGroup.Judge( variants, args, spaceStack );
-
-				if ( f != null ) {
-					// escape early if we have a positive match
-					break;
-				}
+			// not actually a function group, ctor call
+			mysToken t;
+			if ( fg.GroupName == "new" ) {
+				t = resolveClrCtor( targetType );
+			} else {
+				t = resolveClrMethod( targetType, fg.GroupName );
 			}
 
-			if ( f == null ) {
+			if ( t == null ) {
 				throw new NoSuchSignatureException(
 					string.Format(
 						"Can't evaluate clrfunctiongroup {0}: " +
 						"No such signature exists.",
-						symbolic != null
-							? symbolic.ToString()
-							: "(unknown symbol)"
+						fg.GroupName
 					)
 				);
 			}
 
 			tokens.RemoveAt( current );
-			tokens.Insert( current, new mysToken( f ) );
+			tokens.Insert( current, t );
 		}
 
 		void handleFunction() {

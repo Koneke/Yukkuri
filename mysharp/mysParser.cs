@@ -115,7 +115,12 @@ namespace mysharp
 
 			} else {
 				if ( IsValidIdentifier( lex ) ) {
-					token = new mysToken( new mysSymbol( lex ) );
+					// special case
+					if ( lex == "new" ) {
+						token = new mysToken( new clrFunctionGroup( lex ) );
+					} else {
+						token = new mysToken( new mysSymbol( lex ) );
+					}
 				}
 				else {
 					throw new FormatException();

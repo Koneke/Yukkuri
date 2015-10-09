@@ -116,7 +116,7 @@ namespace mysharp
 			List<MethodInfo> variants = new List<MethodInfo>( Variants );
 
 			variants.RemoveAll(
-				v => !judgeVariant( v, arguments, spaceStack )
+				v => !judgeVariant( v.GetParameters(), arguments, spaceStack )
 			);
 
 			if ( variants.Count == 0 ) {
@@ -128,12 +128,33 @@ namespace mysharp
 			return new clrFunction( variants[ 0 ] );
 		}
 
-		static bool judgeVariant(
-			MethodInfo variant,
+		public static ConstructorInfo Judge(
+			List<ConstructorInfo> Variants,
 			List<mysToken> arguments,
 			Stack<mysSymbolSpace> spaceStack
 		) {
-			int signatureLength = variant.GetParameters().Length;
+			List<ConstructorInfo> variants =
+				new List<ConstructorInfo>( Variants );
+
+			variants.RemoveAll(
+				v => !judgeVariant( v.GetParameters(), arguments, spaceStack )
+			);
+
+			if ( variants.Count == 0 ) {
+				return null;
+			} else if ( variants.Count != 1 ) {
+				throw new SignatureAmbiguityException();
+			}
+
+			return variants[ 0 ];
+		}
+
+		static bool judgeVariant(
+			ParameterInfo[] parameters,
+			List<mysToken> arguments,
+			Stack<mysSymbolSpace> spaceStack
+		) {
+			int signatureLength = parameters.Length;
 			// lh: make this a bit cleverer later to handle variadics.
 			if ( signatureLength != arguments.Count ) {
 				return false;
@@ -141,7 +162,7 @@ namespace mysharp
 
 			// issues with symbol?
 			for ( int i = 0; i < signatureLength; i++ ) {
-				ParameterInfo pi = variant.GetParameters()[ i ];
+				ParameterInfo pi = parameters[ i ];
 
 				Type t;
 
