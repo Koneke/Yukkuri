@@ -40,27 +40,6 @@ namespace mysharp.Builtins.Clr
 				return null;
 			}
 
-			Type t = obj.GetType();
-
-			if (
-				t == typeof(int) ||
-				t == typeof(long)
-			) {
-				return new mysToken( (int)obj );
-			}
-
-			if (
-				t == typeof(string)
-			) {
-				return new mysToken( (string)obj );
-			}
-
-			if (
-				t == typeof(bool)
-			) {
-				return new mysToken( (bool)obj );
-			}
-
 			return new mysToken( obj );
 		}
 	}
@@ -161,20 +140,19 @@ namespace mysharp.Builtins.Clr
 			f = new mysBuiltin();
 
 			f.Signature.Add( typeof(CLR) );
-			f.Signature.Add( typeof(mysList) );
+			f.Signature.Add( typeof(List<mysToken>) );
 
 			f.Function = (args, state, sss) => {
-				mysList list = args[ 1 ] as mysList;
+				List<mysToken> list = (List<mysToken>)args[ 1 ].InternalValue;
 
 				if (
-					list == null || !list.InternalValues.All(
-						t => t.Type == typeof(mysSymbol)
-					)
+					list == null ||
+					!list.All( t => t.Type == typeof(mysSymbol) )
 				) {
 					throw new ArgumentException();
 				}
 
-				List<mysSymbol> chain = list.InternalValues
+				List<mysSymbol> chain = list
 					.Select( t => t.InternalValue as mysSymbol)
 					.ToList();
 

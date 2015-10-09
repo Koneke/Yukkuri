@@ -40,10 +40,11 @@ namespace mysharp
 			// while any list
 			// eval list
 			while ( true && tokens.Count > 0 ) {
-				mysList list = tokens.FirstOrDefault( t =>
-					t.Type == typeof(mysList) &&
+
+				mysToken list = tokens.FirstOrDefault( t =>
+					t.Type == typeof(List<mysToken>) &&
 					!t.Quoted
-				) as mysList;
+				);
 
 				if ( list == null ) {
 					break;
@@ -53,7 +54,7 @@ namespace mysharp
 				tokens.Remove( list );
 
 				EvaluationMachine em = new EvaluationMachine(
-					list.InternalValues,
+					(List<mysToken>)list.InternalValue,
 					state,
 					spaceStack
 				);

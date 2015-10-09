@@ -29,16 +29,15 @@ namespace mysharp
 			);
 		}
 
-		public mysList Function;
+		//public mysList Function;
+		public List<mysToken> Function;
 
 		public mysFunction()
 		{
 			Signature = new List<Type>();
 			Symbols = new List<mysSymbol>();
 
-			// consider making this the "main value" of the token
-			Function = new mysList();
-			//InternalValue = this;
+			Function = new List<mysToken>();
 		}
 
 		public virtual List<mysToken> Call(
@@ -63,7 +62,7 @@ namespace mysharp
 			spaceStack.Push( internalSpace );
 
 			EvaluationMachine em = new EvaluationMachine(
-				Function.InternalValues,
+				Function,
 				state,
 				spaceStack
 			);

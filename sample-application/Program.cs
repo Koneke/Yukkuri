@@ -5,6 +5,8 @@ namespace sample_application
 	public class SampleClass
 	{
 		public static int Bar = 13;
+		public static float Test = 1.32f;
+		public static double Dest = 14.2;
 
 		public int AField;
 
@@ -31,6 +33,11 @@ namespace sample_application
 
 		public Foo() {
 			BField = 10;
+		}
+
+		public override string ToString()
+		{
+			return "test";
 		}
 	}
 

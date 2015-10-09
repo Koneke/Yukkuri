@@ -13,17 +13,14 @@ namespace mysharp.Builtins.ListHandling
 
 			//f.returnType
 
-			f.Signature.Add( typeof(mysList) );
+			f.Signature.Add( typeof(List<mysToken>) );
 
 			f.Function = (args, state, sss) => {
-				mysList l = new mysList(
-					( args[ 0 ] as mysList ).InternalValues,
-					true
-				);
+				List<mysToken> l = ((List<mysToken>)args[ 0 ].InternalValue);
 
-				l.InternalValues.Reverse();
+				l.Reverse();
 
-				return new List<mysToken>() { l };
+				return new List<mysToken>() { new mysToken( l ) };
 			};
 
 			functionGroup.Variants.Add( f );
@@ -40,14 +37,11 @@ namespace mysharp.Builtins.ListHandling
 
 			mysBuiltin f = new mysBuiltin();
 
-			//f.returnType
-
-			f.Signature.Add( typeof(mysList) );
+			f.Signature.Add( typeof(List<mysToken>) );
 
 			f.Function = (args, state, sss) =>
 				new List<mysToken>() {
-					( args[ 0 ] as mysList )
-						.InternalValues
+					((List<mysToken>)args[ 0 ].InternalValue)
 						.FirstOrDefault()
 				};
 
@@ -65,16 +59,19 @@ namespace mysharp.Builtins.ListHandling
 
 			mysBuiltin f = new mysBuiltin();
 
-			f.Signature.Add( typeof(mysList) );
+			f.Signature.Add( typeof(List<mysToken>) );
 
-			f.Function = (args, state, sss) =>
-				new List<mysToken>() {
-					new mysList(
-						( args[ 0 ] as mysList ).InternalValues
-							.Skip( 1 )
-							.ToList()
-					).Quote( args[ 0 ].Quoted )
+			f.Function = (args, state, sss) => {
+				List<mysToken> l =
+					((List<mysToken>)args[ 0 ].InternalValue)
+					.Skip( 1 )
+					.ToList()
+				;
+
+				return new List<mysToken>() {
+					new mysToken( l ).Quote()
 				};
+			};
 
 			functionGroup.Variants.Add( f );
 
@@ -97,17 +94,18 @@ namespace mysharp.Builtins.ListHandling
 			f.Signature.Add( typeof(ANY) );
 
 			f.Function = (args, state, sss) => {
-				mysList first = mysToken.PromoteToList( args[ 0 ] );
-				mysList second = mysToken.PromoteToList( args[ 1 ] );
-
 				List<mysToken> outList = new List<mysToken>();
-				outList.AddRange( first.InternalValues );
-				outList.AddRange( second.InternalValues );
 
-				mysList newList = new mysList( outList, true );
+				for ( int i = 0; i < 2; i++ ) {
+					if ( args[ i ].Type == typeof(List<mysToken>) ) {
+						outList.AddRange( (List<mysToken>)args[ i ].InternalValue );
+					} else {
+						outList.Add( args[ i ] );
+					}
+				}
 
 				return new List<mysToken>() {
-					newList
+					new mysToken( outList )
 				};
 			};
 
@@ -120,10 +118,8 @@ namespace mysharp.Builtins.ListHandling
 			f.Signature.Add( typeof(ANY) );
 
 			f.Function = (args, state, sss) => {
-				mysList first = mysToken.PromoteToList( args[ 0 ] );
-
 				return new List<mysToken>() {
-					first.Quote()
+					new mysToken( new List<mysToken>() { args[ 0 ] } )
 				};
 			};
 
@@ -142,14 +138,12 @@ namespace mysharp.Builtins.ListHandling
 
 			f = new mysBuiltin();
 
-			f.Signature.Add( typeof(mysList) );
+			f.Signature.Add( typeof(List<>) );
 
 			f.Function = (args, state, sss) => {
-				mysList first = mysToken.PromoteToList( args[ 0 ] );
-
 				return new List<mysToken>() {
 					new mysToken(
-						(args[ 0 ] as mysList).InternalValues.Count()
+						((List<object>)args[ 0 ].InternalValue).Count()
 					)
 				};
 			};

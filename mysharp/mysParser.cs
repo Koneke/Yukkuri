@@ -15,7 +15,7 @@ namespace mysharp
 				{ "fn", typeof(mysFunction) },
 				{ "fng", typeof(mysFunctionGroup) },
 
-				{ "list", typeof(mysList) },
+				{ "list", typeof(List<mysToken>) },
 				{ "str", typeof(string) },
 
 				{ "sym", typeof(mysSymbol) },
@@ -339,11 +339,7 @@ namespace mysharp
 
 				List<mysToken> bodyTokens = pm.Tokens;
 
-				mysList list = new mysList(
-					bodyTokens,
-					quote
-				);
-				Tokens.Add( list );
+				Tokens.Add( new mysToken( bodyTokens ).Quote( quote ) );
 
 				quote = false;
 

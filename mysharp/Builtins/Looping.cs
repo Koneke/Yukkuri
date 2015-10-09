@@ -12,11 +12,12 @@ namespace mysharp.Builtins.Looping
 
 			mysBuiltin f = new mysBuiltin();
 
-			f.Signature.Add( typeof(mysList) );
-			f.Signature.Add( typeof(mysList) );
+			f.Signature.Add( typeof(List<mysToken>) );
+			f.Signature.Add( typeof(List<mysToken>) );
 
 			f.Function = (args, state, sss) => {
-				mysList conditional = args[ 0 ] as mysList;
+				List<mysToken> conditional = (List<mysToken>)args[ 0 ].InternalValue;
+				List<mysToken> body = (List<mysToken>)args[ 1 ].InternalValue;
 
 				List<mysToken> finalReturn = null;
 
@@ -27,7 +28,7 @@ namespace mysharp.Builtins.Looping
 					// not really expensive to make new ones though I guess, but
 					// it does look a bit clunky.
 					EvaluationMachine em = new EvaluationMachine(
-						conditional.InternalValues,
+						conditional,
 						state,
 						sss
 					);
@@ -43,7 +44,7 @@ namespace mysharp.Builtins.Looping
 					}
 
 					em = new EvaluationMachine(
-						( args[ 1 ] as mysList ).InternalValues,
+						body,
 						state,
 						sss
 					);
@@ -70,52 +71,59 @@ namespace mysharp.Builtins.Looping
 
 			mysBuiltin f = new mysBuiltin();
 
-			f.Signature.Add( typeof(mysList) );
-			f.Signature.Add( typeof(mysList) );
+			f.Signature.Add( typeof(List<mysToken>) );
+			f.Signature.Add( typeof(List<mysToken>) );
 
 			f.Function = (args, state, sss) => {
-				mysList head = args[ 0 ] as mysList;
-				mysList body = args[ 1 ] as mysList;
+				List<mysToken> head = (List<mysToken>)args[ 0 ].InternalValue;
+				List<mysToken> body = (List<mysToken>)args[ 1 ].InternalValue;
 
 				mysSymbol symbol;
-				mysList collection;
+				List<mysToken> collection;
 
-				if ( head.InternalValues.Count != 2 ) {
+				if ( head.Count != 2 ) {
 					throw new ArgumentException();
 				}
 
 				EvaluationMachine em;
 
-				symbol = head.InternalValues[ 0 ].InternalValue as mysSymbol;
-				if ( head.InternalValues[ 1 ].Type == typeof(mysSymbol) ) {
-					collection =
-						(head.InternalValues[ 1 ].InternalValue as mysSymbol)
-						.Value( sss ) as mysList;
+				symbol = head[ 0 ].InternalValue as mysSymbol;
+
+				if ( head[ 1 ].Type == typeof(mysSymbol) ) {
+					collection = 
+						(List<mysToken>)
+						(head[ 1 ].InternalValue as mysSymbol)
+						.Value( sss )
+						.InternalValue
+					;
 
 				} else {
-					collection = head.InternalValues[ 1 ] as mysList;
+					collection = (List<mysToken>)head[ 1 ].InternalValue;
 				}
 
-				em = new EvaluationMachine(
-					new List<mysToken>() { collection },
+				/*em = new EvaluationMachine(
+					new List<mysToken>() { new mysToken( collection ) },
 					state,
 					sss
 				);
 
-				collection = em.Evaluate().Car() as mysList;
+				collection = (List<mysToken>)em.Evaluate().Car().InternalValue;*/
 
 				if ( symbol == null || collection == null ) {
 					throw new ArgumentException();
 				}
 
-				for ( int i = 0; i < collection.InternalValues.Count; i++ ) {
+				for ( int i = 0; i < collection.Count; i++ ) {
+					// peek our own internal space
+					// def iterator variable to current value
 					sss.Peek().Define(
 						symbol,
-						collection.InternalValues[ i ]
+						collection[ i ]
 					);
 
+					// execute body with given iterator value
 					em = new EvaluationMachine(
-						body.InternalValues,
+						body,
 						state,
 						sss
 					);

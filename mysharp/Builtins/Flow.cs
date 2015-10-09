@@ -12,24 +12,24 @@ namespace mysharp.Builtins.Flow
 			mysBuiltin f = new mysBuiltin();
 
 			f.Signature.Add( typeof(bool) );
-			f.Signature.Add( typeof(mysList) );
-			f.Signature.Add( typeof(mysList) );
+			f.Signature.Add( typeof(List<mysToken>) );
+			f.Signature.Add( typeof(List<mysToken>) );
 
 			f.Function = (args, state, sss) => {
-				mysToken condition = args[ 0 ];
-				mysList positive = args[ 1 ] as mysList;
-				mysList negative = args[ 2 ] as mysList;
+				bool condition = (bool)args[ 0 ].InternalValue;
+				List<mysToken> positive = (List<mysToken>)args[ 1 ].InternalValue;
+				List<mysToken> negative = (List<mysToken>)args[ 2 ].InternalValue;
 
 				EvaluationMachine em;
-				if ( (bool)condition.InternalValue ) {
+				if ( condition ) {
 					em = new EvaluationMachine(
-						positive.InternalValues,
+						positive,
 						state,
 						sss
 					);
 				} else {
 					em = new EvaluationMachine(
-						negative.InternalValues,
+						negative,
 						state,
 						sss
 					);
@@ -56,16 +56,17 @@ namespace mysharp.Builtins.Flow
 			mysBuiltin f = new mysBuiltin();
 
 			f.Signature.Add( typeof(bool) );
-			f.Signature.Add( typeof(mysList) );
+			f.Signature.Add( typeof(List<mysToken>) );
 
 			f.Function = (args, state, sss) => {
 				mysToken condition = args[ 0 ];
-				mysList positive = args[ 1 ] as mysList;
+				List<mysToken> positive = (List<mysToken>)args[ 1 ].InternalValue;
+
 
 				EvaluationMachine em;
 				if ( (bool)condition.InternalValue ) {
 					em = new EvaluationMachine(
-						positive.InternalValues,
+						positive,
 						state,
 						sss
 					);
