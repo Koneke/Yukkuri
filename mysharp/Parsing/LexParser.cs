@@ -24,20 +24,6 @@ namespace mysharp.Parsing
 				{ "any", typeof(ANY) },
 			};
 
-		static bool IsInteger( string lex ) {
-			long result;
-			return long.TryParse( lex, out result );
-		}
-
-		static bool IsFloating( string lex ) {
-			double result;
-			// can probably be done culturesensitive and nice?
-			return double.TryParse(
-				lex.Replace( ".", "," ),
-				out result
-			);
-		}
-
 		static bool IsValidIdentifier( string lex ) {
 			List<char> allowed = new List<char>();
 			allowed.AddRange(
@@ -51,20 +37,6 @@ namespace mysharp.Parsing
 			);
 
 			return lex.All( c => allowed.Contains( c ) );
-		}
-
-		static bool IsValidAccessor( string lex ) {
-			if ( lex.Length < 2 ) {
-				return false;
-			}
-
-			if ( lex[ 0 ] != '.' ) {
-				return false;
-			}
-
-			string name = string.Concat( lex.Cdr() );
-
-			return IsValidIdentifier( name );
 		}
 
 		static bool IsValidTypeName( string lex ) {
@@ -99,6 +71,101 @@ namespace mysharp.Parsing
 			return int.Parse( core );
 		}
 
+		//======================================
+
+		static mysToken readReplaceToken( string lex ) {
+			// if a lex like {0} is passed in, we replace it with
+			// a token with the value of the params object at the
+			// index given in the lex.
+			int replaceToken = getReplaceTokenIndex( lex );
+
+			if ( replaceToken == -1 ) {
+				return null;
+			}
+
+			return new mysToken( replaces[ replaceToken ] );
+		}
+
+		static mysToken readType( string lex ) {
+			if ( lex[ 0 ] != ':' ) {
+				return null;
+			}
+			string type = lex.Substring( 1, lex.Length - 1 );
+
+			if ( !typeNameDictionary.ContainsKey( type ) ) {
+				return null;
+			}
+
+			return new mysToken( typeNameDictionary[ type ] );
+		}
+
+		static mysToken readInteger( string lex ) {
+			//long result;
+			int result;
+			//return long.TryParse( lex, out result )
+			return int.TryParse( lex, out result )
+				? new mysToken( result )
+				: null
+			;
+		}
+
+		static mysToken readFloating( string lex ) {
+			double result;
+
+			// can probably be done culturesensitive and nice?
+			return double.TryParse( lex.Replace( ".", "," ), out result )
+				? new mysToken( result )
+				: null
+			;
+		}
+
+		// only fg atm
+		static mysToken readClrAccessor( string lex ) {
+			if ( lex.Length < 2 ) {
+				return null;
+			}
+
+			if ( lex[ 0 ] != '.' ) {
+				return null;
+			}
+
+			string name = string.Concat( lex.Cdr() );
+
+			if ( !IsValidIdentifier( name ) ) {
+				return null;
+			}
+
+			return new mysToken( new clrFunctionGroup( name ) );
+		}
+
+		static mysToken readClrType( string lex ) {
+			if ( !IsValidTypeName( lex ) ) {
+				return null;
+			}
+
+			return new mysToken(
+				Builtins.Clr.ClrTools.GetType(
+					state,
+					string.Concat( lex.Cdr() )
+				)
+			);
+		}
+
+		//======================================
+
+		static mysState state;
+		static object[] replaces;
+
+		static List<Func<string, mysToken>> actions =
+			new List<Func<string, mysToken>>()
+		{
+			readReplaceToken,
+			readType,
+			readInteger,
+			readFloating,
+			readClrAccessor,
+			readClrType
+		};
 
 		// parses SIMPLE VALUES, NOT LISTS
 		public static mysToken ParseLex(
@@ -106,62 +173,32 @@ namespace mysharp.Parsing
 			string lex,
 			object[] replaces
 		) {
-			mysToken token = null;
+			LexParser.state = state;
+			LexParser.replaces = replaces;
 
-			// if a lex like {0} is passed in, we replace it with
-			// a token with the value of the params object at the
-			// index given in the lex.
-			int replaceToken = getReplaceTokenIndex( lex );
-			if ( replaceToken != -1 ) {
-				return new mysToken( replaces[ replaceToken ] );
-			}
+			foreach( Func<string, mysToken> transform in actions ) {
+				mysToken result = transform( lex );
 
-			if ( lex[ 0 ] == ':' ) {
-				string type = lex.Substring( 1, lex.Length - 1);
-				token = new mysToken(
-					typeNameDictionary[ type ]
-				);
-
-			} else if ( IsInteger( lex ) ) {
-				token = new mysToken( int.Parse( lex ) );
-
-			} else if ( IsFloating( lex ) ) {
-				lex = lex.Replace( '.', ',' );
-				token = new mysToken( float.Parse( lex ) );
-
-			} else if ( IsValidAccessor( lex ) ) {
-				string name = string.Concat( lex.Cdr() );
-				token = new mysToken( new clrFunctionGroup( name ) );
-
-			} else if ( IsValidTypeName( lex ) ) {
-				string name = string.Concat( lex.Cdr() );
-
-				token = new mysToken(
-					Builtins.Clr.ClrTools.GetType(
-						state,
-						name
-					)
-				);
-
-			} else {
-				if ( IsValidIdentifier( lex ) ) {
-					// special case
-					if ( lex == "new" ) {
-						token = new mysToken(
-							new clrFunctionGroup( lex )
-						);
-					} else {
-						token = new mysToken(
-							new mysSymbol( lex )
-						);
-					}
-				}
-				else {
-					throw new FormatException();
+				if ( result != null ) {
+					return result;
 				}
 			}
 
-			return token;
+			if ( IsValidIdentifier( lex ) ) {
+				// special case
+				if ( lex == "new" ) {
+					return new mysToken(
+						new clrFunctionGroup( lex )
+					);
+				} else {
+					return new mysToken(
+						new mysSymbol( lex )
+					);
+				}
+			}
+			else {
+				throw new FormatException();
+			}
 		}
 	}
 }
