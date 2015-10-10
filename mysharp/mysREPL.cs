@@ -3,19 +3,19 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 
+using mysharp.Parsing;
+
 namespace mysharp
 {
 	public class mysREPL
 	{
 		public mysState State;
 
-		mysParser parser;
 		bool quit;
 		bool strict;
 		string accumulatedInput;
 
 		public mysREPL() {
-			parser = new mysParser();
 			State = new mysState();
 		}
 
@@ -76,9 +76,16 @@ namespace mysharp
 			return false;
 		}
 
-		public List<mysToken> Evaluate( string expression ) {
+		public List<mysToken> Evaluate(
+			string expression,
+			params object[] replaces
+		) {
 			try {
-				List<mysToken> parsed = parser.Parse( State, expression );
+				List<mysToken> parsed = ParseMachine.Parse(
+					State,
+					expression,
+					replaces
+				);
 				return State.Evaluate( parsed );
 
 			} catch (Exception e) when ( !strict ) {

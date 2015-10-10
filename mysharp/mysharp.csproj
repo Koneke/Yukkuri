@@ -59,17 +59,19 @@
     <Compile Include="EvaluationState.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="Parsing\LexParser.cs" />
     <Compile Include="mysBuiltin.cs" />
     <Compile Include="Builtins\mysBuiltIns.cs" />
     <Compile Include="mysFunction.cs" />
     <Compile Include="mysFunctionGroup.cs" />
-    <Compile Include="mysParser.cs" />
+    <Compile Include="Parsing\mysParser.cs" />
     <Compile Include="mysState.cs" />
     <Compile Include="mysSymbol.cs" />
     <Compile Include="mysSymbolSpace.cs" />
     <Compile Include="mysToken.cs" />
     <Compile Include="mysREPL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Parsing\StringParser.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

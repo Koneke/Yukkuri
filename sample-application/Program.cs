@@ -50,6 +50,14 @@ namespace sample_application
 			REPL.ExposeTo( Assembly.GetExecutingAssembly() );
 			REPL.ExposeTo( Assembly.GetAssembly( typeof( System.Console ) ) );
 
+			Foo f = new Foo();
+			f.BField = -1;
+
+			REPL.Evaluate(
+				"def 'a {0}",
+				f
+			);
+
 			REPL.REPLloop();
 		}
 	}

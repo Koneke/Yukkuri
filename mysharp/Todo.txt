@@ -1,11 +1,3 @@
 ﻿RL parser
 
 centralise and standardise symbol evaluation...
-
-"format" evaluation in REPL, e.g.
-  REPL.Evaluate(
-    "in [a b] [
-      def 'a {0}
-     ]",
-     someObject
-  )

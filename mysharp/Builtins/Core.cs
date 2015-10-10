@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Collections.Generic;
 
+using mysharp.Parsing;
+
 namespace mysharp.Builtins.Core {
 	public static class Assign {
 		static void defineFunction(
@@ -342,8 +344,6 @@ namespace mysharp.Builtins.Core {
 			f.Signature.Add( typeof(string) );
 
 			f.Function = (args, state, sss) => {
-				mysParser parser = new mysParser();
-
 				string path = (string)args[ 0 ].InternalValue;
 
 				string source = System.IO.File.ReadAllText(
@@ -362,7 +362,7 @@ namespace mysharp.Builtins.Core {
 					path.Substring( 0, path.LastIndexOf( '/' ) )
 				);
 
-				List<mysToken> tokens = parser.Parse( state, source );
+				List<mysToken> tokens = ParseMachine.Parse( state, source );
 
 				state.Evaluate( tokens );
 
