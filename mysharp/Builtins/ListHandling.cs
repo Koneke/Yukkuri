@@ -16,7 +16,7 @@ namespace mysharp.Builtins.ListHandling
 			f.Signature.Add( typeof(List<mysToken>) );
 
 			f.Function = (args, state, sss) => {
-				List<mysToken> l = ((List<mysToken>)args[ 0 ].InternalValue);
+				List<mysToken> l = ((List<mysToken>)args[ 0 ].Value);
 
 				l.Reverse();
 
@@ -41,7 +41,7 @@ namespace mysharp.Builtins.ListHandling
 
 			f.Function = (args, state, sss) =>
 				new List<mysToken>() {
-					((List<mysToken>)args[ 0 ].InternalValue)
+					((List<mysToken>)args[ 0 ].Value)
 						.FirstOrDefault()
 				};
 
@@ -63,7 +63,7 @@ namespace mysharp.Builtins.ListHandling
 
 			f.Function = (args, state, sss) => {
 				List<mysToken> l =
-					((List<mysToken>)args[ 0 ].InternalValue)
+					((List<mysToken>)args[ 0 ].Value)
 					.Skip( 1 )
 					.ToList()
 				;
@@ -98,7 +98,7 @@ namespace mysharp.Builtins.ListHandling
 
 				for ( int i = 0; i < 2; i++ ) {
 					if ( args[ i ].Type == typeof(List<mysToken>) ) {
-						outList.AddRange( (List<mysToken>)args[ i ].InternalValue );
+						outList.AddRange( (List<mysToken>)args[ i ].Value );
 					} else {
 						outList.Add( args[ i ] );
 					}
@@ -143,7 +143,7 @@ namespace mysharp.Builtins.ListHandling
 			f.Function = (args, state, sss) => {
 				return new List<mysToken>() {
 					new mysToken(
-						((List<object>)args[ 0 ].InternalValue).Count()
+						((List<object>)args[ 0 ].Value).Count()
 					)
 				};
 			};

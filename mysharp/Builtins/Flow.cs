@@ -16,9 +16,9 @@ namespace mysharp.Builtins.Flow
 			f.Signature.Add( typeof(List<mysToken>) );
 
 			f.Function = (args, state, sss) => {
-				bool condition = (bool)args[ 0 ].InternalValue;
-				List<mysToken> positive = (List<mysToken>)args[ 1 ].InternalValue;
-				List<mysToken> negative = (List<mysToken>)args[ 2 ].InternalValue;
+				bool condition = (bool)args[ 0 ].Value;
+				List<mysToken> positive = (List<mysToken>)args[ 1 ].Value;
+				List<mysToken> negative = (List<mysToken>)args[ 2 ].Value;
 
 				EvaluationMachine em;
 				if ( condition ) {
@@ -60,11 +60,11 @@ namespace mysharp.Builtins.Flow
 
 			f.Function = (args, state, sss) => {
 				mysToken condition = args[ 0 ];
-				List<mysToken> positive = (List<mysToken>)args[ 1 ].InternalValue;
+				List<mysToken> positive = (List<mysToken>)args[ 1 ].Value;
 
 
 				EvaluationMachine em;
-				if ( (bool)condition.InternalValue ) {
+				if ( (bool)condition.Value ) {
 					em = new EvaluationMachine(
 						positive,
 						state,

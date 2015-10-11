@@ -54,7 +54,7 @@ namespace mysharp
 				tokens.Remove( list );
 
 				EvaluationMachine em = new EvaluationMachine(
-					(List<mysToken>)list.InternalValue,
+					(List<mysToken>)list.Value,
 					state,
 					spaceStack
 				);
@@ -75,11 +75,11 @@ namespace mysharp
 		}
 
 		void preprocessSymbol() {
-			symbolic = tokens[ current ].InternalValue as mysSymbol;
+			symbolic = tokens[ current ].Value as mysSymbol;
 
 			if ( !tokens[ current ].Quoted ) {
 				tokens[ current ] =
-					(tokens[ current ].InternalValue as mysSymbol)
+					(tokens[ current ].Value as mysSymbol)
 					.Value( spaceStack )
 				;
 			}
@@ -87,7 +87,7 @@ namespace mysharp
 
 		void resolveFunctionGroup() {
 			mysFunctionGroup fg =
-				tokens[ current ].InternalValue
+				tokens[ current ].Value
 				as mysFunctionGroup
 			;
 
@@ -185,7 +185,7 @@ namespace mysharp
 				if ( ci != null ) {
 					mysToken t = new mysToken(
 						ci.Invoke(
-							args.Select( a => a.InternalValue ).ToArray()
+							args.Select( a => a.Value ).ToArray()
 						)
 					);
 
@@ -202,7 +202,7 @@ namespace mysharp
 
 		void resolveClrFunctionGroup() {
 			clrFunctionGroup fg =
-				tokens[ current ].InternalValue
+				tokens[ current ].Value
 				as clrFunctionGroup
 			;
 
@@ -210,7 +210,7 @@ namespace mysharp
 
 			while ( target.Type == typeof(mysSymbol) ) {
 				target =
-					(target.InternalValue as mysSymbol)
+					(target.Value as mysSymbol)
 					.Value( spaceStack )
 				;
 			}
@@ -218,9 +218,9 @@ namespace mysharp
 			Type targetType;
 
 			if ( target.Type == typeof(Type) ) {
-				targetType = (Type)target.InternalValue;
+				targetType = (Type)target.Value;
 			} else {
-				targetType = target.InternalValue.GetType();
+				targetType = target.Value.GetType();
 			}
 
 			// not actually a function group, ctor call
@@ -247,7 +247,7 @@ namespace mysharp
 
 		void handleFunction() {
 			mysFunction f =
-				tokens[ current ].InternalValue
+				tokens[ current ].Value
 				as mysFunction
 			;
 
@@ -269,7 +269,7 @@ namespace mysharp
 
 		void handleClrFunction() {
 			clrFunction f =
-				tokens[ current ].InternalValue
+				tokens[ current ].Value
 				as clrFunction
 			;
 
@@ -277,7 +277,7 @@ namespace mysharp
 
 			while ( target.Type == typeof(mysSymbol) ) {
 				target =
-					(target.InternalValue as mysSymbol)
+					(target.Value as mysSymbol)
 					.Value( spaceStack )
 				;
 			}

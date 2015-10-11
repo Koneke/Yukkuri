@@ -57,7 +57,7 @@ namespace mysharp.Builtins.Clr
 
 			f.Function = (args, state, sss) => {
 				object result = Activator.CreateInstance(
-					(Type)args[ 0 ].InternalValue
+					(Type)args[ 0 ].Value
 				);
 
 				return new List<mysToken>() {
@@ -87,10 +87,10 @@ namespace mysharp.Builtins.Clr
 			if ( token != null ) {
 				if ( token.Type == typeof(Type) ) {
 					target = null;
-					targetType = (Type)token.InternalValue;
+					targetType = (Type)token.Value;
 
 				} else {
-					target = token.InternalValue;
+					target = token.Value;
 					targetType = target.GetType();
 
 				}
@@ -122,7 +122,7 @@ namespace mysharp.Builtins.Clr
 
 			f.Function = (args, state, sss) => {
 				string field = 
-					(args[ 1 ].InternalValue as mysSymbol)
+					(args[ 1 ].Value as mysSymbol)
 					.StringRepresentation
 				;
 
@@ -143,7 +143,7 @@ namespace mysharp.Builtins.Clr
 			f.Signature.Add( typeof(List<mysToken>) );
 
 			f.Function = (args, state, sss) => {
-				List<mysToken> list = (List<mysToken>)args[ 1 ].InternalValue;
+				List<mysToken> list = (List<mysToken>)args[ 1 ].Value;
 
 				if (
 					list == null ||
@@ -153,7 +153,7 @@ namespace mysharp.Builtins.Clr
 				}
 
 				List<mysSymbol> chain = list
-					.Select( t => t.InternalValue as mysSymbol)
+					.Select( t => t.Value as mysSymbol)
 					.ToList();
 
 				object c = args[ 0 ];
@@ -192,7 +192,7 @@ namespace mysharp.Builtins.Clr
 
 			f.Function = (args, state, sss) => {
 				string field =
-					(args[ 0 ].InternalValue as mysSymbol)
+					(args[ 0 ].Value as mysSymbol)
 					.StringRepresentation
 				;
 
@@ -225,21 +225,21 @@ namespace mysharp.Builtins.Clr
 			f.Function = (args, state, sss) => {
 				mysToken clrThing = args[ 0 ];
 				string field =
-					(args[ 1 ].InternalValue as mysSymbol)
+					(args[ 1 ].Value as mysSymbol)
 					.StringRepresentation
 				;
 				mysToken newValue = args[ 2 ];
 
-				object value = newValue.InternalValue;
+				object value = newValue.Value;
 
 				Type targetType;
 				object targetObject = null;
 
 				if ( clrThing.Type == typeof(Type) ) {
 					targetObject = null;
-					targetType = (Type)clrThing.InternalValue;
+					targetType = (Type)clrThing.Value;
 				} else {
-					targetObject = clrThing.InternalValue;
+					targetObject = clrThing.Value;
 					targetType = targetObject.GetType();
 				}
 

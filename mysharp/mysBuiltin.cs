@@ -22,7 +22,7 @@ namespace mysharp
 
 			fg = global
 				.GetValue( new mysSymbol( name ) )
-				.InternalValue
+				.Value
 				as mysFunctionGroup;
 
 			fg.Variants.Add( variant );
@@ -52,7 +52,7 @@ namespace mysharp
 		) {
 			arguments = arguments.Select( t =>
 				t.Type == typeof(mysSymbol) && !t.Quoted
-				? ( t.InternalValue as mysSymbol ).Value( spaceStack )
+				? ( t.Value as mysSymbol ).Value( spaceStack )
 				: t
 			).ToList();
 

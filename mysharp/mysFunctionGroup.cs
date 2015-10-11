@@ -87,7 +87,7 @@ namespace mysharp
 			bool complexAssignable = false;
 
 			if ( token.Type == typeof(mysSymbol) && !token.Quoted ) {
-				mysSymbol s = (token.InternalValue as mysSymbol);
+				mysSymbol s = (token.Value as mysSymbol);
 				Type t = s.DeepType( spaceStack );
 
 				if ( t != null ) {
@@ -166,12 +166,12 @@ namespace mysharp
 
 				Type t;
 
-				mysSymbol symbol = arguments[ i ].InternalValue as mysSymbol;
+				mysSymbol symbol = arguments[ i ].Value as mysSymbol;
 
 				if ( symbol != null ) {
-					t = symbol.Value( spaceStack ).InternalValue.GetType();
+					t = symbol.Value( spaceStack ).Value.GetType();
 				} else {
-					t = arguments[ i ].InternalValue.GetType();
+					t = arguments[ i ].Value.GetType();
 				}
 
 				if ( t != pi.ParameterType ) {

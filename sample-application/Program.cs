@@ -58,6 +58,9 @@ namespace sample_application
 				f
 			);
 
+			int a = 10;
+			double d = (double)a;
+
 			REPL.REPLloop();
 		}
 	}

@@ -16,8 +16,8 @@ namespace mysharp.Builtins.Arithmetic
 			variant.Function = (args, state, sss) =>
 				new List<mysToken>() {
 					new mysToken(
-						(int)args[ 0 ].InternalValue +
-						(int)args[ 1 ].InternalValue
+						(int)args[ 0 ].Value +
+						(int)args[ 1 ].Value
 					)
 				};
 
@@ -41,8 +41,8 @@ namespace mysharp.Builtins.Arithmetic
 			variant.Function = (args, state, sss) =>
 				new List<mysToken>() {
 					new mysToken(
-						(int)args[ 0 ].InternalValue -
-						(int)args[ 1 ].InternalValue
+						(int)args[ 0 ].Value -
+						(int)args[ 1 ].Value
 					)
 				};
 
@@ -70,8 +70,8 @@ namespace mysharp.Builtins.Arithmetic
 			variant.Function = (args, state, sss) =>
 				new List<mysToken>() {
 					new mysToken(
-						(int)args[ 0 ].InternalValue *
-						(int)args[ 1 ].InternalValue
+						(int)args[ 0 ].Value *
+						(int)args[ 1 ].Value
 					)
 				};
 
@@ -99,8 +99,8 @@ namespace mysharp.Builtins.Arithmetic
 			variant.Function = (args, state, sss) =>
 				new List<mysToken>() {
 					new mysToken(
-						(int)args[ 0 ].InternalValue /
-						(int)args[ 1 ].InternalValue
+						(int)args[ 0 ].Value /
+						(int)args[ 1 ].Value
 					)
 				};
 

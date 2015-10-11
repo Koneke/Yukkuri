@@ -26,7 +26,7 @@ namespace mysharp.Builtins.Core {
 
 			// if we're defined at this point, we know it's a function group
 			if  ( ss.Defined( symbol ) ) {
-				fg = ss.GetValue( symbol ).InternalValue as mysFunctionGroup;
+				fg = ss.GetValue( symbol ).Value as mysFunctionGroup;
 			} else {
 				// create 
 				fg = new mysFunctionGroup();
@@ -68,7 +68,7 @@ namespace mysharp.Builtins.Core {
 			if ( value.Type == typeof(mysFunction) ) {
 				defineFunction(
 					symbol,
-					value.InternalValue as mysFunction,
+					value.Value as mysFunction,
 					spaceStack.Peek()
 				);
 			} else {
@@ -94,7 +94,7 @@ namespace mysharp.Builtins.Core {
 			assignVariant.Signature.Add( typeof(ANY) );
 
 			assignVariant.Function = (args, state, sss) => {
-				mysSymbol assignsymbol = args[ 0 ].InternalValue as mysSymbol;
+				mysSymbol assignsymbol = args[ 0 ].Value as mysSymbol;
 				mysToken value = args[ 1 ];
 
 				return new List<mysToken>() {
@@ -143,10 +143,10 @@ namespace mysharp.Builtins.Core {
 			for ( int i = 0; i < sig.Count; i++ ) {
 				if ( sig[ i ].Type == typeof(mysSymbol) ) {
 					f.Symbols.Add(
-						sig[ i ].InternalValue as mysSymbol
+						sig[ i ].Value as mysSymbol
 					);
 				} else {
-					Type t = (Type)sig[ i ].InternalValue;
+					Type t = (Type)sig[ i ].Value;
 					f.Signature.Add( t );
 				}
 			}
@@ -168,8 +168,8 @@ namespace mysharp.Builtins.Core {
 			lambdaVariant.Function = (args, state, sss) => {
 				mysSymbolSpace ss = sss.Peek();
 
-				List<mysToken> sig = (List<mysToken>)args[ 0 ].InternalValue;
-				List<mysToken> body = (List<mysToken>)args[ 1 ].InternalValue;
+				List<mysToken> sig = (List<mysToken>)args[ 0 ].Value;
+				List<mysToken> body = (List<mysToken>)args[ 1 ].Value;
 
 				return new List<mysToken>() {
 					Evaluate(
@@ -202,9 +202,9 @@ namespace mysharp.Builtins.Core {
 			f.Signature.Add( typeof(List<mysToken>) );
 
 			f.Function = (args, state, sss) => {
-				mysSymbol symbol = args[ 0 ].InternalValue as mysSymbol;
+				mysSymbol symbol = args[ 0 ].Value as mysSymbol;
 				string ssName = symbol.StringRepresentation.ToLower();
-				List<mysToken> body = (List<mysToken>)args[ 1 ].InternalValue;
+				List<mysToken> body = (List<mysToken>)args[ 1 ].Value;
 
 				if ( !state.nameSpaces.ContainsKey( ssName ) ) {
 					state.nameSpaces.Add(
@@ -240,8 +240,8 @@ namespace mysharp.Builtins.Core {
 			f.Signature.Add( typeof(List<mysToken>) );
 
 			f.Function = (args, state, sss) => {
-				List<mysToken> spaceList = (List<mysToken>)args[ 0 ].InternalValue;
-				List<mysToken> body = (List<mysToken>)args[ 1 ].InternalValue;
+				List<mysToken> spaceList = (List<mysToken>)args[ 0 ].Value;
+				List<mysToken> body = (List<mysToken>)args[ 1 ].Value;
 
 				if ( !spaceList.All(
 					v => v.Type == typeof(mysSymbol)
@@ -250,7 +250,7 @@ namespace mysharp.Builtins.Core {
 				}
 
 				foreach( mysToken t in spaceList ) {
-					mysSymbol symbol = t.InternalValue as mysSymbol;
+					mysSymbol symbol = t.Value as mysSymbol;
 					string ssName = symbol.StringRepresentation.ToLower();
 
 					if ( !state.nameSpaces.ContainsKey( ssName ) ) {
@@ -294,7 +294,7 @@ namespace mysharp.Builtins.Core {
 			f.Signature.Add( typeof(List<mysToken>) );
 
 			f.Function = (args, state, sss) => {
-				List<mysToken> expression = (List<mysToken>)args[ 0 ].InternalValue;
+				List<mysToken> expression = (List<mysToken>)args[ 0 ].Value;
 
 				EvaluationMachine em = new EvaluationMachine(
 					expression,
@@ -344,7 +344,7 @@ namespace mysharp.Builtins.Core {
 			f.Signature.Add( typeof(string) );
 
 			f.Function = (args, state, sss) => {
-				string path = (string)args[ 0 ].InternalValue;
+				string path = (string)args[ 0 ].Value;
 
 				string source = System.IO.File.ReadAllText(
 					System.IO.Path.Combine(

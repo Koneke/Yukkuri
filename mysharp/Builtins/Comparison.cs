@@ -7,12 +7,10 @@ namespace mysharp.Builtins.Comparison
 		static mysFunctionGroup functionGroup;
 
 		static bool CompareNumbers( mysToken a, mysToken b ) {
-			mysToken first = mysToken.PromoteToFloat( a );
-			mysToken second = mysToken.PromoteToFloat( b );
-
 			return
-				(float)first.InternalValue ==
-				(float)second.InternalValue;
+				NUMBER.Promote( a ) ==
+				NUMBER.Promote( b )
+			;
 		}
 
 		public static void Setup( mysSymbolSpace global ) {
@@ -20,31 +18,13 @@ namespace mysharp.Builtins.Comparison
 
 			mysBuiltin f = new mysBuiltin();
 
-			f.Signature.Add( typeof(ANY) );
-			f.Signature.Add( typeof(ANY) );
+			f.Signature.Add( typeof(NUMBER) );
+			f.Signature.Add( typeof(NUMBER) );
 
 			f.Function = (args, state, sss) => {
-				if (
-					mysToken.AssignableFrom(
-						typeof(NUMBER),
-						args[ 0 ].Type
-					) &&
-					mysToken.AssignableFrom(
-						typeof(NUMBER),
-						args[ 1 ].Type
-					)
-				) {
-					return new List<mysToken>() {
-						new mysToken(
-							CompareNumbers( args[ 0 ], args[ 1 ] )
-						)
-					};
-				}
-
 				return new List<mysToken>() {
 					new mysToken(
-						args[ 0 ].InternalValue
-						.Equals( args[ 1 ].InternalValue )
+						CompareNumbers( args[ 0 ], args[ 1 ] )
 					)
 				};
 			};
@@ -73,8 +53,8 @@ namespace mysharp.Builtins.Comparison
 
 				return new List<mysToken>() {
 					new mysToken(
-						(float)first.InternalValue >
-						(float)second.InternalValue
+						NUMBER.Promote( args[ 0 ] ) >
+						NUMBER.Promote( args[ 1 ] )
 					)
 				};
 			};

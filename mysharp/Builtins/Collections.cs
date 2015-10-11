@@ -17,7 +17,7 @@ namespace mysharp.Builtins.Collections
 			f.Function = (args, state, sss) => {
 				List<int> range = new List<int>();
 
-				for ( int i = 1; i <= (int)args[ 0 ].InternalValue; i++ ) {
+				for ( int i = 1; i <= (int)args[ 0 ].Value; i++ ) {
 					range.Add( i );
 				}
 
@@ -37,8 +37,8 @@ namespace mysharp.Builtins.Collections
 				List<mysToken> range = new List<mysToken>();
 
 				for (
-					long i = (long)args[ 0 ].InternalValue;
-					i <= (long)args[ 1 ].InternalValue;
+					long i = (long)args[ 0 ].Value;
+					i <= (long)args[ 1 ].Value;
 					i++
 				) {
 					range.Add( new mysToken( (int)i ) );

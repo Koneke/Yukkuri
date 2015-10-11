@@ -17,8 +17,8 @@ namespace mysharp.Builtins.Looping
 			f.Signature.Add( typeof(List<mysToken>) );
 
 			f.Function = (args, state, sss) => {
-				List<mysToken> conditional = (List<mysToken>)args[ 0 ].InternalValue;
-				List<mysToken> body = (List<mysToken>)args[ 1 ].InternalValue;
+				List<mysToken> conditional = (List<mysToken>)args[ 0 ].Value;
+				List<mysToken> body = (List<mysToken>)args[ 1 ].Value;
 
 				List<mysToken> finalReturn = null;
 
@@ -40,7 +40,7 @@ namespace mysharp.Builtins.Looping
 						throw new ArgumentException();
 					}
 
-					if ( !(bool)condition.InternalValue ) {
+					if ( !(bool)condition.Value ) {
 						break;
 					}
 
@@ -86,8 +86,8 @@ namespace mysharp.Builtins.Looping
 			f.Signature.Add( typeof(List<mysToken>) );
 
 			f.Function = (args, state, sss) => {
-				List<mysToken> head = (List<mysToken>)args[ 0 ].InternalValue;
-				List<mysToken> body = (List<mysToken>)args[ 1 ].InternalValue;
+				List<mysToken> head = (List<mysToken>)args[ 0 ].Value;
+				List<mysToken> body = (List<mysToken>)args[ 1 ].Value;
 
 				mysSymbol symbol;
 				mysToken collection;
@@ -98,11 +98,11 @@ namespace mysharp.Builtins.Looping
 
 				EvaluationMachine em;
 
-				symbol = head[ 0 ].InternalValue as mysSymbol;
+				symbol = head[ 0 ].Value as mysSymbol;
 
 				if ( head[ 1 ].Type == typeof(mysSymbol) ) {
 					collection = 
-						(head[ 1 ].InternalValue as mysSymbol)
+						(head[ 1 ].Value as mysSymbol)
 						.Value( sss )
 					;
 
@@ -122,7 +122,7 @@ namespace mysharp.Builtins.Looping
 					throw new ArgumentException();
 				}
 
-				List<object> c = ListCast<object>( (IList)collection.InternalValue );
+				List<object> c = ListCast<object>( (IList)collection.Value );
 
 				for ( int i = 0; i < c.Count; i++ ) {
 					mysToken t = c[ i ].GetType() == typeof(mysToken)

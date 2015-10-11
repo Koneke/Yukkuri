@@ -47,7 +47,7 @@ namespace mysharp
 		) {
 			arguments = arguments.Select( t =>
 				t.Type == typeof(mysSymbol) && !t.Quoted
-				? ( t.InternalValue as mysSymbol ).Value( spaceStack )
+				? ( t.Value as mysSymbol ).Value( spaceStack )
 				: t
 			).ToList();
 
@@ -101,7 +101,7 @@ namespace mysharp
 			object targetObject = null;
 
 			if ( target.Type != typeof(Type) ) {
-				targetObject = target.InternalValue;
+				targetObject = target.Value;
 			}
 
 			List<object> realArguments = new List<object>();
@@ -111,11 +111,11 @@ namespace mysharp
 
 				while ( current.Type == typeof(mysSymbol) ) {
 					current =
-						(current.InternalValue as mysSymbol)
+						(current.Value as mysSymbol)
 						.Value( spaceStack );
 				}
 
-				realArguments.Add( current.InternalValue );
+				realArguments.Add( current.Value );
 			}
 
 			object result = method.Invoke(

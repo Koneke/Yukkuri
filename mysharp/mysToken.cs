@@ -4,7 +4,15 @@ namespace mysharp
 {
 	// TYPE DUMMIES!
 	public class CLR { }
-	public class NUMBER { }
+	public static class NUMBER {
+		public static double Promote( mysToken n ) {
+			if ( n.Type == typeof(int) ) return (double)(int)n.Value;
+			if ( n.Type == typeof(long) ) return (double)(long)n.Value;
+			if ( n.Type == typeof(float) ) return (double)(float)n.Value;
+
+			throw new ArgumentException();
+		}
+	}
 	public class ANY { }
 
 	public class mysToken
@@ -13,11 +21,11 @@ namespace mysharp
 
 		public Type Type {
 			get {
-				if ( InternalValue as mysSymbol != null ) {
+				if ( Value as mysSymbol != null ) {
 					return typeof(mysSymbol);
 				}
 
-				Type t = InternalValue.GetType();
+				Type t = Value.GetType();
 
 				// hahah xd lets make the type of Type not be Type
 				// ty m$
@@ -27,18 +35,16 @@ namespace mysharp
 					return typeof(Type);
 				}
 
-				return InternalValue.GetType();
+				return Value.GetType();
 			}
 		}
-		public object InternalValue;
 
-		protected mysToken() {
-		}
+		public object Value;
 
 		public mysToken(
 			object value
 		) {
-			InternalValue = value;
+			Value = value;
 		}
 
 		public mysToken Quote() {
@@ -63,7 +69,12 @@ namespace mysharp
 
 			bool numberAssignable = (
 				a == typeof(NUMBER) &&
-				( b == typeof(int) || b == typeof(float) )
+				(
+					b == typeof(int) ||
+					b == typeof(long) ||
+					b == typeof(double) ||
+					b == typeof(float)
+				)
 			);
 
 			bool clrAssignable = (
@@ -81,53 +92,8 @@ namespace mysharp
 			;
 		}
 
-		public static bool IsNumber(
-			mysToken token
-		) {
-			return AssignableFrom( typeof(NUMBER), token.Type );
-		}
-
-		// kill me
-		public static mysToken PromoteToFloat(
-			mysToken number
-		) {
-			if (
-				number.Type != typeof(int) &&
-				number.Type != typeof(float)
-			) {
-				throw new ArgumentException();
-			}
-
-			if ( number.Type == typeof(int) ) {
-				return new mysToken(
-					(float)(int)number.InternalValue
-				);
-			}
-
-			return number;
-		}
-
-		// kill me
-		public static bool CanSafelyDemoteNumber(
-			mysToken number
-		) {
-			if ( !AssignableFrom( typeof(NUMBER), number.Type ) ) {
-				return false;
-			}
-
-			if ( number.Type == typeof(int) ) {
-				return true;
-			}
-
-			if ( (float)number.InternalValue % 1 == 0 ) {
-				return true;
-			}
-
-			return false;
-		}
-
 		public override string ToString() {
-			mysSymbol s = InternalValue as mysSymbol;
+			mysSymbol s = Value as mysSymbol;
 			if ( s != null ) return "s";
 
 			//return InternalValue.ToString();
@@ -136,7 +102,7 @@ namespace mysharp
 			return string.Format(
 				"{0}:{1}",
 				Type.ToString(),
-				InternalValue.ToString()
+				Value.ToString()
 			);
 		}
 	}
