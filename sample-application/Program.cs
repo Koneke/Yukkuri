@@ -1,4 +1,6 @@
 ﻿using System.Reflection;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace sample_application
 {
@@ -60,6 +62,9 @@ namespace sample_application
 
 			int a = 10;
 			double d = (double)a;
+
+			List<int> foo = new List<int>();
+			var c = (typeof(IList)).IsAssignableFrom(typeof(List<int>));
 
 			REPL.REPLloop();
 		}

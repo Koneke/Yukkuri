@@ -2,6 +2,7 @@
 
 namespace mysharp
 {
+	[Serializable]
 	class NoSuchSignatureException : Exception
 	{
 		public NoSuchSignatureException( string message )
@@ -10,6 +11,7 @@ namespace mysharp
 		}
 	}
 
+	[Serializable]
 	class SignatureAmbiguityException : Exception {
 		public SignatureAmbiguityException()
 		{
@@ -20,5 +22,4 @@ namespace mysharp
 		{
 		}
 	}
-
 }

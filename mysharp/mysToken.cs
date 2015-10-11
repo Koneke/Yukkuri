@@ -9,6 +9,7 @@ namespace mysharp
 			if ( n.Type == typeof(int) ) return (double)(int)n.Value;
 			if ( n.Type == typeof(long) ) return (double)(long)n.Value;
 			if ( n.Type == typeof(float) ) return (double)(float)n.Value;
+			if ( n.Type == typeof(double) ) return (double)n.Value;
 
 			throw new ArgumentException();
 		}
@@ -84,7 +85,11 @@ namespace mysharp
 
 			clrAssignable = a == typeof(CLR);
 
+			bool  c =
+				a.IsAssignableFrom(b);
+
 			return
+				a.IsAssignableFrom(b) ||
 				plainAssignable ||
 				anyAssignable ||
 				numberAssignable ||

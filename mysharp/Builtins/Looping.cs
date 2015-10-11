@@ -82,47 +82,21 @@ namespace mysharp.Builtins.Looping
 
 			mysBuiltin f = new mysBuiltin();
 
-			f.Signature.Add( typeof(List<mysToken>) );
+			f.Signature.Add( typeof(mysSymbol) );
+			f.Signature.Add( typeof(IList) );
 			f.Signature.Add( typeof(List<mysToken>) );
 
 			f.Function = (args, state, sss) => {
-				List<mysToken> head = (List<mysToken>)args[ 0 ].Value;
-				List<mysToken> body = (List<mysToken>)args[ 1 ].Value;
-
-				mysSymbol symbol;
-				mysToken collection;
-
-				if ( head.Count != 2 ) {
-					throw new ArgumentException();
-				}
+				mysSymbol symbol = (mysSymbol)args[ 0 ].Value;
+				List<mysToken> body = (List<mysToken>)args[ 2 ].Value;
 
 				EvaluationMachine em;
 
-				symbol = head[ 0 ].Value as mysSymbol;
-
-				if ( head[ 1 ].Type == typeof(mysSymbol) ) {
-					collection = 
-						(head[ 1 ].Value as mysSymbol)
-						.Value( sss )
-					;
-
-				} else {
-					collection = head[ 1 ];
-				}
-
-				em = new EvaluationMachine(
-					new List<mysToken>() { collection },
-					state,
-					sss
-				);
-
-				collection = em.Evaluate().Car();
-
-				if ( symbol == null || collection == null ) {
+				if ( symbol == null || args[ 1 ] == null ) {
 					throw new ArgumentException();
 				}
 
-				List<object> c = ListCast<object>( (IList)collection.Value );
+				List<object> c = ListCast<object>( (IList)args[ 1 ].Value );
 
 				for ( int i = 0; i < c.Count; i++ ) {
 					mysToken t = c[ i ].GetType() == typeof(mysToken)
