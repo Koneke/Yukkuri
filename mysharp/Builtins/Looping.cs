@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace mysharp.Builtins.Looping
@@ -66,6 +67,16 @@ namespace mysharp.Builtins.Looping
 	{
 		static mysFunctionGroup functionGroup;
 
+		public static List<T> ListCast<T>(IList list) {
+			List<T> result = new List<T>();
+
+			for( int i = 0; i < list.Count; i++ ) {
+				result.Add( (T)list[i] );
+			}
+
+			return result;
+		}
+
 		public static void Setup( mysSymbolSpace global ) {
 			functionGroup = new mysFunctionGroup();
 
@@ -79,7 +90,7 @@ namespace mysharp.Builtins.Looping
 				List<mysToken> body = (List<mysToken>)args[ 1 ].InternalValue;
 
 				mysSymbol symbol;
-				List<mysToken> collection;
+				mysToken collection;
 
 				if ( head.Count != 2 ) {
 					throw new ArgumentException();
@@ -91,34 +102,39 @@ namespace mysharp.Builtins.Looping
 
 				if ( head[ 1 ].Type == typeof(mysSymbol) ) {
 					collection = 
-						(List<mysToken>)
 						(head[ 1 ].InternalValue as mysSymbol)
 						.Value( sss )
-						.InternalValue
 					;
 
 				} else {
-					collection = (List<mysToken>)head[ 1 ].InternalValue;
+					collection = head[ 1 ];
 				}
 
-				/*em = new EvaluationMachine(
-					new List<mysToken>() { new mysToken( collection ) },
+				em = new EvaluationMachine(
+					new List<mysToken>() { collection },
 					state,
 					sss
 				);
 
-				collection = (List<mysToken>)em.Evaluate().Car().InternalValue;*/
+				collection = em.Evaluate().Car();
 
 				if ( symbol == null || collection == null ) {
 					throw new ArgumentException();
 				}
 
-				for ( int i = 0; i < collection.Count; i++ ) {
+				List<object> c = ListCast<object>( (IList)collection.InternalValue );
+
+				for ( int i = 0; i < c.Count; i++ ) {
+					mysToken t = c[ i ].GetType() == typeof(mysToken)
+						? (mysToken)c[ i ]
+						: new mysToken( c[ i ] )
+					;
+
 					// peek our own internal space
 					// def iterator variable to current value
 					sss.Peek().Define(
 						symbol,
-						collection[ i ]
+						t
 					);
 
 					// execute body with given iterator value

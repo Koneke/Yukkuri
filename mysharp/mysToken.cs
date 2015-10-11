@@ -1,22 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace mysharp
 {
-	// this should more or less all be redone
-	// we should probably do something like just have the mystoken class
-	// and have it have one variable for its type, and one for the value,
-	// really, instead of having all these different classes.
-	// unsure if a generic class would work, thinking not (we need to be able
-	// to keep these tokens in a single collection still, so they shouldn't
-	// really be different types; atleast they need a shared base type or an
-	// interface or something).
-	// this'll be a bit of a hassle, but it needs to be done at some point
-	// to make the clr interactions less awkward.
-	// unsure how to handle special types, like symbol and function groups and
-	// stuff?
-	// might have to/want to keep them as their own typ still, might work well.
-
 	// TYPE DUMMIES!
 	public class CLR { }
 	public class NUMBER { }
@@ -102,6 +87,7 @@ namespace mysharp
 			return AssignableFrom( typeof(NUMBER), token.Type );
 		}
 
+		// kill me
 		public static mysToken PromoteToFloat(
 			mysToken number
 		) {
@@ -121,6 +107,7 @@ namespace mysharp
 			return number;
 		}
 
+		// kill me
 		public static bool CanSafelyDemoteNumber(
 			mysToken number
 		) {
@@ -137,20 +124,6 @@ namespace mysharp
 			}
 
 			return false;
-		}
-
-		public static mysToken DemoteNumber(
-			mysToken number
-		) {
-			if ( !CanSafelyDemoteNumber( number ) ) {
-				throw new ArgumentException();
-			}
-
-			if ( number.Type == typeof(int) ) {
-				return number;
-			}
-
-			return new mysToken( (int)number.InternalValue );
 		}
 
 		public override string ToString() {

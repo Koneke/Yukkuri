@@ -161,7 +161,7 @@ namespace mysharp
 			return null;
 		}
 
-		mysToken resolveClrCtor( Type targetType ) {
+		mysToken resolveClrConstructor( Type targetType ) {
 			List<ConstructorInfo> variants = targetType
 				.GetConstructors()
 				.ToList()
@@ -226,7 +226,7 @@ namespace mysharp
 			// not actually a function group, ctor call
 			mysToken t;
 			if ( fg.GroupName == "new" ) {
-				t = resolveClrCtor( targetType );
+				t = resolveClrConstructor( targetType );
 			} else {
 				t = resolveClrMethod( targetType, fg.GroupName );
 			}

@@ -15,13 +15,15 @@ namespace mysharp.Builtins.Collections
 			f.Signature.Add( typeof(int) );
 
 			f.Function = (args, state, sss) => {
-				List<mysToken> range = new List<mysToken>();
+				List<int> range = new List<int>();
 
-				for ( long i = 1; i <= (long)args[ 0 ].InternalValue; i++ ) {
-					range.Add( new mysToken( (int)i ) );
+				for ( int i = 1; i <= (int)args[ 0 ].InternalValue; i++ ) {
+					range.Add( i );
 				}
 
-				return range;
+				return new List<mysToken>() {
+					new mysToken( range ).Quote()
+				};
 			};
 
 			functionGroup.Variants.Add( f );
@@ -42,7 +44,9 @@ namespace mysharp.Builtins.Collections
 					range.Add( new mysToken( (int)i ) );
 				}
 
-				return range;
+				return new List<mysToken>() {
+					new mysToken( range )
+				};
 			};
 
 			functionGroup.Variants.Add( f );
