@@ -29,7 +29,6 @@ namespace mysharp
 			);
 		}
 
-		//public mysList Function;
 		public List<mysToken> Function;
 
 		public mysFunction()

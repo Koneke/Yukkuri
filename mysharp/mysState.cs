@@ -12,7 +12,6 @@ namespace mysharp
 	{
 		public mysSymbolSpace Global;
 		public Dictionary<string, mysSymbolSpace> nameSpaces;
-		//public Dictionary<string, Assembly> exposedAssemblies;
 		public List<Assembly> exposedAssemblies;
 
 		public mysState() {

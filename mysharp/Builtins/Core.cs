@@ -34,10 +34,11 @@ namespace mysharp.Builtins.Core {
 				ss.Define( symbol, new mysToken( fg ) );
 			}
 
-			mysFunction collision = fg.Variants.FirstOrDefault(
-				v => v.Signature
+			mysFunction collision = fg.Variants.FirstOrDefault( v =>
+				v.Signature.Count() == f.Signature.Count() &&
+				v.Signature
 					.Zip( f.Signature, (a, b) => a == b )
-					.Count() == v.SignatureLength
+					.Count() == v.Signature.Count()
 			);
 
 			if ( collision != null ) {

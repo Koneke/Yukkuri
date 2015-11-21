@@ -68,7 +68,6 @@ namespace mysharp
 		// given a type from our sig, and the token supplied as a potential
 		// argument, see if they match
 		bool typeCheck(
-			//mysTypes type,
 			Type type,
 			mysToken token,
 			Stack<mysSymbolSpace> spaceStack
