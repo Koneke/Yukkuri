@@ -17,6 +17,7 @@ namespace mysharp.Builtins.Clr
 			// of the stack has such a type (e.g. Mentonauts.Test),
 			// then go to the next (System.Test), etc.
 			// lets us be a bit less Java.
+			// i.e., less qualified paths.
 
 			foreach( Assembly a in state.exposedAssemblies ) {
 				Type foundType = a
@@ -32,7 +33,7 @@ namespace mysharp.Builtins.Clr
 			throw new Exception( "Type not imported." );
 		}
 
-		// needs some heavy review/revision and looking over!
+		// do we even still need this?
 		public static mysToken ConvertClrObject(
 			object obj
 		) {
@@ -218,7 +219,7 @@ namespace mysharp.Builtins.Clr
 
 			f.Signature.Add( typeof(CLR) );
 			// we don't *actually* want this as a symbol though,
-			// it's just the field name really
+			// it's just the field name really.
 			f.Signature.Add( typeof(mysSymbol) );
 			f.Signature.Add( typeof(ANY) );
 

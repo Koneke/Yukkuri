@@ -6,8 +6,6 @@ namespace mysharp.Parsing
 {
 	// made to parse *ONE* statement (i.e., like, one line of REPL)
 	// (even if that contains several expressions, like (f 2)(g 3))
-	// might also sort of make this less nested....
-	// this is a nested class, with another nested class inside..
 	class ParseMachine
 	{
 		public static List<mysToken> Parse(

@@ -139,7 +139,7 @@ namespace mysharp.Builtins.Core {
 
 			mysFunction f = new mysFunction();
 
-			// these two should probably be joined at some point
+			// TODO: these two should probably be joined at some point
 			for ( int i = 0; i < sig.Count; i++ ) {
 				if ( sig[ i ].Type == typeof(mysSymbol) ) {
 					f.Symbols.Add(

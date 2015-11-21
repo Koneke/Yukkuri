@@ -29,7 +29,8 @@ namespace mysharp
 		) {
 			return enumerable
 				.Skip( first )
-				.Take( count );
+				.Take( count )
+			;
 		}
 
 		public static T Car<T>(

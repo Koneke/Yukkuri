@@ -50,7 +50,7 @@ namespace mysharp.Parsing
 
 			string name = string.Concat( lex.Cdr() );
 
-			// todo!: make actually comply with .NET names
+			// TODO: make actually comply with .NET names?
 			return IsValidIdentifier( name );
 		}
 
@@ -195,8 +195,7 @@ namespace mysharp.Parsing
 						new mysSymbol( lex )
 					);
 				}
-			}
-			else {
+			} else {
 				throw new FormatException();
 			}
 		}

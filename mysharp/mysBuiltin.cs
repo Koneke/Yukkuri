@@ -22,8 +22,8 @@ namespace mysharp
 
 			fg = global
 				.GetValue( new mysSymbol( name ) )
-				.Value
-				as mysFunctionGroup;
+				.Value as mysFunctionGroup
+			;
 
 			fg.Variants.Add( variant );
 		}

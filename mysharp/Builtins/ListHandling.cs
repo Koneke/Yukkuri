@@ -11,8 +11,6 @@ namespace mysharp.Builtins.ListHandling
 
 			mysBuiltin f = new mysBuiltin();
 
-			//f.returnType
-
 			f.Signature.Add( typeof(List<mysToken>) );
 
 			f.Function = (args, state, sss) => {
@@ -63,7 +61,7 @@ namespace mysharp.Builtins.ListHandling
 
 			f.Function = (args, state, sss) => {
 				List<mysToken> l =
-					((List<mysToken>)args[ 0 ].Value)
+					( (List<mysToken>)args[ 0 ].Value )
 					.Skip( 1 )
 					.ToList()
 				;

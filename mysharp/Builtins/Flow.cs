@@ -62,7 +62,6 @@ namespace mysharp.Builtins.Flow
 				mysToken condition = args[ 0 ];
 				List<mysToken> positive = (List<mysToken>)args[ 1 ].Value;
 
-
 				EvaluationMachine em;
 				if ( (bool)condition.Value ) {
 					em = new EvaluationMachine(

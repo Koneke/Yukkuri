@@ -28,10 +28,8 @@ namespace mysharp
 
 				Type t = Value.GetType();
 
-				// hahah xd lets make the type of Type not be Type
-				// ty m$
-				// in reality, that *might* be a good thing? maybe?
-				// for now though we'll just do this hack
+				// Type is of type System.RuntimeType,
+				// which we are not expecting in other places.
 				if ( t.FullName == "System.RuntimeType" ) {
 					return typeof(Type);
 				}
@@ -85,9 +83,6 @@ namespace mysharp
 
 			clrAssignable = a == typeof(CLR);
 
-			bool  c =
-				a.IsAssignableFrom(b);
-
 			return
 				a.IsAssignableFrom(b) ||
 				plainAssignable ||
@@ -100,8 +95,6 @@ namespace mysharp
 		public override string ToString() {
 			mysSymbol s = Value as mysSymbol;
 			if ( s != null ) return "s";
-
-			//return InternalValue.ToString();
 
 			// verboser
 			return string.Format(
