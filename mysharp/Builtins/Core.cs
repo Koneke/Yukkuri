@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 
 using mysharp.Parsing;
+using System.Collections;
 
 namespace mysharp.Builtins.Core {
 	public static class Assign {
@@ -292,10 +293,10 @@ namespace mysharp.Builtins.Core {
 			mysBuiltin f = new mysBuiltin();
 
 			f = new mysBuiltin();
-			f.Signature.Add( typeof(List<mysToken>) );
+			f.Signature.Add( typeof(IList) );
 
 			f.Function = (args, state, sss) => {
-				List<mysToken> expression = (List<mysToken>)args[ 0 ].Value;
+				List<mysToken> expression = args[ 0 ].Value as List<mysToken>;
 
 				EvaluationMachine em = new EvaluationMachine(
 					expression,

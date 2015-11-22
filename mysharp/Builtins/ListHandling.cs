@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Collections.Generic;
+using System.Collections;
 
 namespace mysharp.Builtins.ListHandling
 {
@@ -103,7 +104,7 @@ namespace mysharp.Builtins.ListHandling
 				}
 
 				return new List<mysToken>() {
-					new mysToken( outList )
+					new mysToken( outList ).Quote()
 				};
 			};
 
@@ -136,12 +137,12 @@ namespace mysharp.Builtins.ListHandling
 
 			f = new mysBuiltin();
 
-			f.Signature.Add( typeof(List<>) );
+			f.Signature.Add( typeof(IList) );
 
 			f.Function = (args, state, sss) => {
 				return new List<mysToken>() {
 					new mysToken(
-						((List<object>)args[ 0 ].Value).Count()
+						((IList)args[ 0 ].Value).Count
 					)
 				};
 			};

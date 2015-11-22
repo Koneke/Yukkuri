@@ -6,9 +6,9 @@ namespace mysharp
 	public class CLR { }
 	public static class NUMBER {
 		public static double Promote( mysToken n ) {
-			if ( n.Type == typeof(int) ) return (double)(int)n.Value;
-			if ( n.Type == typeof(long) ) return (double)(long)n.Value;
-			if ( n.Type == typeof(float) ) return (double)(float)n.Value;
+			if ( n.Type == typeof(int) ) return (int)n.Value;
+			if ( n.Type == typeof(long) ) return (long)n.Value;
+			if ( n.Type == typeof(float) ) return (float)n.Value;
 			if ( n.Type == typeof(double) ) return (double)n.Value;
 
 			throw new ArgumentException();
@@ -62,7 +62,9 @@ namespace mysharp
 			Type a,
 			Type b
 		) {
-			bool plainAssignable = a == b;
+			bool standardAssignable = a.IsAssignableFrom(b);
+
+			bool plainAssignable = a == b; // maybe not necessary if we have the above?
 
 			bool anyAssignable = a == typeof(ANY);
 
@@ -84,7 +86,7 @@ namespace mysharp
 			clrAssignable = a == typeof(CLR);
 
 			return
-				a.IsAssignableFrom(b) ||
+				standardAssignable ||
 				plainAssignable ||
 				anyAssignable ||
 				numberAssignable ||
