@@ -23,7 +23,7 @@ namespace mysharp
 			this.spaceStack = spaceStack;
 		}
 
-		public List<mysToken> Evaluate() {
+		public mysToken Evaluate() {
 			// evaluate lists before anything else since they should *always*
 			// have prio. they will of course also recursively evaluate lists
 			// within themselves.
@@ -33,7 +33,11 @@ namespace mysharp
 				Step();
 			}
 
-			return tokens;
+			if ( tokens.Count() > 1 ) {
+				throw new FormatException("Evaluation resulted in more than one token.");
+			}
+
+			return tokens.Car();
 		}
 
 		void EvaluateLists() {
@@ -59,14 +63,14 @@ namespace mysharp
 					spaceStack
 				);
 
-				List<mysToken> result = em.Evaluate();
+				mysToken result = em.Evaluate();
 
-				result.RemoveAll( t => t == null );
-
-				tokens.InsertRange(
-					index,
-					result
-				);
+				if ( result != null ) {
+					tokens.Insert(
+						index,
+						result
+					);
+				}
 			}
 		}
 
@@ -251,7 +255,7 @@ namespace mysharp
 				as mysFunction
 			;
 
-			List<mysToken> t = f.Call(
+			mysToken t = f.Call(
 				tokens
 					.Skip( current + 1 )
 					.Take( f.SignatureLength )
@@ -263,7 +267,7 @@ namespace mysharp
 			tokens.RemoveRange( current, f.SignatureLength + 1 );
 
 			if ( t != null ) {
-				tokens.InsertRange( current, t );
+				tokens.Insert( current, t );
 			}
 		}
 

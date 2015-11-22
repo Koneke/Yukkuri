@@ -13,16 +13,14 @@ namespace mysharp_tests
 			string expression,
 			System.Func<mysToken, bool> evaluation
 		) {
-			List<mysToken> result = REPL.Evaluate( expression );
+			mysToken result = REPL.Evaluate( expression );
 
-			foreach( mysToken token in result ) {
-				bool eval = evaluation( token );
+			bool eval = evaluation( result );
 
-				Assert.IsTrue(
-					eval,
-					$"Failing at {expression}."
-				);
-			}
+			Assert.IsTrue(
+				eval,
+				$"Failing at {expression}."
+			);
 		}
 	}
 
@@ -34,7 +32,7 @@ namespace mysharp_tests
 			string expression,
 			int expected
 		) {
-			mysToken result = REPL.Evaluate( expression ).Car();
+			mysToken result = REPL.Evaluate( expression );
 
 			Debug.Assert(
 				result.Type == typeof(int) &&
@@ -83,7 +81,7 @@ namespace mysharp_tests
 			mysToken result;
 
 			REPL.Evaluate( "(def 'f (=> [x :int] [+ 3 x]))" );
-			result = REPL.Evaluate( "(f 2)" ).Car();
+			result = REPL.Evaluate( "(f 2)" );
 
 			Debug.Assert(
 				result.Type == typeof(int),
@@ -96,7 +94,7 @@ namespace mysharp_tests
 			);
 
 			REPL.Evaluate( "(def 'g (=> [x :int] [+ 2 (f x)]))" );
-			result = REPL.Evaluate( "(g 2)" ).Car();
+			result = REPL.Evaluate( "(g 2)" );
 
 			Debug.Assert(
 				result.Type == typeof(int),

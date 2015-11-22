@@ -12,14 +12,14 @@ namespace mysharp.Builtins.ListHandling
 
 			mysBuiltin f = new mysBuiltin();
 
-			f.Signature.Add( typeof(List<mysToken>) );
+			f.Signature.Add( typeof(IList) );
 
 			f.Function = (args, state, sss) => {
-				List<mysToken> l = ((List<mysToken>)args[ 0 ].Value);
-
+				List<mysToken> l = new List<mysToken>();
+				l.AddRange((List<mysToken>)args[ 0 ].Value);
 				l.Reverse();
 
-				return new List<mysToken>() { new mysToken( l ) };
+				return new mysToken( l );
 			};
 
 			functionGroup.Variants.Add( f );
@@ -39,10 +39,8 @@ namespace mysharp.Builtins.ListHandling
 			f.Signature.Add( typeof(List<mysToken>) );
 
 			f.Function = (args, state, sss) =>
-				new List<mysToken>() {
-					((List<mysToken>)args[ 0 ].Value)
-						.FirstOrDefault()
-				};
+				((List<mysToken>)args[ 0 ].Value)
+					.Car();
 
 			functionGroup.Variants.Add( f );
 
@@ -67,9 +65,7 @@ namespace mysharp.Builtins.ListHandling
 					.ToList()
 				;
 
-				return new List<mysToken>() {
-					new mysToken( l ).Quote()
-				};
+				return new mysToken( l ).Quote();
 			};
 
 			functionGroup.Variants.Add( f );
@@ -103,9 +99,7 @@ namespace mysharp.Builtins.ListHandling
 					}
 				}
 
-				return new List<mysToken>() {
-					new mysToken( outList ).Quote()
-				};
+				return new mysToken( outList ).Quote();
 			};
 
 			functionGroup.Variants.Add( f );
@@ -116,11 +110,8 @@ namespace mysharp.Builtins.ListHandling
 
 			f.Signature.Add( typeof(ANY) );
 
-			f.Function = (args, state, sss) => {
-				return new List<mysToken>() {
-					new mysToken( new List<mysToken>() { args[ 0 ] } )
-				};
-			};
+			f.Function = (args, state, sss) =>
+				new mysToken( new List<mysToken>() { args[ 0 ] } );
 
 			functionGroup.Variants.Add( f );
 
@@ -139,13 +130,8 @@ namespace mysharp.Builtins.ListHandling
 
 			f.Signature.Add( typeof(IList) );
 
-			f.Function = (args, state, sss) => {
-				return new List<mysToken>() {
-					new mysToken(
-						((IList)args[ 0 ].Value).Count
-					)
-				};
-			};
+			f.Function = (args, state, sss) =>
+				new mysToken( ( (IList)args[ 0 ].Value ).Count );
 
 			functionGroup.Variants.Add( f );
 

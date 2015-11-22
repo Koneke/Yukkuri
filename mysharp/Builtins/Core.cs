@@ -99,9 +99,7 @@ namespace mysharp.Builtins.Core {
 				mysSymbol assignsymbol = args[ 0 ].Value as mysSymbol;
 				mysToken value = args[ 1 ];
 
-				return new List<mysToken>() {
-					Evaluate( assignsymbol, value, sss )
-				};
+				return Evaluate( assignsymbol, value, sss );
 			};
 
 			assign.Variants.Add( assignVariant );
@@ -173,13 +171,11 @@ namespace mysharp.Builtins.Core {
 				List<mysToken> sig = (List<mysToken>)args[ 0 ].Value;
 				List<mysToken> body = (List<mysToken>)args[ 1 ].Value;
 
-				return new List<mysToken>() {
-					Evaluate(
-						sig,
-						body,
-						sss
-					)
-				};
+				return Evaluate(
+					sig,
+					body,
+					sss
+				);
 			};
 
 			lambda.Variants.Add( lambdaVariant );
@@ -223,8 +219,7 @@ namespace mysharp.Builtins.Core {
 					sss
 				);
 
-				// really needs to be fixed
-				List<mysToken> result = em.Evaluate();
+				mysToken result = em.Evaluate();
 
 				sss.Pop();
 
@@ -272,7 +267,7 @@ namespace mysharp.Builtins.Core {
 				);
 
 				// really needs to be fixed
-				List<mysToken> result = em.Evaluate();
+				mysToken result = em.Evaluate();
 
 				sss.Pop();
 
@@ -295,17 +290,12 @@ namespace mysharp.Builtins.Core {
 			f = new mysBuiltin();
 			f.Signature.Add( typeof(IList) );
 
-			f.Function = (args, state, sss) => {
-				List<mysToken> expression = args[ 0 ].Value as List<mysToken>;
-
-				EvaluationMachine em = new EvaluationMachine(
-					expression,
+			f.Function = (args, state, sss) => 
+				new EvaluationMachine(
+					args[ 0 ].Value as List<mysToken>,
 					state,
 					sss
-				);
-
-				return em.Evaluate();
-			};
+				).Evaluate();
 
 			functionGroup.Variants.Add( f );
 
@@ -323,11 +313,8 @@ namespace mysharp.Builtins.Core {
 			f = new mysBuiltin();
 			f.Signature.Add( typeof(ANY) );
 
-			f.Function = (args, state, sss) => {
-				return new List<mysToken>() {
-					new mysToken( args[ 0 ].ToString() )
-				};
-			};
+			f.Function = (args, state, sss) =>
+				new mysToken( args[ 0 ].ToString() );
 
 			functionGroup.Variants.Add( f );
 

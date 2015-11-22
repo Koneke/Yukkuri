@@ -76,7 +76,7 @@ namespace mysharp
 			return false;
 		}
 
-		public List<mysToken> Evaluate(
+		public mysToken Evaluate(
 			string expression,
 			params object[] replaces
 		) {
@@ -94,7 +94,7 @@ namespace mysharp
 			}
 		}
 		
-		public void Print( List<mysToken> output ) {
+		public void Print( mysToken output ) {
 			if ( output != null ) {
 				string outputstring = string.Join( ", ", output );
 
@@ -129,9 +129,7 @@ namespace mysharp
 				.Replace( "\t", " " )
 			;
 
-			List<mysToken> output = Evaluate( accumulatedInput );
-
-			Print( output );
+			Print( Evaluate( accumulatedInput) );
 
 			accumulatedInput = "";
 		}

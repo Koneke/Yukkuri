@@ -21,9 +21,7 @@ namespace mysharp.Builtins.Collections
 					range.Add( i );
 				}
 
-				return new List<mysToken>() {
-					new mysToken( range ).Quote()
-				};
+				return new mysToken( range ).Quote();
 			};
 
 			functionGroup.Variants.Add( f );
@@ -44,9 +42,7 @@ namespace mysharp.Builtins.Collections
 					range.Add( new mysToken( (int)i ) );
 				}
 
-				return new List<mysToken>() {
-					new mysToken( range )
-				};
+				return new mysToken( range );
 			};
 
 			functionGroup.Variants.Add( f );

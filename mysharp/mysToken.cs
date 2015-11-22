@@ -100,7 +100,8 @@ namespace mysharp
 
 			// verboser
 			return string.Format(
-				"{0}:{1}",
+				"{0}{1}\n{2}",
+				Quoted ? "Quoted\n" : "",
 				Type.ToString(),
 				Value.ToString()
 			);

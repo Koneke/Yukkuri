@@ -20,7 +20,7 @@ namespace mysharp.Builtins.Looping
 				List<mysToken> conditional = (List<mysToken>)args[ 0 ].Value;
 				List<mysToken> body = (List<mysToken>)args[ 1 ].Value;
 
-				List<mysToken> finalReturn = null;
+				mysToken finalReturn = null;
 
 				while ( true ) {
 					// might want to move this outside somehow, and/or make
@@ -34,7 +34,7 @@ namespace mysharp.Builtins.Looping
 						sss
 					);
 
-					mysToken condition = em.Evaluate().Car();
+					mysToken condition = em.Evaluate();
 
 					if ( condition == null ) {
 						throw new ArgumentException();

@@ -14,12 +14,10 @@ namespace mysharp.Builtins.Arithmetic
 			variant.Signature.Add( typeof(int) );
 
 			variant.Function = (args, state, sss) =>
-				new List<mysToken>() {
-					new mysToken(
-						(int)args[ 0 ].Value +
-						(int)args[ 1 ].Value
-					)
-				};
+				new mysToken(
+					(int)args[ 0 ].Value +
+					(int)args[ 1 ].Value
+				);
 
 			mysBuiltin.AddVariant( "+", variant, global );
 		}
@@ -39,12 +37,10 @@ namespace mysharp.Builtins.Arithmetic
 			variant.Signature.Add( typeof(int) );
 
 			variant.Function = (args, state, sss) =>
-				new List<mysToken>() {
-					new mysToken(
-						(int)args[ 0 ].Value -
-						(int)args[ 1 ].Value
-					)
-				};
+				new mysToken(
+					(int)args[ 0 ].Value -
+					(int)args[ 1 ].Value
+				);
 
 			functionGroup.Variants.Add( variant );
 		}
@@ -68,12 +64,10 @@ namespace mysharp.Builtins.Arithmetic
 			variant.Signature.Add( typeof(int) );
 
 			variant.Function = (args, state, sss) =>
-				new List<mysToken>() {
-					new mysToken(
-						(int)args[ 0 ].Value *
-						(int)args[ 1 ].Value
-					)
-				};
+				new mysToken(
+					(int)args[ 0 ].Value *
+					(int)args[ 1 ].Value
+				);
 
 			functionGroup.Variants.Add( variant );
 		}
@@ -97,12 +91,10 @@ namespace mysharp.Builtins.Arithmetic
 			variant.Signature.Add( typeof(int) );
 
 			variant.Function = (args, state, sss) =>
-				new List<mysToken>() {
-					new mysToken(
-						(int)args[ 0 ].Value /
-						(int)args[ 1 ].Value
-					)
-				};
+				new mysToken(
+					(int)args[ 0 ].Value /
+					(int)args[ 1 ].Value
+				);
 
 			functionGroup.Variants.Add( variant );
 		}

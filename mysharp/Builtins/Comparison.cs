@@ -14,14 +14,10 @@ namespace mysharp.Builtins.Comparison
 			f.Signature.Add( typeof(NUMBER) );
 			f.Signature.Add( typeof(NUMBER) );
 
-			f.Function = (args, state, sss) => {
-				return new List<mysToken>() {
-					new mysToken(
-						NUMBER.Promote( args[ 0 ] ) ==
-						NUMBER.Promote( args[ 1 ] )
-					)
-				};
-			};
+			f.Function = (args, state, sss) => new mysToken(
+				NUMBER.Promote( args[ 0 ] ) ==
+				NUMBER.Promote( args[ 1 ] )
+			);
 
 			functionGroup.Variants.Add( f );
 
@@ -41,14 +37,10 @@ namespace mysharp.Builtins.Comparison
 			f.Signature.Add( typeof(NUMBER) );
 			f.Signature.Add( typeof(NUMBER) );
 
-			f.Function = (args, state, sss) => {
-				return new List<mysToken>() {
-					new mysToken(
-						NUMBER.Promote( args[ 0 ] ) >
-						NUMBER.Promote( args[ 1 ] )
-					)
-				};
-			};
+			f.Function = (args, state, sss) => new mysToken(
+				NUMBER.Promote( args[ 0 ] ) >
+				NUMBER.Promote( args[ 1 ] )
+			);
 
 			functionGroup.Variants.Add( f );
 

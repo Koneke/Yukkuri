@@ -41,11 +41,11 @@ namespace mysharp
 			List<mysToken>,
 			mysState,
 			Stack<mysSymbolSpace>,
-			List<mysToken>
+			mysToken
 		> Function;
 
 		// not sure we need to override? but I'm not chancing
-		public override List<mysToken> Call(
+		public override mysToken Call(
 			List<mysToken> arguments,
 			mysState state,
 			Stack<mysSymbolSpace> spaceStack
@@ -63,13 +63,10 @@ namespace mysharp
 
 			spaceStack.Push( internalSpace );
 
-			List<mysToken> result = Function( arguments, state, spaceStack );
+			mysToken result = Function( arguments, state, spaceStack );
 
 			spaceStack.Pop();
 
-			// shouldn't functions possible return a list of tokens, instead of
-			// just one..? if so, we'll need to make this return firstordefault
-			// or a new list here, like in mysFunction.
 			return result;
 		}
 	}

@@ -39,7 +39,7 @@ namespace mysharp
 			Function = new List<mysToken>();
 		}
 
-		public virtual List<mysToken> Call(
+		public virtual mysToken Call(
 			List<mysToken> arguments,
 			mysState state,
 			Stack<mysSymbolSpace> spaceStack
@@ -65,7 +65,7 @@ namespace mysharp
 				state,
 				spaceStack
 			);
-			List<mysToken> result = em.Evaluate();
+			mysToken result = em.Evaluate();
 
 			spaceStack.Pop();
 

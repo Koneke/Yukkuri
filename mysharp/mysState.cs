@@ -35,18 +35,15 @@ namespace mysharp
 			mysBuiltins.Setup( Global );
 		}
 
-		public List<mysToken> Evaluate( List<mysToken> expression ) {
+		public mysToken Evaluate( List<mysToken> expression ) {
 			Stack<mysSymbolSpace> spaceStack = new Stack<mysSymbolSpace>();
 			spaceStack.Push( Global );
 
-			EvaluationMachine em = new EvaluationMachine(
+			return new EvaluationMachine(
 				expression,
 				this,
 				spaceStack
-			);
-			List<mysToken> output = em.Evaluate();
-
-			return output;
+			).Evaluate();
 		}
 
 		public void ExposeTo( Assembly a ) {

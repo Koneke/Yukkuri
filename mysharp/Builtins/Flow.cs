@@ -20,24 +20,13 @@ namespace mysharp.Builtins.Flow
 				List<mysToken> positive = (List<mysToken>)args[ 1 ].Value;
 				List<mysToken> negative = (List<mysToken>)args[ 2 ].Value;
 
-				EvaluationMachine em;
-				if ( condition ) {
-					em = new EvaluationMachine(
-						positive,
-						state,
-						sss
-					);
-				} else {
-					em = new EvaluationMachine(
-						negative,
-						state,
-						sss
-					);
-				}
-
-				List<mysToken> result = em.Evaluate();
-
-				return result;
+				return new EvaluationMachine(
+					condition
+						? positive
+						: negative,
+					state,
+					sss
+				).Evaluate();
 			};
 
 			functionGroup.Variants.Add( f );
@@ -73,9 +62,7 @@ namespace mysharp.Builtins.Flow
 					return null;
 				}
 
-				List<mysToken> result = em.Evaluate();
-
-				return result;
+				return em.Evaluate();
 			};
 
 			functionGroup.Variants.Add( f );
